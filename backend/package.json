@@ -1,0 +1,43 @@
+{
+  "name": "mini-ecommerce-backend",
+  "version": "1.0.0",
+  "description": "Mini E-Commerce API Backend with Node.js and MySQL",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:migrate": "node src/database/migrate.js up",
+    "db:rollback": "node src/database/migrate.js down",
+    "db:seed": "node src/database/seed.js",
+    "db:reset": "npm run db:rollback && npm run db:migrate && npm run db:seed",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
+  },
+  "keywords": [
+    "ecommerce",
+    "nodejs",
+    "mysql",
+    "express",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "exceljs": "^4.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "nodemon": "^3.1.11"
+  }
+}

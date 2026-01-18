@@ -1,0 +1,107 @@
+/**
+ * Application constants
+ * Centralized location for all constant values
+ */
+
+// HTTP Status Codes
+const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
+};
+
+// Error Codes
+const ERROR_CODES = {
+  // Validation Errors
+  INVALID_INPUT: 'INVALID_INPUT',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  MISSING_REQUIRED_FIELD: 'MISSING_REQUIRED_FIELD',
+
+  // Authentication Errors
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  INVALID_TOKEN: 'INVALID_TOKEN',
+  TOKEN_EXPIRED: 'TOKEN_EXPIRED',
+  NO_TOKEN: 'NO_TOKEN',
+  AUTH_FAILED: 'AUTH_FAILED',
+
+  // Authorization Errors
+  FORBIDDEN: 'FORBIDDEN',
+  INSUFFICIENT_PERMISSIONS: 'INSUFFICIENT_PERMISSIONS',
+
+  // Resource Errors
+  NOT_FOUND: 'NOT_FOUND',
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
+  DUPLICATE_ENTRY: 'DUPLICATE_ENTRY',
+
+  // Business Logic Errors
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
+  ORDER_CANCELLED: 'ORDER_CANCELLED',
+  INVALID_ORDER_STATUS: 'INVALID_ORDER_STATUS',
+
+  // Database Errors
+  DB_ERROR: 'DB_ERROR',
+  DB_CONNECTION_ERROR: 'DB_CONNECTION_ERROR',
+
+  // Server Errors
+  SERVER_ERROR: 'SERVER_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+};
+
+// User Roles
+const USER_ROLES = {
+  ADMIN: 'admin',
+  USER: 'user',
+  GUEST: 'guest',
+};
+
+// Order Status (matches database enum)
+const ORDER_STATUS = {
+  PENDING: 'pending',
+  PAID: 'paid',
+  SHIPPED: 'shipped',
+  DELIVERED: 'delivered',
+};
+
+// Pagination
+const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 20,
+  MAX_LIMIT: 100,
+};
+
+// Validation Rules
+const VALIDATION_RULES = {
+  PASSWORD_MIN_LENGTH: 6,
+  PASSWORD_MAX_LENGTH: 128,
+  NAME_MIN_LENGTH: 2,
+  NAME_MAX_LENGTH: 100,
+  EMAIL_MAX_LENGTH: 255,
+  PRODUCT_NAME_MAX_LENGTH: 255,
+  PRODUCT_DESCRIPTION_MAX_LENGTH: 5000,
+};
+
+// Regex Patterns
+const REGEX_PATTERNS = {
+  EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  PHONE: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
+  SLUG: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+};
+
+module.exports = {
+  HTTP_STATUS,
+  ERROR_CODES,
+  USER_ROLES,
+  ORDER_STATUS,
+  PAGINATION,
+  VALIDATION_RULES,
+  REGEX_PATTERNS,
+};
