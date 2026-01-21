@@ -1,0 +1,14 @@
+{
+  "name": "mini-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"cross-env CHOKIDAR_USEPOLLING=true npm run dev --prefix frontend\"",
+    "format": "prettier --write \"frontend/src/**/*.{js,jsx,ts,tsx,json,css,md}\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
+    "prettier": "3.8.0"
+  }
+}

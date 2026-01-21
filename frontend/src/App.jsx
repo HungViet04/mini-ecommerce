@@ -4,6 +4,7 @@
  * Pattern: Composite + Provider Pattern
  */
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { AuthProvider, CartProvider, useAuth } from './contexts';
 import { Layout } from './components/layout';
 import { AuthContainer } from './components/auth';
@@ -19,210 +20,76 @@ import { AdminUserList } from './components/users';
  * Handles view routing
  */
 function AppContent() {
-  const { isAdmin, isAuthenticated } = useAuth();
-  const [currentView, setCurrentView] = useState(() => {
-    if (isAuthenticated) {
-      return isAdmin ? 'admin-dashboard' : 'products';
-    }
-    return 'products';
-  });
+  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [orderData, setOrderData] = useState(null); // Store order data for success page
-
-  // Đảm bảo khi user hoặc admin thay đổi (login/logout), view sẽ cập nhật đúng
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      setCurrentView(isAdmin ? 'admin-dashboard' : 'products');
-    } else {
-      setCurrentView('products');
-    }
-  }, [isAdmin, isAuthenticated]);
-
-  const handleNavigate = (view) => {
-    setCurrentView(view);
-    // Reset filters when navigating away from products
-    if (view !== 'products') {
-      setSearchQuery('');
-      setSelectedCategory(null);
-    }
-  };
+  const [orderData, setOrderData] = useState(null);
 
   const handleAuthSuccess = () => {
     if (isAdmin) {
-      setCurrentView('admin-dashboard');
+      navigate('/admin/dashboard');
     } else {
-      setCurrentView('products');
+      navigate('/');
     }
   };
 
-  const handleCheckout = () => {
-    setCurrentView('checkout');
-  };
+  const handleCheckout = () => navigate('/checkout');
 
   const handleCheckoutSuccess = (order, paymentMethod, shippingInfo) => {
     setOrderData({ order, paymentMethod, shippingInfo });
-    setCurrentView('order-success');
+    navigate('/order-success');
   };
 
-  const handleBackToCart = () => {
-    setCurrentView('products');
-  };
-
+  const handleBackToCart = () => navigate('/');
   const handleContinueShopping = () => {
     setOrderData(null);
-    setCurrentView('products');
+    navigate('/');
   };
 
   const handleViewOrders = () => {
     setOrderData(null);
-    setCurrentView('orders');
+    navigate('/orders');
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    setSelectedCategory(null); // Reset category when searching
-    setCurrentView('products'); // Navigate to products view
+    setSelectedCategory(null);
+    navigate('/');
   };
 
   const handleSelectCategory = (categoryId) => {
     setSelectedCategory(categoryId);
-    setSearchQuery(''); // Reset search when selecting category
-    setCurrentView('products'); // Navigate to products view
-  };
-
-  const renderView = () => {
-    switch (currentView) {
-      case 'auth':
-        return <AuthContainer onSuccess={handleAuthSuccess} />;
-
-      case 'products':
-        return (
-          <div className="products-page">
-            <ProductList 
-              searchQuery={searchQuery} 
-              categoryId={selectedCategory}
-              onCategoryChange={handleSelectCategory}
-            />
-            {/* Only show cart for non-admin users */}
-          </div>
-        );
-
-      case 'checkout':
-        return (
-          <CheckoutPage 
-            onBack={handleBackToCart}
-            onSuccess={handleCheckoutSuccess}
-          />
-        );
-
-      case 'order-success':
-        return (
-          <OrderSuccess
-            order={orderData?.order}
-            paymentMethod={orderData?.paymentMethod}
-            shippingInfo={orderData?.shippingInfo}
-            onContinueShopping={handleContinueShopping}
-            onViewOrders={handleViewOrders}
-          />
-        );
-
-      case 'orders':
-        return (
-          <div className="order-user">
-            <button className="back-button" onClick={() => handleNavigate('products')}>
-              ← Quay về Trang Chủ
-            </button>
-            <OrderList />
-          </div>
-        );
-
-        
-      case 'admin-products':
-        if (!isAdmin) {
-          setCurrentView('products');
-          return null;
-        }
-        return (
-          <div className="admin-page">
-            <button className="back-button" onClick={() => handleNavigate('admin-dashboard')}>
-              ← Quay về Trang Chủ
-            </button>
-            <AdminProductList />
-          </div>
-        );
-
-      case 'admin-orders':
-        if (!isAdmin) {
-          setCurrentView('products');
-          return null;
-        }
-        return (
-          <div className="admin-page">
-            <button className="back-button" onClick={() => handleNavigate('admin-dashboard')}>
-              ← Quay về Trang Chủ
-            </button>
-            <AdminOrderList />
-          </div>
-        );
-
-      case 'admin-categories':
-        if (!isAdmin) {
-          setCurrentView('products');
-          return null;
-        }
-        return (
-          <div className="admin-page">
-            <button className="back-button" onClick={() => handleNavigate('admin-dashboard')}>
-              ← Quay về Trang Chủ
-            </button>
-            <AdminCategoryList />
-          </div>
-        );
-
-      case 'admin-dashboard':
-        if (!isAdmin) {
-          setCurrentView('products');
-          return null;
-        }
-        return (
-          <div className="admin-page">
-            {/* <button className="back-button" onClick={() => handleNavigate('products')}>
-              ← Quay về Trang Chủ
-            </button> */}
-            <AdminDashboard />
-          </div>
-        );
-
-      case 'admin-users':
-        if (!isAdmin) {
-          setCurrentView('products');
-          return null;
-        }
-        return (
-          <div className="admin-page">
-            <button className="back-button" onClick={() => handleNavigate('admin-dashboard')}>
-              ← Quay về Trang Chủ
-            </button>
-            <AdminUserList />
-          </div>
-        );
-
-      default:
-        return <ProductList searchQuery={searchQuery} categoryId={selectedCategory} onCategoryChange={handleSelectCategory} />;
-    }
+    setSearchQuery('');
+    navigate('/');
   };
 
   return (
-    <Layout
-      onNavigate={handleNavigate}
-      currentView={currentView}
-      onSearch={setSearchQuery}
-      selectedCategory={selectedCategory}
-      onSelectCategory={setSelectedCategory}
-      onCheckout={handleCheckout} // truyền prop này
-    >
-      {renderView()}
+    <Layout onSearch={handleSearch} onCheckout={handleCheckout}>
+      <Routes>
+        <Route
+          path="/"
+          element={(
+            <div className="products-page">
+              <ProductList
+                searchQuery={searchQuery}
+                categoryId={selectedCategory}
+                onCategoryChange={handleSelectCategory}
+              />
+            </div>
+          )}
+        />
+        <Route path="/auth" element={<AuthContainer onSuccess={handleAuthSuccess} />} />
+        <Route path="/checkout" element={<CheckoutPage onBack={handleBackToCart} onSuccess={handleCheckoutSuccess} />} />
+        <Route path="/order-success" element={<OrderSuccess order={orderData?.order} paymentMethod={orderData?.paymentMethod} shippingInfo={orderData?.shippingInfo} onContinueShopping={handleContinueShopping} onViewOrders={handleViewOrders} />} />
+        <Route path="/orders" element={<div className="order-user"><button className="back-button" onClick={() => navigate('/')}>← Quay về Trang Chủ</button><OrderList /></div>} />
+
+        <Route path="/admin/products" element={<div className="admin-page"><button className="back-button" onClick={() => navigate('/admin/dashboard')}>← Quay về Trang Chủ</button><AdminProductList /></div>} />
+        <Route path="/admin/orders" element={<div className="admin-page"><button className="back-button" onClick={() => navigate('/admin/dashboard')}>← Quay về Trang Chủ</button><AdminOrderList /></div>} />
+        <Route path="/admin/categories" element={<div className="admin-page"><button className="back-button" onClick={() => navigate('/admin/dashboard')}>← Quay về Trang Chủ</button><AdminCategoryList /></div>} />
+        <Route path="/admin/dashboard" element={<div className="admin-page"><AdminDashboard /></div>} />
+        <Route path="/admin/users" element={<div className="admin-page"><button className="back-button" onClick={() => navigate('/admin/dashboard')}>← Quay về Trang Chủ</button><AdminUserList /></div>} />
+      </Routes>
     </Layout>
   );
 }
@@ -235,7 +102,9 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <AppContent />
+        <Router>
+          <AppContent />
+        </Router>
       </CartProvider>
     </AuthProvider>
   );

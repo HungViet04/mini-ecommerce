@@ -143,26 +143,28 @@ export function SearchBar({ onSearch, placeholder = 'Bạn cần tìm gì...' })
 
       {showSuggestions && suggestions.length > 0 && (
         <div className="search-suggestions">
-          {suggestions.map((product, index) => (
-            <div
-              key={product.id}
-              className={`search-suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
-              onClick={() => handleSelectSuggestion(product)}
-              onMouseEnter={() => setSelectedIndex(index)}
-            >
-              <div className="suggestion-image">
-                {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} />
-                ) : (
-                  <span className="suggestion-placeholder">📦</span>
-                )}
+          <div className="search-suggestions-list">
+            {suggestions.map((product, index) => (
+              <div
+                key={product.id}
+                className={`search-suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
+                onClick={() => handleSelectSuggestion(product)}
+                onMouseEnter={() => setSelectedIndex(index)}
+              >
+                <div className="suggestion-image">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} />
+                  ) : (
+                    <span className="suggestion-placeholder">📦</span>
+                  )}
+                </div>
+                <div className="suggestion-info">
+                  <span className="suggestion-name">{product.name}</span>
+                  <span className="suggestion-price">{formatPrice(product.price)}</span>
+                </div>
               </div>
-              <div className="suggestion-info">
-                <span className="suggestion-name">{product.name}</span>
-                <span className="suggestion-price">{formatPrice(product.price)}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
           <div className="search-suggestion-footer" onClick={handleSubmit}>
             Xem tất cả kết quả cho "{query}"
           </div>

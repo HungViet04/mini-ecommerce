@@ -27,68 +27,62 @@ export function RegisterForm({
       <h2 className="form-title">Tạo Tài Khoản</h2>
 
       <ErrorAlert message={submitError} />
-      {success && (
-        <SuccessAlert message="Đăng ký thành công! Vui lòng đăng nhập." />
-      )}
+      {success && <SuccessAlert message="Đăng ký thành công! Vui lòng đăng nhập." />}
+      <div style={{ width: '100%' }}>
+        <Input
+          label="Họ và Tên"
+          name="name"
+          type="text"
+          placeholder="Nhập họ và tên của bạn"
+          value={values.name}
+          error={errors.name}
+          touched={touched.name}
+          onChange={onChange}
+          onBlur={onBlur}
+          required
+        />
 
-      <Input
-        label="Họ và Tên"
-        name="name"
-        type="text"
-        placeholder="Nhập họ và tên của bạn"
-        value={values.name}
-        error={errors.name}
-        touched={touched.name}
-        onChange={onChange}
-        onBlur={onBlur}
-        required
-      />
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          placeholder="Nhập email của bạn"
+          value={values.email}
+          error={errors.email}
+          touched={touched.email}
+          onChange={onChange}
+          onBlur={onBlur}
+          required
+        />
 
-      <Input
-        label="Email"
-        name="email"
-        type="email"
-        placeholder="Nhập email của bạn"
-        value={values.email}
-        error={errors.email}
-        touched={touched.email}
-        onChange={onChange}
-        onBlur={onBlur}
-        required
-      />
+        <Input
+          label="Mật khẩu"
+          name="password"
+          type="password"
+          placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
+          value={values.password}
+          error={errors.password}
+          touched={touched.password}
+          onChange={onChange}
+          onBlur={onBlur}
+          required
+        />
 
-      <Input
-        label="Mật khẩu"
-        name="password"
-        type="password"
-        placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
-        value={values.password}
-        error={errors.password}
-        touched={touched.password}
-        onChange={onChange}
-        onBlur={onBlur}
-        required
-      />
+        <Input
+          label="Xác nhận mật khẩu"
+          name="confirmPassword"
+          type="password"
+          placeholder="Nhập lại mật khẩu"
+          value={values.confirmPassword}
+          error={errors.confirmPassword}
+          touched={touched.confirmPassword}
+          onChange={onChange}
+          onBlur={onBlur}
+          required
+        />
+      </div>
 
-      <Input
-        label="Xác nhận mật khẩu"
-        name="confirmPassword"
-        type="password"
-        placeholder="Nhập lại mật khẩu"
-        value={values.confirmPassword}
-        error={errors.confirmPassword}
-        touched={touched.confirmPassword}
-        onChange={onChange}
-        onBlur={onBlur}
-        required
-      />
-
-      <Button
-        type="submit"
-        variant="primary"
-        loading={loading}
-        className="btn-full"
-      >
+      <Button type="submit" variant="primary" loading={loading} className="btn-full">
         Tạo Tài Khoản
       </Button>
 

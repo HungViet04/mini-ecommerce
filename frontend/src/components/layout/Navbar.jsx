@@ -3,22 +3,24 @@
  * Main navigation header
  * Pattern: Presentational Component
  */
-import React from "react";
 import { useAuth } from "../../contexts";
 import { Button } from "../ui";
 import { SearchBar } from "./SearchBar";
+import { useNavigate, useLocation } from 'react-router-dom';
 
-export function Navbar({ onNavigate, currentView, onSearch }) {
+export function Navbar({ currentView, onSearch }) {
   const { user, isAdmin, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
-    onNavigate("products");
+    navigate('/');
   };
 
   const handleLogoClick = () => {
     if (!isAdmin) {
-      onNavigate("products");
+      navigate('/');
     }
   };
 
@@ -37,7 +39,7 @@ export function Navbar({ onNavigate, currentView, onSearch }) {
       </div>
 
       {/* Contact Info - chỉ hiển thị ở trang chủ cho khách và user thường */}
-      {currentView === "products" && !isAdmin && (
+      {location.pathname === '/' && !isAdmin && (
         <div className="navbar-contact">
           <span className="contact-icon">📞</span>
           <span className="contact-text">Liên hệ: 0325251470</span>
@@ -45,7 +47,7 @@ export function Navbar({ onNavigate, currentView, onSearch }) {
       )}
 
       {/* Search Bar - ẩn ở trang đăng nhập/đăng ký */}
-      {currentView !== "auth" && (
+      {location.pathname !== '/auth' && (
         <div className="navbar-search">
           <SearchBar onSearch={onSearch} />
         </div>
@@ -54,58 +56,33 @@ export function Navbar({ onNavigate, currentView, onSearch }) {
       <nav className="navbar-nav">
         {/* My Orders - only for regular users, not admin */}
         {isAuthenticated && !isAdmin && (
-          <NavLink
-            active={currentView === "orders"}
-            onClick={() => onNavigate("orders")}
-          >
-            Đơn Hàng Của Tôi
-          </NavLink>
-        )}
+            <NavLink
+              active={location.pathname === '/orders'}
+              onClick={() => navigate('/orders')}
+            >
+              Đơn Hàng Của Tôi
+            </NavLink>
+          )}
 
         {/* Admin Navigation */}
         {isAdmin && (
-          <NavLink
-            active={currentView === "admin-dashboard"}
-            onClick={() => onNavigate("admin-dashboard")}
-          >
-            📊 Dashboard
-          </NavLink>
+          <NavLink active={location.pathname === '/admin/dashboard'} onClick={() => navigate('/admin/dashboard')}>📊 Dashboard</NavLink>
         )}
 
         {isAdmin && (
-          <NavLink
-            active={currentView === "admin-orders"}
-            onClick={() => onNavigate("admin-orders")}
-          >
-            📦 Đơn Hàng
-          </NavLink>
+          <NavLink active={location.pathname === '/admin/orders'} onClick={() => navigate('/admin/orders')}>📦 Đơn Hàng</NavLink>
         )}
 
         {isAdmin && (
-          <NavLink
-            active={currentView === "admin-users"}
-            onClick={() => onNavigate("admin-users")}
-          >
-            👥 Người Dùng
-          </NavLink>
+          <NavLink active={location.pathname === '/admin/users'} onClick={() => navigate('/admin/users')}>👥 Người Dùng</NavLink>
         )}
 
         {isAdmin && (
-          <NavLink
-            active={currentView === "admin-products"}
-            onClick={() => onNavigate("admin-products")}
-          >
-            📱 Sản Phẩm
-          </NavLink>
+          <NavLink active={location.pathname === '/admin/products'} onClick={() => navigate('/admin/products')}>📱 Sản Phẩm</NavLink>
         )}
 
         {isAdmin && (
-          <NavLink
-            active={currentView === "admin-categories"}
-            onClick={() => onNavigate("admin-categories")}
-          >
-            🏷️ Danh Mục
-          </NavLink>
+          <NavLink active={location.pathname === '/admin/categories'} onClick={() => navigate('/admin/categories')}>🏷️ Danh Mục</NavLink>
         )}
       </nav>
 
@@ -124,7 +101,7 @@ export function Navbar({ onNavigate, currentView, onSearch }) {
           <Button
             variant="primary"
             size="sm"
-            onClick={() => onNavigate("auth")}
+            onClick={() => navigate('/auth')}
           >
             Đăng Nhập / Đăng Ký
           </Button>

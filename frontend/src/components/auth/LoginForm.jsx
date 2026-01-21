@@ -27,44 +27,41 @@ export function LoginForm({
 
       <ErrorAlert message={submitError} />
 
-      <Input
-        label="Email"
-        name="email"
-        type="email"
-        placeholder="Nhập email của bạn"
-        value={values.email}
-        error={errors.email}
-        touched={touched.email}
-        onChange={onChange}
-        onBlur={onBlur}
-        required
-      />
+      <div style={{ width: '100%' }}>
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          placeholder="Nhập email của bạn"
+          value={values.email}
+          error={errors.email}
+          touched={touched.email}
+          onChange={onChange}
+          onBlur={onBlur}
+          required
+        />
 
-      <Input
-        label="Mật khẩu"
-        name="password"
-        type="password"
-        placeholder="Nhập mật khẩu của bạn"
-        value={values.password}
-        error={errors.password}
-        touched={touched.password}
-        onChange={onChange}
-        onBlur={onBlur}
-        required
-      />
+        <Input
+          label="Mật khẩu"
+          name="password"
+          type="password"
+          placeholder="Nhập mật khẩu của bạn"
+          value={values.password}
+          error={errors.password}
+          touched={touched.password}
+          onChange={onChange}
+          onBlur={onBlur}
+          required
+        />
+      </div>
 
-      <Button
-        type="submit"
-        variant="primary"
-        loading={loading}
-        className="btn-login btn-full"
-      >
+      <Button type="submit" variant="primary" loading={loading} className="btn-login btn-full">
         Đăng Nhập
       </Button>
 
       <div className="form-footer">
         <span>Chưa có tài khoản?</span>
-        <button type="button" className="btn link-btn btn-primary" onClick={onSwitchMode}>
+        <button type="button" className="link-btn" onClick={onSwitchMode}>
           Tạo Tài Khoản
         </button>
       </div>

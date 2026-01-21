@@ -86,13 +86,13 @@ export function ProductSlider({ products = [], onAddToCart, onViewDetail }) {
           <div className="slider-info">
             <h2 className="slider-title">{currentProduct.name}</h2>
             
-            {currentProduct.description && (
-              <p className="slider-description">
-                {currentProduct.description.length > 150 
-                  ? currentProduct.description.substring(0, 150) + '...'
-                  : currentProduct.description}
-              </p>
-            )}
+            <p className="slider-description">
+              {currentProduct.description
+                ? (currentProduct.description.length > 150
+                    ? currentProduct.description.substring(0, 150) + '...'
+                    : currentProduct.description)
+                : '\u00A0'}
+            </p>
 
             <div className="slider-price">{formatPrice(currentProduct.price)}</div>
 

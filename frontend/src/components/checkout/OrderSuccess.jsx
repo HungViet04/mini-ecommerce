@@ -141,7 +141,7 @@ export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueSho
           <Button variant="primary" onClick={onViewOrders}>
             Xem Đơn Hàng
           </Button>
-          <Button variant="secondary" onClick={onContinueShopping}>
+          <Button variant="primary" onClick={onContinueShopping}>
             Tiếp Tục Mua Sắm
           </Button>
         </div>

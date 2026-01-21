@@ -170,7 +170,7 @@ class StatsService {
     const sql = `
       SELECT 
         DATE_FORMAT(created_at, '%Y-%m') as month,
-        DATE_FORMAT(created_at, '%m/%Y') as label,
+        MIN(DATE_FORMAT(created_at, '%m/%Y')) as label,
         COALESCE(SUM(CASE WHEN status IN ('paid', 'shipped', 'delivered') THEN total ELSE 0 END), 0) as revenue,
         COUNT(*) as orderCount
       FROM orders
