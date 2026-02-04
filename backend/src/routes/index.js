@@ -13,6 +13,7 @@ const categoryRoutes = require('./category.routes');
 const healthRoutes = require('./health.routes');
 const statsRoutes = require('./stats.routes');
 const userRoutes = require('./user.routes');
+const uploadRoutes = require('./upload.routes');
 
 // API v1 routes
 router.use('/auth', authRoutes);
@@ -22,6 +23,7 @@ router.use('/categories', categoryRoutes);
 router.use('/health', healthRoutes);
 router.use('/stats', statsRoutes);
 router.use('/users', userRoutes);
+router.use('/upload', uploadRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {

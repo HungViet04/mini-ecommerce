@@ -50,7 +50,6 @@ class HttpClient {
     let config = {
       method,
       headers: {
-        'Content-Type': 'application/json',
         ...options.headers,
       },
     };
@@ -69,12 +68,42 @@ class HttpClient {
   async request(method, path, body = null, options = {}) {
     const config = await this.buildConfig(method, options);
 
+    const isFormData = body instanceof FormData || options.isFormData;
+    const responseType = options.responseType || 'json';
+
+    // Ensure correct Content-Type
+    if (isFormData) {
+      // Let browser set boundary
+      if (config.headers && config.headers['Content-Type']) {
+        delete config.headers['Content-Type'];
+      }
+    } else {
+      config.headers = {
+        'Content-Type': 'application/json',
+        ...config.headers,
+      };
+    }
+
     if (body) {
-      config.body = JSON.stringify(body);
+      config.body = isFormData ? body : JSON.stringify(body);
     }
 
     const response = await fetch(`${this.baseURL}${path}`, config);
-    const data = await response.json().catch(() => null);
+    let data = null;
+
+    try {
+      if (responseType === 'blob') {
+        data = await response.blob();
+      } else if (responseType === 'text') {
+        data = await response.text();
+      } else {
+        // default json
+        data = await response.json();
+      }
+    } catch (err) {
+      // ignore parse errors; data stays null
+      data = null;
+    }
 
     // Apply response interceptors
     for (const interceptor of this.interceptors.response) {
@@ -82,6 +111,15 @@ class HttpClient {
     }
 
     if (!response.ok) {
+      // Với blob/text, thử chuyển lỗi về text để dễ đọc
+      if (responseType === 'blob' && data instanceof Blob) {
+        try {
+          const text = await data.text();
+          throw new HttpError(response.status, text ? { message: text } : null);
+        } catch (e) {
+          throw new HttpError(response.status, null);
+        }
+      }
       throw new HttpError(response.status, data);
     }
 

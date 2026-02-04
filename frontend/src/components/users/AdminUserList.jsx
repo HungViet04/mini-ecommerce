@@ -189,8 +189,7 @@ export function AdminUserList() {
 
         <div className="filter-actions">
           <Button
-            variant="ghost"
-            size="sm"
+            variant="primary"
             onClick={fetchUsers}
             disabled={loading}
           >
@@ -254,7 +253,7 @@ export function AdminUserList() {
 
               <div className="user-actions">
                 <Button
-                  variant="ghost"
+                  variant="primary"
                   size="sm"
                   onClick={() => handleViewOrders(user)}
                 >

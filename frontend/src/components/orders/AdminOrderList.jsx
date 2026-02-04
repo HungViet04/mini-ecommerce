@@ -9,7 +9,6 @@ import { useAuth } from '../../contexts';
 import { Loading, Button } from '../ui';
 import { AdminOrderCard } from './AdminOrderCard';
 import { httpClient } from '../../services';
-import { tokenStorage } from '../../utils/storage';
 
 const STATUS_FILTERS = [
   { value: '', label: 'Tất cả đơn hàng' },
@@ -24,19 +23,12 @@ export function AdminOrderList() {
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [exporting, setExporting] = useState(false);
-  
-  const {
-    orders,
-    loading,
-    error,
-    updateOrderStatus,
-    updating,
-    refetch,
-    setSearch,
-  } = useAdminOrders({
-    autoFetch: isAuthenticated && isAdmin,
-    status: statusFilter || undefined,
-  });
+
+  const { orders, loading, error, updateOrderStatus, updating, refetch, setSearch } =
+    useAdminOrders({
+      autoFetch: isAuthenticated && isAdmin,
+      status: statusFilter || undefined,
+    });
 
   if (!isAuthenticated) {
     return (
@@ -60,11 +52,11 @@ export function AdminOrderList() {
     );
   }
 
-  const handleStatusFilterChange = (e) => {
+  const handleStatusFilterChange = e => {
     setStatusFilter(e.target.value);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     e.preventDefault();
     // Immediate search on form submit (Enter / search button)
     setSearch(searchQuery);
@@ -90,16 +82,12 @@ export function AdminOrderList() {
       setExporting(true);
       const params = new URLSearchParams();
       if (statusFilter) params.set('status', statusFilter);
-      
-      const response = await fetch(`http://localhost:3000/api/v1/orders/admin/export?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${tokenStorage.get()}`,
-        },
+
+      const blob = await httpClient.get(`/orders/admin/export?${params.toString()}`, {
+        responseType: 'blob',
       });
-      
-      if (!response.ok) throw new Error('Export failed');
-      
-      const blob = await response.blob();
+
+      if (!blob) throw new Error('Export failed');
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -129,10 +117,10 @@ export function AdminOrderList() {
             type="text"
             placeholder="Tìm mã đơn, tên, SĐT..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="search-input search-admin-input"
           />
-          <Button type="submit" className='search-button'>
+          <Button type="submit" className="search-button">
             🔍 Tìm
           </Button>
         </form>
@@ -144,7 +132,7 @@ export function AdminOrderList() {
           onChange={handleStatusFilterChange}
           className="filter-select"
         >
-          {STATUS_FILTERS.map((f) => (
+          {STATUS_FILTERS.map(f => (
             <option key={f.value} value={f.value}>
               {f.label}
             </option>
@@ -153,15 +141,10 @@ export function AdminOrderList() {
 
         {/* Actions */}
         <div className="filter-actions">
-          <Button variant="ghost" size="sm" onClick={refetch} disabled={loading}>
+          <Button variant="primary" onClick={refetch} disabled={loading}>
             🔄 Làm mới
           </Button>
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            onClick={handleExport}
-            disabled={exporting}
-          >
+          <Button variant="secondary" onClick={handleExport} disabled={exporting}>
             {exporting ? '⏳' : '📥'} Export CSV
           </Button>
         </div>
@@ -179,18 +162,16 @@ export function AdminOrderList() {
         <div className="empty-container">
           <span className="empty-icon">📋</span>
           <p>Không tìm thấy đơn hàng nào</p>
-          {statusFilter && (
-            <p className="muted">Thử thay đổi bộ lọc hoặc quay lại sau</p>
-          )}
+          {statusFilter && <p className="muted">Thử thay đổi bộ lọc hoặc quay lại sau</p>}
         </div>
       ) : (
         <>
           <div className="orders-stats">
             <span>Tổng số đơn hàng: {orders.length}</span>
           </div>
-          
+
           <div className="orders-list admin-orders-list">
-            {orders.map((order) => (
+            {orders.map(order => (
               <AdminOrderCard
                 key={order.id}
                 order={order}

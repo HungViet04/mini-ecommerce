@@ -55,7 +55,7 @@ export function CartSummary({ onCheckout }) {
         </div>
 
         <div className="cart-actions">
-          <Button variant="ghost" onClick={clearCart}>
+          <Button variant="secondary" onClick={clearCart}>
             Xóa Giỏ Hàng
           </Button>
           <Button

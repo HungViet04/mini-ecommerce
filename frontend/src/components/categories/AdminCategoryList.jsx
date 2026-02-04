@@ -57,7 +57,7 @@ export function AdminCategoryList() {
     setShowForm(true);
   };
 
-  const handleOpenEditForm = (category) => {
+  const handleOpenEditForm = category => {
     setEditingCategory(category);
     setFormData({ name: category.name });
     setFormError('');
@@ -71,18 +71,25 @@ export function AdminCategoryList() {
     setFormError('');
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setFormError('');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       setFormError('Vui lòng nhập tên danh mục');
       return;
     }
+
+    // Đóng modal ngay khi gửi để không phải chờ reload
+    setShowForm(false);
+
+    // Lưu lại state để khôi phục nếu lỗi
+    const prevFormData = formData;
+    const prevEditing = editingCategory;
 
     let result;
     if (editingCategory) {
@@ -98,12 +105,21 @@ export function AdminCategoryList() {
     }
 
     if (result) {
-      handleCloseForm();
+      // Dọn state sau khi thành công
+      setEditingCategory(null);
+      setFormData({ name: '' });
+      setFormError('');
       setTimeout(() => setSuccessMessage(''), 3000);
+    } else {
+      // Nếu lỗi, mở lại modal với dữ liệu cũ để người dùng sửa tiếp
+      setFormError('Có lỗi xảy ra. Vui lòng thử lại.');
+      setEditingCategory(prevEditing);
+      setFormData(prevFormData);
+      setShowForm(true);
     }
   };
 
-  const handleDelete = async (category) => {
+  const handleDelete = async category => {
     if (window.confirm(`Bạn có chắc muốn xóa danh mục "${category.name}"?`)) {
       const success = await deleteCategory(category.id);
       if (success) {
@@ -121,10 +137,10 @@ export function AdminCategoryList() {
       </div>
 
       <div className="categories-actions">
-        <Button variant="primary" onClick={handleOpenCreateForm}>
+        <Button variant="primary" style={{ marginRight: '8px' }} onClick={handleOpenCreateForm}>
           ➕ Tạo Danh Mục Mới
         </Button>
-        <Button variant="ghost" size="sm" onClick={refetch} disabled={loading}>
+        <Button variant="primary" onClick={refetch} disabled={loading}>
           🔄 Làm mới
         </Button>
       </div>
@@ -135,14 +151,14 @@ export function AdminCategoryList() {
       {/* Create/Edit Form Modal */}
       {showForm && (
         <div className="modal-overlay" onClick={handleCloseForm}>
-          <Card className="modal-content category-form-modal" onClick={(e) => e.stopPropagation()}>
+          <Card className="modal-content category-form-modal" onClick={e => e.stopPropagation()}>
             <h3 className="modal-title">
               {editingCategory ? '✏️ Chỉnh Sửa Danh Mục' : '➕ Tạo Danh Mục Mới'}
             </h3>
-            
+
             <form onSubmit={handleSubmit}>
               {formError && <ErrorAlert message={formError} />}
-              
+
               <Input
                 label="Tên danh mục"
                 name="name"
@@ -152,7 +168,7 @@ export function AdminCategoryList() {
                 required
                 autoFocus
               />
-              
+
               <div className="modal-actions">
                 <Button variant="ghost" type="button" onClick={handleCloseForm}>
                   Hủy
@@ -178,6 +194,9 @@ export function AdminCategoryList() {
       ) : (
         <div className="categories-list">
           <Card className="categories-table-card">
+            <div className="categories-stats" style={{ marginBottom: '8px' }}>
+              <span>Tổng cộng: {categories.length} danh mục</span>
+            </div>
             <table className="categories-table">
               <thead>
                 <tr>
@@ -187,14 +206,15 @@ export function AdminCategoryList() {
                 </tr>
               </thead>
               <tbody>
-                {categories.map((category) => (
+                {categories.map(category => (
                   <tr key={category.id}>
                     <td className="category-id">#{category.id}</td>
                     <td className="category-name">{category.name}</td>
                     <td className="category-actions">
                       <Button
-                        variant="ghost"
+                        variant="primary"
                         size="sm"
+                        style={{ marginRight: '8px' }}
                         onClick={() => handleOpenEditForm(category)}
                       >
                         ✏️ Sửa
@@ -213,10 +233,6 @@ export function AdminCategoryList() {
               </tbody>
             </table>
           </Card>
-          
-          <div className="categories-stats">
-            <span>Tổng cộng: {categories.length} danh mục</span>
-          </div>
         </div>
       )}
     </section>

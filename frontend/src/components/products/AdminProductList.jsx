@@ -4,67 +4,23 @@
  */
 import React, { useState } from 'react';
 import { useProducts, useCategories } from '../../hooks';
-import { productService } from '../../services';
-import { Card, Button, Input, ErrorAlert, SuccessAlert } from '../ui';
+import { productService, uploadService } from '../../services';
+import { Card, Button, ErrorAlert, SuccessAlert } from '../ui';
 import CreateProductForm from './CreateProductForm';
 import { formatPrice } from '../../utils';
-
-/**
- * Validate product form
- */
-function validateProduct(values) {
-  const errors = {};
-
-  if (!values.name?.trim()) {
-    errors.name = 'Vui lòng nhập tên sản phẩm';
-  }
-
-  if (!values.price) {
-    errors.price = 'Vui lòng nhập giá sản phẩm';
-  } else if (isNaN(values.price) || Number(values.price) <= 0) {
-    errors.price = 'Giá phải là số dương';
-  }
-
-  if (values.stock === '' || values.stock === undefined) {
-    errors.stock = 'Vui lòng nhập số lượng tồn kho';
-  } else if (isNaN(values.stock) || Number(values.stock) < 0) {
-    errors.stock = 'Số lượng phải là số không âm';
-  }
-
-  return errors;
-}
 
 export function AdminProductList() {
   const { products, loading, refetch } = useProducts();
   const { categories } = useCategories();
   const [editingProduct, setEditingProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    image_url: '',
-    price: '',
-    stock: '',
-    category_id: ''
-  });
-  const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
   const [success, setSuccess] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      image_url: '',
-      price: '',
-      stock: '',
-      category_id: ''
-    });
-    setErrors({});
-    setSubmitError('');
     setEditingProduct(null);
+    setSubmitError('');
   };
 
   const handleOpenCreate = () => {
@@ -72,18 +28,9 @@ export function AdminProductList() {
     setShowForm(true);
   };
 
-  const handleOpenEdit = (product) => {
-    setFormData({
-      name: product.name || '',
-      description: product.description || '',
-      image_url: product.image_url || '',
-      price: product.price?.toString() || '',
-      stock: product.stock?.toString() || '',
-      category_id: product.category_id?.toString() || ''
-    });
+  const handleOpenEdit = product => {
     setEditingProduct(product);
     setShowForm(true);
-    setErrors({});
     setSubmitError('');
   };
 
@@ -92,58 +39,7 @@ export function AdminProductList() {
     resetForm();
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const validationErrors = validateProduct(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError('');
-
-    try {
-      const data = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        image_url: formData.image_url.trim(),
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-        category_id: formData.category_id ? Number(formData.category_id) : null
-      };
-
-      if (editingProduct) {
-        await productService.update(editingProduct.id, data);
-        setSuccess('Cập nhật sản phẩm thành công!');
-      } else {
-        await productService.create(data);
-        setSuccess('Tạo sản phẩm thành công!');
-      }
-
-      setShowForm(false);
-      resetForm();
-      refetch();
-      
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setSubmitError(err.message || 'Có lỗi xảy ra');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (product) => {
+  const handleDelete = async product => {
     if (deleteConfirm !== product.id) {
       setDeleteConfirm(product.id);
       return;
@@ -160,7 +56,7 @@ export function AdminProductList() {
     }
   };
 
-  const getCategoryName = (categoryId) => {
+  const getCategoryName = categoryId => {
     const category = categories.find(c => c.id === categoryId);
     return category?.name || 'Không có';
   };
@@ -188,6 +84,7 @@ export function AdminProductList() {
           onSuccess={refetch}
           onClose={handleCancel}
           categories={categories}
+          product={editingProduct}
         />
       )}
 
@@ -223,7 +120,10 @@ export function AdminProductList() {
                     <td>
                       <div className="product-thumb">
                         {product.image_url ? (
-                          <img src={product.image_url} alt={product.name} />
+                          <img
+                            src={uploadService.getImageUrl(product.image_url)}
+                            alt={product.name}
+                          />
                         ) : (
                           <span className="no-image">📦</span>
                         )}
@@ -232,7 +132,9 @@ export function AdminProductList() {
                     <td>
                       <div className="product-name">{product.name}</div>
                       {product.description && (
-                        <div className="product-desc">{product.description.substring(0, 50)}...</div>
+                        <div className="product-desc">
+                          {product.description.substring(0, 50)}...
+                        </div>
                       )}
                     </td>
                     <td>{getCategoryName(product.category_id)}</td>
@@ -246,14 +148,14 @@ export function AdminProductList() {
                       <div className="action-buttons">
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="secondary"
                           onClick={() => handleOpenEdit(product)}
                         >
                           ✏️ Sửa
                         </Button>
                         <Button
                           size="sm"
-                          variant={deleteConfirm === product.id ? 'danger' : 'ghost'}
+                          variant={deleteConfirm === product.id ? 'danger' : 'secondary'}
                           onClick={() => handleDelete(product)}
                         >
                           {deleteConfirm === product.id ? 'Xác nhận xóa?' : '🗑️ Xóa'}

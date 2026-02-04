@@ -59,7 +59,7 @@ export const productService = {
 
   /**
    * Create new product (Admin only)
-   * @param {Object} data - { name, price, stock, category_id }
+   * @param {Object} data - { name, price, stock, category_id, image_url }
    * @returns {Promise<Object>}
    */
   async create(data) {
@@ -68,6 +68,8 @@ export const productService = {
       price: Number(data.price),
       stock: Number(data.stock),
       category_id: data.category_id || null,
+      description: data.description || '',
+      image_url: data.image_url || '',
     });
     return response.data || response;
   },

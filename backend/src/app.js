@@ -4,6 +4,7 @@
  */
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const config = require('./config');
 const routes = require('./routes');
 const { errorHandler, notFoundHandler, requestLogger, requestId } = require('./middlewares');
@@ -23,16 +24,22 @@ if (config.env === 'development') {
 }
 
 // CORS configuration
-app.use(cors({
-  origin: config.cors.origin,
-  credentials: config.cors.credentials,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
-}));
+app.use(
+  cors({
+    origin: config.cors.origin,
+    credentials: config.cors.credentials,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve uploaded images as static files
+const uploadPath = path.resolve(__dirname, '../../data/image');
+app.use('/uploads', express.static(uploadPath));
 
 // API Routes with versioning
 app.use('/api/v1', routes);

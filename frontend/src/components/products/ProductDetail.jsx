@@ -3,27 +3,21 @@
  * Product detail view with image and full information
  * Pattern: Presentational Component
  */
-import React from "react";
-import { Card, Button } from "../ui";
-import { formatPrice } from "../../utils";
-import { useAuth } from "../../contexts";
+import React from 'react';
+import { Card, Button } from '../ui';
+import { formatPrice } from '../../utils';
+import { useAuth } from '../../contexts';
+import { uploadService } from '../../services';
 
 export function ProductDetail({ product, onAddToCart, onBack }) {
   const { isAdmin } = useAuth();
-  const {
-    id,
-    name,
-    description,
-    image_url,
-    price,
-    stock,
-    category_name,
-    created_at,
-  } = product;
+  const { id, name, description, image_url, price, stock, category_name, created_at } = product;
 
   const inStock = stock > 0;
-  const defaultImage =
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400";
+  const defaultImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400';
+
+  // Lấy URL hình ảnh đầy đủ
+  const imageFullUrl = uploadService.getImageUrl(image_url);
 
   return (
     <div className="product-detail">
@@ -36,7 +30,7 @@ export function ProductDetail({ product, onAddToCart, onBack }) {
           {/* Left: Image */}
           <div className="product-detail-image">
             {image_url ? (
-              <img src={image_url} alt={name} />
+              <img src={imageFullUrl} alt={name} />
             ) : (
               <div className="product-image-placeholder">
                 <span className="product-emoji">📦</span>
@@ -48,18 +42,12 @@ export function ProductDetail({ product, onAddToCart, onBack }) {
           <div className="product-detail-info">
             <h1 className="product-detail-name">{name}</h1>
 
-            {category_name && (
-              <span className="product-detail-category">{category_name}</span>
-            )}
+            {category_name && <span className="product-detail-category">{category_name}</span>}
 
             <div className="product-detail-price">{formatPrice(price)}</div>
 
-            <div
-              className={`product-detail-stock ${
-                inStock ? "in-stock" : "out-of-stock"
-              }`}
-            >
-              {inStock ? `✅ Còn ${stock} sản phẩm` : "❌ Hết hàng"}
+            <div className={`product-detail-stock ${inStock ? 'in-stock' : 'out-of-stock'}`}>
+              {inStock ? `✅ Còn ${stock} sản phẩm` : '❌ Hết hàng'}
             </div>
 
             {description && (
@@ -78,7 +66,7 @@ export function ProductDetail({ product, onAddToCart, onBack }) {
                   disabled={!inStock}
                   onClick={() => onAddToCart?.(product)}
                 >
-                  {inStock ? "🛒 Thêm vào giỏ hàng" : "Hết hàng"}
+                  {inStock ? '🛒 Thêm vào giỏ hàng' : 'Hết hàng'}
                 </Button>
               </div>
             )}

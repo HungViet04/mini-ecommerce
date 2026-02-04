@@ -9,6 +9,7 @@ const categoryController = require('./category.controller');
 const healthController = require('./health.controller');
 const statsController = require('./stats.controller');
 const userController = require('./user.controller');
+const uploadController = require('./upload.controller');
 
 module.exports = {
   authController,
@@ -18,4 +19,5 @@ module.exports = {
   healthController,
   statsController,
   userController,
+  uploadController,
 };
