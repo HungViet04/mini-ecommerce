@@ -12,9 +12,7 @@ const { USER_ROLES } = require('../constants');
  */
 const authorize = (...allowedRoles) => {
   // Normalize roles to lowercase
-  const normalizedRoles = allowedRoles.map((role) => 
-    String(role || '').toLowerCase()
-  );
+  const normalizedRoles = allowedRoles.map((role) => String(role || '').toLowerCase());
 
   return (req, res, next) => {
     if (!req.user) {

@@ -19,9 +19,9 @@ class OrderRepository extends BaseRepository {
    * @returns {Promise<Object>}
    */
   async createOrder(connection, orderData) {
-    const { 
-      userId, 
-      total, 
+    const {
+      userId,
+      total,
       status = 'pending',
       shippingName = null,
       shippingPhone = null,
@@ -37,14 +37,25 @@ class OrderRepository extends BaseRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const [result] = await this.query(
-      sql, 
-      [userId, total, status, shippingName, shippingPhone, shippingAddress, shippingCity, shippingNotes, paymentMethod, shippingFee], 
+      sql,
+      [
+        userId,
+        total,
+        status,
+        shippingName,
+        shippingPhone,
+        shippingAddress,
+        shippingCity,
+        shippingNotes,
+        paymentMethod,
+        shippingFee,
+      ],
       connection
     );
-    return { 
-      id: result.insertId, 
-      userId, 
-      total, 
+    return {
+      id: result.insertId,
+      userId,
+      total,
       status,
       shippingName,
       shippingPhone,
@@ -65,7 +76,7 @@ class OrderRepository extends BaseRepository {
   async createOrderItem(connection, itemData) {
     const { orderId, productId, quantity, price } = itemData;
     const sql = `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`;
-  const [result] = await this.query(sql, [orderId, productId, quantity, price], connection);
+    const [result] = await this.query(sql, [orderId, productId, quantity, price], connection);
     return { id: result.insertId, ...itemData };
   }
 
@@ -181,8 +192,16 @@ class OrderRepository extends BaseRepository {
     }
 
     if (search) {
-      conditions.push('(o.id = ? OR o.shipping_name LIKE ? OR o.shipping_phone LIKE ? OR u.name LIKE ? OR u.email LIKE ?)');
-      params.push(parseInt(search, 10) || 0, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+      conditions.push(
+        '(o.id = ? OR o.shipping_name LIKE ? OR o.shipping_phone LIKE ? OR u.name LIKE ? OR u.email LIKE ?)'
+      );
+      params.push(
+        parseInt(search, 10) || 0,
+        `%${search}%`,
+        `%${search}%`,
+        `%${search}%`,
+        `%${search}%`
+      );
     }
 
     // Subquery để lấy đúng order_id cho LIMIT/OFFSET
@@ -196,7 +215,7 @@ class OrderRepository extends BaseRepository {
 
     // Lấy danh sách order_id cho trang hiện tại
     const [idRows] = await this.query(subSql, subParams);
-    const orderIds = idRows.map(row => row.id);
+    const orderIds = idRows.map((row) => row.id);
     if (orderIds.length === 0) {
       return { items: [], total: 0 };
     }
@@ -275,17 +294,17 @@ class OrderRepository extends BaseRepository {
     const params = [];
     const conditions = [];
 
-        if (status) {
+    if (status) {
       conditions.push('o.status = ?');
       params.push(status);
     }
 
-        if (startDate) {
+    if (startDate) {
       conditions.push('o.created_at >= ?');
       params.push(startDate);
     }
 
-        if (endDate) {
+    if (endDate) {
       conditions.push('o.created_at <= ?');
       params.push(endDate);
     }
@@ -297,7 +316,7 @@ class OrderRepository extends BaseRepository {
     sql += ' GROUP BY o.id ORDER BY o.created_at DESC';
 
     const [rows] = await this.query(sql, params);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.order_id,
       userName: row.user_name,
       userEmail: row.user_email,

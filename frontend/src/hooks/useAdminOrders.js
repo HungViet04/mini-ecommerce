@@ -3,8 +3,8 @@
  * Custom hook for admin order management
  * Pattern: Custom Hooks
  */
-import { useState, useEffect, useCallback } from "react";
-import { orderService } from "../services";
+import { useState, useEffect, useCallback } from 'react';
+import { orderService } from '../services';
 
 /**
  * Hook for admin to fetch and manage all orders
@@ -18,7 +18,7 @@ export function useAdminOrders(options = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -32,13 +32,11 @@ export function useAdminOrders(options = {}) {
       if (result.meta && result.meta.pagination) {
         items = result.data || [];
       } else {
-        items = Array.isArray(result)
-          ? result
-          : result.items || result.data || [];
+        items = Array.isArray(result) ? result : result.items || result.data || [];
       }
       setOrders(items);
     } catch (err) {
-      setError(err.message || "Không thể tải danh sách đơn hàng");
+      setError(err.message || 'Không thể tải danh sách đơn hàng');
       setOrders([]);
     } finally {
       setLoading(false);
@@ -53,13 +51,11 @@ export function useAdminOrders(options = {}) {
       await orderService.updateStatus(orderId, newStatus);
       // Update local state
       setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
+        prev.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order))
       );
       return true;
     } catch (err) {
-      setError(err.message || "Không thể cập nhật trạng thái đơn hàng");
+      setError(err.message || 'Không thể cập nhật trạng thái đơn hàng');
       return false;
     } finally {
       setUpdating(false);

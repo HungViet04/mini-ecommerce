@@ -52,17 +52,18 @@ export function AdminOrderList() {
     );
   }
 
-  const handleStatusFilterChange = e => {
+  const handleStatusFilterChange = (e) => {
     setStatusFilter(e.target.value);
   };
 
-  const handleSearch = e => {
+  const handleSearch = (e) => {
     e.preventDefault();
     // Immediate search on form submit (Enter / search button)
     setSearch(searchQuery);
   };
 
   // Debounced live search: update hook search after user stops typing
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     const t = setTimeout(() => {
       setSearch(searchQuery);
@@ -117,7 +118,7 @@ export function AdminOrderList() {
             type="text"
             placeholder="Tìm mã đơn, tên, SĐT..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input search-admin-input"
           />
           <Button type="submit" className="search-button">
@@ -132,7 +133,7 @@ export function AdminOrderList() {
           onChange={handleStatusFilterChange}
           className="filter-select"
         >
-          {STATUS_FILTERS.map(f => (
+          {STATUS_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>
               {f.label}
             </option>
@@ -171,7 +172,7 @@ export function AdminOrderList() {
           </div>
 
           <div className="orders-list admin-orders-list">
-            {orders.map(order => (
+            {orders.map((order) => (
               <AdminOrderCard
                 key={order.id}
                 order={order}

@@ -64,11 +64,10 @@ const startServer = async () => {
     });
 
     // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason, promise) => {
+    process.on('unhandledRejection', (reason) => {
       logger.error('Unhandled Rejection', { reason: String(reason) });
       gracefulShutdown('unhandledRejection');
     });
-
   } catch (error) {
     logger.error('Failed to start server', error);
     process.exit(1);

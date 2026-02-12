@@ -11,9 +11,7 @@ export function Toast({ message, type = 'info', duration = 2000, onClose }) {
 
   if (!message) return null;
 
-  return (
-    <div className={`toast toast-${type}`}>{message}</div>
-  );
+  return <div className={`toast toast-${type}`}>{message}</div>;
 }
 
 export default Toast;

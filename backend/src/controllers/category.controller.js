@@ -21,11 +21,12 @@ const create = asyncHandler(async (req, res) => {
  */
 const findAll = asyncHandler(async (req, res) => {
   const { withCount } = req.query;
-  
-  const categories = withCount === 'true'
-    ? await categoryService.findWithProductCount()
-    : await categoryService.findAll();
-    
+
+  const categories =
+    withCount === 'true'
+      ? await categoryService.findWithProductCount()
+      : await categoryService.findAll();
+
   return response.success(res, { data: categories });
 });
 

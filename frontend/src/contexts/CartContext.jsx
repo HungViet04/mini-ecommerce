@@ -115,10 +115,7 @@ export function CartProvider({ children }) {
   }, []);
 
   // Calculate total
-  const total = state.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   // Get item count
   const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -133,11 +130,7 @@ export function CartProvider({ children }) {
     clearCart,
   };
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 /**

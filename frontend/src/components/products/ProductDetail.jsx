@@ -11,10 +11,9 @@ import { uploadService } from '../../services';
 
 export function ProductDetail({ product, onAddToCart, onBack }) {
   const { isAdmin } = useAuth();
-  const { id, name, description, image_url, price, stock, category_name, created_at } = product;
+  const { name, description, image_url, price, stock, category_name } = product;
 
   const inStock = stock > 0;
-  const defaultImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400';
 
   // Lấy URL hình ảnh đầy đủ
   const imageFullUrl = uploadService.getImageUrl(image_url);

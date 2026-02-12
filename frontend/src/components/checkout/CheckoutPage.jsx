@@ -3,22 +3,15 @@
  * Checkout flow with shipping info and payment selection
  * Pattern: Container Component
  */
-import React, { useState } from "react";
-import { useCart, useAuth } from "../../contexts";
-import { orderService, productService } from "../../services";
-import { Card, Button, Input, ErrorAlert } from "../ui";
-import { formatPrice } from "../../utils";
+import React, { useState } from 'react';
+import { useCart, useAuth } from '../../contexts';
+import { orderService, productService } from '../../services';
+import { Card, Button, Input, ErrorAlert } from '../ui';
+import { formatPrice } from '../../utils';
 
 const PAYMENT_METHODS = {
-  COD: "cod",
-  BANK_TRANSFER: "bank_transfer",
-};
-
-const BANK_INFO = {
-  bankName: "MoMo",
-  accountNumber: "*******470",
-  accountName: "NGUYỄN VĂN HÙNG",
-  qrImage: "/images/image.png",
+  COD: 'cod',
+  BANK_TRANSFER: 'bank_transfer',
 };
 
 export function CheckoutPage({ onBack, onSuccess }) {
@@ -30,13 +23,13 @@ export function CheckoutPage({ onBack, onSuccess }) {
 
   // Shipping info
   const [shippingInfo, setShippingInfo] = useState({
-    fullName: user?.name || "",
-    phone: "",
-    province: "",
-    district: "",
-    ward: "",
-    address: "",
-    note: "",
+    fullName: user?.name || '',
+    phone: '',
+    province: '',
+    district: '',
+    ward: '',
+    address: '',
+    note: '',
   });
 
   // Payment method
@@ -59,29 +52,29 @@ export function CheckoutPage({ onBack, onSuccess }) {
     const errors = {};
 
     if (!shippingInfo.fullName.trim()) {
-      errors.fullName = "Vui lòng nhập họ tên";
+      errors.fullName = 'Vui lòng nhập họ tên';
     }
 
     if (!shippingInfo.phone.trim()) {
-      errors.phone = "Vui lòng nhập số điện thoại";
+      errors.phone = 'Vui lòng nhập số điện thoại';
     } else if (!/^(0[3|5|7|8|9])+([0-9]{8})$/.test(shippingInfo.phone)) {
-      errors.phone = "Số điện thoại không hợp lệ";
+      errors.phone = 'Số điện thoại không hợp lệ';
     }
 
     if (!shippingInfo.province.trim()) {
-      errors.province = "Vui lòng nhập Tỉnh/Thành phố";
+      errors.province = 'Vui lòng nhập Tỉnh/Thành phố';
     }
 
     if (!shippingInfo.district.trim()) {
-      errors.district = "Vui lòng nhập Quận/Huyện";
+      errors.district = 'Vui lòng nhập Quận/Huyện';
     }
 
     if (!shippingInfo.ward.trim()) {
-      errors.ward = "Vui lòng nhập Phường/Xã";
+      errors.ward = 'Vui lòng nhập Phường/Xã';
     }
 
     if (!shippingInfo.address.trim()) {
-      errors.address = "Vui lòng nhập địa chỉ cụ thể";
+      errors.address = 'Vui lòng nhập địa chỉ cụ thể';
     }
 
     setFormErrors(errors);
@@ -120,7 +113,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
       clearCart();
       onSuccess?.(result, paymentMethod, shippingInfo);
     } catch (err) {
-      setError(err.message || "Đặt hàng thất bại. Vui lòng thử lại.");
+      setError(err.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -235,7 +228,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
               <div className="payment-methods">
                 <label
                   className={`payment-option ${
-                    paymentMethod === PAYMENT_METHODS.COD ? "selected" : ""
+                    paymentMethod === PAYMENT_METHODS.COD ? 'selected' : ''
                   }`}
                 >
                   <input
@@ -248,21 +241,15 @@ export function CheckoutPage({ onBack, onSuccess }) {
                   <div className="payment-content">
                     <span className="payment-icon">💵</span>
                     <div className="payment-info">
-                      <span className="payment-name">
-                        Thanh toán khi nhận hàng (COD)
-                      </span>
-                      <span className="payment-desc">
-                        Thanh toán bằng tiền mặt khi nhận hàng
-                      </span>
+                      <span className="payment-name">Thanh toán khi nhận hàng (COD)</span>
+                      <span className="payment-desc">Thanh toán bằng tiền mặt khi nhận hàng</span>
                     </div>
                   </div>
                 </label>
 
                 <label
                   className={`payment-option ${
-                    paymentMethod === PAYMENT_METHODS.BANK_TRANSFER
-                      ? "selected"
-                      : ""
+                    paymentMethod === PAYMENT_METHODS.BANK_TRANSFER ? 'selected' : ''
                   }`}
                 >
                   <input
@@ -275,12 +262,8 @@ export function CheckoutPage({ onBack, onSuccess }) {
                   <div className="payment-content">
                     <span className="payment-icon">🏦</span>
                     <div className="payment-info">
-                      <span className="payment-name">
-                        Chuyển khoản ngân hàng
-                      </span>
-                      <span className="payment-desc">
-                        Chuyển khoản trước khi giao hàng
-                      </span>
+                      <span className="payment-name">Chuyển khoản ngân hàng</span>
+                      <span className="payment-desc">Chuyển khoản trước khi giao hàng</span>
                     </div>
                   </div>
                 </label>
@@ -318,9 +301,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
                     <span className="item-name">{item.name}</span>
                     <span className="item-quantity">x{item.quantity}</span>
                   </div>
-                  <span className="item-price">
-                    {formatPrice(item.price * item.quantity)}
-                  </span>
+                  <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
@@ -336,9 +317,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
               </div>
               <div className="total-row grand-total">
                 <span>Tổng cộng</span>
-                <span className="grand-total-amount">
-                  {formatPrice(grandTotal)}
-                </span>
+                <span className="grand-total-amount">{formatPrice(grandTotal)}</span>
               </div>
             </div>
 
@@ -349,14 +328,11 @@ export function CheckoutPage({ onBack, onSuccess }) {
               loading={loading}
               onClick={handleSubmit}
             >
-              {paymentMethod === PAYMENT_METHODS.COD
-                ? "Đặt Hàng"
-                : "Đặt Hàng & Chuyển Khoản"}
+              {paymentMethod === PAYMENT_METHODS.COD ? 'Đặt Hàng' : 'Đặt Hàng & Chuyển Khoản'}
             </Button>
 
             <p className="checkout-note">
-              Bằng việc đặt hàng, bạn đồng ý với điều khoản sử dụng của
-              SmartShop
+              Bằng việc đặt hàng, bạn đồng ý với điều khoản sử dụng của SmartShop
             </p>
           </Card>
         </div>

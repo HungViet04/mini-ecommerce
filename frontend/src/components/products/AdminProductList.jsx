@@ -28,7 +28,7 @@ export function AdminProductList() {
     setShowForm(true);
   };
 
-  const handleOpenEdit = product => {
+  const handleOpenEdit = (product) => {
     setEditingProduct(product);
     setShowForm(true);
     setSubmitError('');
@@ -39,7 +39,7 @@ export function AdminProductList() {
     resetForm();
   };
 
-  const handleDelete = async product => {
+  const handleDelete = async (product) => {
     if (deleteConfirm !== product.id) {
       setDeleteConfirm(product.id);
       return;
@@ -56,8 +56,8 @@ export function AdminProductList() {
     }
   };
 
-  const getCategoryName = categoryId => {
-    const category = categories.find(c => c.id === categoryId);
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((c) => c.id === categoryId);
     return category?.name || 'Không có';
   };
 
@@ -115,7 +115,7 @@ export function AdminProductList() {
                 </tr>
               </thead>
               <tbody>
-                {products.map(product => (
+                {products.map((product) => (
                   <tr key={product.id}>
                     <td>
                       <div className="product-thumb">

@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useProducts } from '../../hooks';
 import { useCart, useAuth } from '../../contexts';
-import { ProductGrid } from './ProductGrid';
 import { ProductSlider } from './ProductSlider';
 import { ProductDetail } from './ProductDetail';
 import { productService } from '../../services';
@@ -19,12 +18,12 @@ const PRODUCTS_PER_PAGE = 8;
 const FEATURED_PRODUCTS_COUNT = 4;
 
 export function ProductList({ searchQuery = '', categoryId = null, onCategoryChange }) {
-  const { products: allProducts, loading: defaultLoading, error: defaultError, refetch } = useProducts();
+  const { products: allProducts, loading: defaultLoading } = useProducts();
   const { addItem } = useCart();
   const { isAdmin } = useAuth();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // State for filtered/searched products
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -114,9 +113,8 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
   };
 
   // Determine which products and loading state to show
-  const displayProducts = (searchQuery || categoryId) ? filteredProducts : allProducts;
-  const isLoading = (searchQuery || categoryId) ? loading : defaultLoading;
-  const displayError = (searchQuery || categoryId) ? error : defaultError;
+  const displayProducts = searchQuery || categoryId ? filteredProducts : allProducts;
+  const isLoading = searchQuery || categoryId ? loading : defaultLoading;
 
   // Featured products for slider (only show on main page without filters)
   const featuredProducts = useMemo(() => {
@@ -142,7 +140,9 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     if (categoryId) {
       return `Hiển thị ${displayProducts.length} sản phẩm trong danh mục`;
     }
-    return isAdmin ? 'Quản lý danh mục sản phẩm của bạn' : 'Khám phá bộ sưu tập tuyệt vời của chúng tôi';
+    return isAdmin
+      ? 'Quản lý danh mục sản phẩm của bạn'
+      : 'Khám phá bộ sưu tập tuyệt vời của chúng tôi';
   };
 
   // Show product detail if a product is selected
@@ -165,7 +165,6 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     );
   }
 
-
   // Custom ProductCard render để truyền Toast đúng vị trí
   const renderProductCard = (product, onAddToCart, onViewDetail) => (
     <div style={{ position: 'relative' }} key={product.id}>
@@ -178,7 +177,12 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       <div style={{ minHeight: 32, position: 'relative' }}>
         {addCartErrorProductId === product.id && addCartError && (
           <div style={{ position: 'absolute', left: 0, right: 0, top: 0, zIndex: 10 }}>
-            <Toast message={addCartError} type="error" duration={2200} onClose={() => setAddCartError('')} />
+            <Toast
+              message={addCartError}
+              type="error"
+              duration={2200}
+              onClose={() => setAddCartError('')}
+            />
           </div>
         )}
       </div>
@@ -188,10 +192,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
   return (
     <section className="product-list-section with-sidebar">
       {/* Category Sidebar */}
-      <CategorySidebar
-        selectedCategory={categoryId}
-        onSelectCategory={handleCategorySelect}
-      />
+      <CategorySidebar selectedCategory={categoryId} onSelectCategory={handleCategorySelect} />
 
       {/* Products Area */}
       <div className="products-main">
@@ -238,7 +239,12 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
 
       {/* Toast notification nổi toàn cục */}
       {addCartError && (
-        <Toast message={addCartError} type="error" duration={2200} onClose={() => setAddCartError('')} />
+        <Toast
+          message={addCartError}
+          type="error"
+          duration={2200}
+          onClose={() => setAddCartError('')}
+        />
       )}
     </section>
   );

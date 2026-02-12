@@ -11,7 +11,7 @@ const { asyncHandler } = require('../helpers');
  */
 const getDashboardStats = asyncHandler(async (req, res) => {
   const stats = await statsService.getDashboardStats();
-  
+
   res.json({
     success: true,
     data: stats,

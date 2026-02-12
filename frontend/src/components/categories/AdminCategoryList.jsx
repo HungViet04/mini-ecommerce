@@ -57,7 +57,7 @@ export function AdminCategoryList() {
     setShowForm(true);
   };
 
-  const handleOpenEditForm = category => {
+  const handleOpenEditForm = (category) => {
     setEditingCategory(category);
     setFormData({ name: category.name });
     setFormError('');
@@ -71,12 +71,12 @@ export function AdminCategoryList() {
     setFormError('');
   };
 
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setFormError('');
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -119,7 +119,7 @@ export function AdminCategoryList() {
     }
   };
 
-  const handleDelete = async category => {
+  const handleDelete = async (category) => {
     if (window.confirm(`Bạn có chắc muốn xóa danh mục "${category.name}"?`)) {
       const success = await deleteCategory(category.id);
       if (success) {
@@ -151,7 +151,7 @@ export function AdminCategoryList() {
       {/* Create/Edit Form Modal */}
       {showForm && (
         <div className="modal-overlay" onClick={handleCloseForm}>
-          <Card className="modal-content category-form-modal" onClick={e => e.stopPropagation()}>
+          <Card className="modal-content category-form-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="modal-title">
               {editingCategory ? '✏️ Chỉnh Sửa Danh Mục' : '➕ Tạo Danh Mục Mới'}
             </h3>
@@ -206,7 +206,7 @@ export function AdminCategoryList() {
                 </tr>
               </thead>
               <tbody>
-                {categories.map(category => (
+                {categories.map((category) => (
                   <tr key={category.id}>
                     <td className="category-id">#{category.id}</td>
                     <td className="category-name">{category.name}</td>

@@ -98,9 +98,7 @@ export function useAdminCategories(options = {}) {
 
     try {
       const updatedCategory = await categoryService.update(id, data);
-      setCategories((prev) =>
-        prev.map((cat) => (cat.id === id ? updatedCategory : cat))
-      );
+      setCategories((prev) => prev.map((cat) => (cat.id === id ? updatedCategory : cat)));
       return updatedCategory;
     } catch (err) {
       setError(err.message || 'Không thể cập nhật danh mục');

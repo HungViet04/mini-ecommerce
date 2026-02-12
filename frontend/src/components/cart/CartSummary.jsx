@@ -3,20 +3,19 @@
  * Cart summary and checkout
  * Pattern: Container Component
  */
-import React from "react";
-import { useCart, useAuth } from "../../contexts";
-import { Card, Button } from "../ui";
-import { CartItem } from "./CartItem";
-import { formatPrice } from "../../utils";
+import React from 'react';
+import { useCart, useAuth } from '../../contexts';
+import { Card, Button } from '../ui';
+import { CartItem } from './CartItem';
+import { formatPrice } from '../../utils';
 
 export function CartSummary({ onCheckout }) {
-  const { items, total, itemCount, updateQuantity, removeItem, clearCart } =
-    useCart();
+  const { items, total, itemCount, updateQuantity, removeItem, clearCart } = useCart();
   const { isAuthenticated } = useAuth();
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      alert("Vui lòng đăng nhập để đặt hàng");
+      alert('Vui lòng đăng nhập để đặt hàng');
       return;
     }
     onCheckout?.();
@@ -58,11 +57,7 @@ export function CartSummary({ onCheckout }) {
           <Button variant="secondary" onClick={clearCart}>
             Xóa Giỏ Hàng
           </Button>
-          <Button
-            className="btn-checkout"
-            variant="primary"
-            onClick={handleCheckout}
-          >
+          <Button className="btn-checkout" variant="primary" onClick={handleCheckout}>
             Thanh Toán
           </Button>
         </div>

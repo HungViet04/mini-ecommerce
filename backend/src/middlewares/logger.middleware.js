@@ -17,7 +17,7 @@ const requestLogger = (req, res, next) => {
   // Log request on response finish
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    
+
     logger.http({
       method: req.method,
       url: req.originalUrl,

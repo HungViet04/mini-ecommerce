@@ -9,7 +9,12 @@ const { HTTP_STATUS, ERROR_CODES } = require('../constants');
  * Base Application Error
  */
 class AppError extends Error {
-  constructor(message, statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR, code = ERROR_CODES.SERVER_ERROR, details = null) {
+  constructor(
+    message,
+    statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    code = ERROR_CODES.SERVER_ERROR,
+    details = null
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;
@@ -62,14 +67,18 @@ class AuthorizationError extends AppError {
 class NotFoundError extends AppError {
   constructor(resource = 'Tài nguyên', message = null) {
     const resourceMap = {
-      'Product': 'Sản phẩm',
-      'Order': 'Đơn hàng',
-      'User': 'Người dùng',
-      'Category': 'Danh mục',
-      'Resource': 'Tài nguyên',
+      Product: 'Sản phẩm',
+      Order: 'Đơn hàng',
+      User: 'Người dùng',
+      Category: 'Danh mục',
+      Resource: 'Tài nguyên',
     };
     const vietnameseResource = resourceMap[resource] || resource;
-    super(message || `${vietnameseResource} không tồn tại`, HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND);
+    super(
+      message || `${vietnameseResource} không tồn tại`,
+      HTTP_STATUS.NOT_FOUND,
+      ERROR_CODES.NOT_FOUND
+    );
     this.resource = resource;
   }
 }

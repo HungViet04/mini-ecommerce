@@ -10,53 +10,53 @@ const categoryIcons = {
   // Điện tử / Điện thoại
   'điện tử': '📱',
   'điện thoại': '📱',
-  'iphone': '📱',
-  'samsung': '📱',
-  'phone': '📱',
-  
+  iphone: '📱',
+  samsung: '📱',
+  phone: '📱',
+
   // Máy tính
-  'laptop': '💻',
+  laptop: '💻',
   'máy tính': '💻',
-  'computer': '💻',
-  'pc': '💻',
-  
+  computer: '💻',
+  pc: '💻',
+
   // Tablet
   'máy tính bảng': '📱',
-  'tablet': '📱',
-  'ipad': '📱',
-  
+  tablet: '📱',
+  ipad: '📱',
+
   // Tai nghe / Âm thanh
   'tai nghe': '🎧',
-  'headphone': '🎧',
+  headphone: '🎧',
   'âm thanh': '🎧',
-  'loa': '🔊',
-  'speaker': '🔊',
-  
+  loa: '🔊',
+  speaker: '🔊',
+
   // Đồng hồ
   'đồng hồ': '⌚',
-  'watch': '⌚',
-  'smartwatch': '⌚',
-  
+  watch: '⌚',
+  smartwatch: '⌚',
+
   // Phụ kiện
   'phụ kiện': '🔌',
-  'accessory': '🔌',
-  'sạc': '🔋',
-  'cáp': '🔌',
-  
+  accessory: '🔌',
+  sạc: '🔋',
+  cáp: '🔌',
+
   // Khác
   'hàng cũ': '♻️',
   'tin tức': '📰',
-  'game': '🎮',
-  'camera': '📷',
-  'tivi': '📺',
-  'tv': '📺',
-  'default': '📦'
+  game: '🎮',
+  camera: '📷',
+  tivi: '📺',
+  tv: '📺',
+  default: '📦',
 };
 
 const getIcon = (name) => {
   if (!name) return categoryIcons.default;
   const lowerName = name.toLowerCase();
-  
+
   for (const [key, icon] of Object.entries(categoryIcons)) {
     if (lowerName.includes(key)) {
       return icon;
@@ -90,8 +90,8 @@ export function CategorySidebar({ selectedCategory, onSelectCategory, collapsed 
   if (collapsed) {
     return (
       <div className="category-dropdown-wrapper" ref={dropdownRef}>
-        <button 
-          className={`category-toggle-btn ${dropdownOpen ? 'active' : ''}`} 
+        <button
+          className={`category-toggle-btn ${dropdownOpen ? 'active' : ''}`}
           onClick={() => setDropdownOpen(!dropdownOpen)}
         >
           <span className="toggle-icon">☰</span>
@@ -165,11 +165,6 @@ export function CategorySidebar({ selectedCategory, onSelectCategory, collapsed 
       </nav>
     </aside>
   );
-}
-
-// Keep CategoryDrawer for backward compatibility but it's not used anymore
-export function CategoryDrawer({ isOpen, onClose, selectedCategory, onSelectCategory }) {
-  return null;
 }
 
 export default CategorySidebar;

@@ -14,27 +14,31 @@ const BANK_INFO = {
   qrImage: '/images/image.png',
 };
 
-export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueShopping, onViewOrders }) {
+export function OrderSuccess({
+  order,
+  paymentMethod,
+  shippingInfo,
+  onContinueShopping,
+  onViewOrders,
+}) {
   const isBankTransfer = paymentMethod === 'bank_transfer';
-  
+
   return (
     <div className="order-success-page">
       <Card className="success-card">
         {/* Success Header */}
         <div className="success-header">
-          <div className="success-icon">
-            {isBankTransfer ? '🏦' : '✅'}
-          </div>
+          <div className="success-icon">{isBankTransfer ? '🏦' : '✅'}</div>
           <h1 className="success-title">
             {isBankTransfer ? 'Đơn Hàng Đã Được Tạo!' : 'Đặt Hàng Thành Công!'}
           </h1>
           <p className="success-subtitle">
-            {isBankTransfer 
-              ? 'Vui lòng chuyển khoản để hoàn tất đơn hàng' 
+            {isBankTransfer
+              ? 'Vui lòng chuyển khoản để hoàn tất đơn hàng'
               : 'Cảm ơn bạn đã mua hàng tại SmartShop'}
           </p>
         </div>
-        
+
         {/* Order Info */}
         <div className="order-info-section">
           <div className="info-row highlight">
@@ -49,34 +53,26 @@ export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueSho
           </div>
           <div className="info-row">
             <span className="info-label">Tổng tiền:</span>
-            <span className="info-value total-amount">
-              {formatPrice(order?.total || 0)}
-            </span>
+            <span className="info-value total-amount">{formatPrice(order?.total || 0)}</span>
           </div>
         </div>
-        
+
         {/* Bank Transfer Info - QR Code */}
         {isBankTransfer && (
           <div className="bank-transfer-section">
             <h3 className="section-title">💳 Quét Mã QR Để Thanh Toán</h3>
-            
+
             {/* QR Code Only */}
             <div className="qr-code-container">
-              <img 
-                src={BANK_INFO.qrImage} 
-                alt="QR Code thanh toán"
-                className="qr-code-image"
-              />
+              <img src={BANK_INFO.qrImage} alt="QR Code thanh toán" className="qr-code-image" />
             </div>
-            
+
             {/* Payment Amount */}
             <div className="payment-amount-box">
               <span className="amount-label">Số tiền cần chuyển:</span>
-              <span className="amount-value">
-                {formatPrice(order?.total || 0)}
-              </span>
+              <span className="amount-value">{formatPrice(order?.total || 0)}</span>
             </div>
-            
+
             {/* Transfer Info Note */}
             <div className="transfer-info-note">
               <p className="note-item">
@@ -85,8 +81,10 @@ export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueSho
               </p>
               <p className="note-item">
                 <span className="note-label">Nội dung CK:</span>
-                <span className="note-value highlight">DH{order?.id} {shippingInfo?.phone}</span>
-                <button 
+                <span className="note-value highlight">
+                  DH{order?.id} {shippingInfo?.phone}
+                </span>
+                <button
                   className="copy-btn-small"
                   onClick={() => {
                     navigator.clipboard.writeText(`DH${order?.id} ${shippingInfo?.phone}`);
@@ -98,28 +96,30 @@ export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueSho
                 </button>
               </p>
             </div>
-            
+
             <p className="bank-warning">
-              ⚠️ Vui lòng chuyển khoản đúng số tiền và nội dung. Đơn hàng sẽ được xác nhận sau khi nhận được thanh toán (thường trong vòng 5-15 phút).
+              ⚠️ Vui lòng chuyển khoản đúng số tiền và nội dung. Đơn hàng sẽ được xác nhận sau khi
+              nhận được thanh toán (thường trong vòng 5-15 phút).
             </p>
           </div>
         )}
-        
+
         {/* Shipping Info */}
         <div className="shipping-info-section">
           <h3 className="section-title">📦 Thông Tin Giao Hàng</h3>
           <div className="shipping-details">
-            <p><strong>{shippingInfo?.fullName}</strong></p>
+            <p>
+              <strong>{shippingInfo?.fullName}</strong>
+            </p>
             <p>{shippingInfo?.phone}</p>
             <p>
-              {shippingInfo?.address}, {shippingInfo?.ward}, {shippingInfo?.district}, {shippingInfo?.province}
+              {shippingInfo?.address}, {shippingInfo?.ward}, {shippingInfo?.district},{' '}
+              {shippingInfo?.province}
             </p>
-            {shippingInfo?.note && (
-              <p className="shipping-note">Ghi chú: {shippingInfo.note}</p>
-            )}
+            {shippingInfo?.note && <p className="shipping-note">Ghi chú: {shippingInfo.note}</p>}
           </div>
         </div>
-        
+
         {/* Order Items */}
         {order?.items && order.items.length > 0 && (
           <div className="order-items-section">
@@ -135,7 +135,7 @@ export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueSho
             </div>
           </div>
         )}
-        
+
         {/* Actions */}
         <div className="success-actions">
           <Button variant="primary" onClick={onViewOrders}>
@@ -145,7 +145,7 @@ export function OrderSuccess({ order, paymentMethod, shippingInfo, onContinueSho
             Tiếp Tục Mua Sắm
           </Button>
         </div>
-        
+
         {/* Contact */}
         <div className="contact-section">
           <p>

@@ -3,8 +3,7 @@
  * Business logic for user management (admin)
  */
 const { userRepository } = require('../repositories');
-const { NotFoundError, ValidationError, AuthorizationError } = require('../errors');
-const { USER_ROLES } = require('../constants');
+const { NotFoundError, ValidationError } = require('../errors');
 const database = require('../config/database');
 
 class UserService {
@@ -51,7 +50,7 @@ class UserService {
     // Paginate
     const paginatedItems = rows.slice(offset, offset + parseInt(limit, 10));
     return {
-      items: paginatedItems.map(row => ({
+      items: paginatedItems.map((row) => ({
         id: row.id,
         name: row.name,
         email: row.email,
@@ -142,7 +141,10 @@ class UserService {
     }
 
     // Check if user has orders
-    const [orderCheck] = await database.query('SELECT COUNT(*) as count FROM orders WHERE user_id = ?', [id]);
+    const [orderCheck] = await database.query(
+      'SELECT COUNT(*) as count FROM orders WHERE user_id = ?',
+      [id]
+    );
     if (orderCheck[0].count > 0) {
       throw new ValidationError('Không thể xóa user đã có đơn hàng. Hãy vô hiệu hóa thay vì xóa.');
     }
@@ -165,7 +167,7 @@ class UserService {
       ORDER BY o.created_at DESC
     `;
     const [rows] = await database.query(sql, [userId]);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.id,
       total: row.total,
       status: row.status,

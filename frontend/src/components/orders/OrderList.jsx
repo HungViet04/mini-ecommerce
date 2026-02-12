@@ -3,19 +3,18 @@
  * User's order history
  * Pattern: Container Component
  */
-import React, { useState } from "react";
-import { useOrders } from "../../hooks";
-import { useAuth } from "../../contexts";
-import { Loading, ErrorAlert } from "../ui";
-import { OrderCard } from "./OrderCard";
-import { OrderDetail } from "./OrderDetail";
+import React, { useState } from 'react';
+import { useOrders } from '../../hooks';
+import { useAuth } from '../../contexts';
+import { Loading, ErrorAlert } from '../ui';
+import { OrderCard } from './OrderCard';
+import { OrderDetail } from './OrderDetail';
 
 export function OrderList() {
   const { isAuthenticated } = useAuth();
-  const { orders, loading, error, cancelOrder, confirmDelivery, refetch } =
-    useOrders({
-      autoFetch: isAuthenticated,
-    });
+  const { orders, loading, error, cancelOrder, confirmDelivery, refetch } = useOrders({
+    autoFetch: isAuthenticated,
+  });
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   if (!isAuthenticated) {

@@ -30,15 +30,15 @@ class AuthService {
     const hashedPassword = await bcrypt.hash(validatedData.password, config.bcrypt.saltRounds);
 
     // Create user
-        const user = await userRepository.createUser({
+    const user = await userRepository.createUser({
       name: validatedData.name,
       email: validatedData.email,
       password: hashedPassword,
       role: 'user',
-        });
+    });
 
     // Return user without password
-    const { password, ...userWithoutPassword } = user;
+    const { ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
@@ -56,7 +56,6 @@ class AuthService {
     if (!user) {
       throw new AuthenticationError('Email hoặc mật khẩu không chính xác');
     }
-
 
     // Verify password
     const isValidPassword = await bcrypt.compare(validatedData.password, user.password);
@@ -84,8 +83,8 @@ class AuthService {
    * @returns {Promise<Object>} User profile
    */
   async getProfile(userId) {
-  const user = await userRepository.findByIdOrFail(userId, 'User');
-    const { password, ...profile } = user;
+    const user = await userRepository.findByIdOrFail(userId, 'User');
+    const { ...profile } = user;
     return profile;
   }
 
@@ -118,11 +117,9 @@ class AuthService {
    * @returns {string} Access token
    */
   generateAccessToken(user) {
-    return jwt.sign(
-      { id: user.id, role: user.role },
-      config.jwt.accessSecret,
-      { expiresIn: config.jwt.accessExpiresIn }
-    );
+    return jwt.sign({ id: user.id, role: user.role }, config.jwt.accessSecret, {
+      expiresIn: config.jwt.accessExpiresIn,
+    });
   }
 }
 

@@ -4,7 +4,7 @@
  * Based on database schema: categories(id, name) - only id and name columns
  */
 const { categoryRepository } = require('../repositories');
-const { NotFoundError, ConflictError, ValidationError } = require('../errors');
+const { ConflictError, ValidationError } = require('../errors');
 const { sanitizeString, hasMaxLength } = require('../validators/common.validator');
 
 class CategoryService {

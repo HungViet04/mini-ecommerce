@@ -13,10 +13,10 @@ export function Pagination({ currentPage, totalPages, onPageChange }) {
   const getPageNumbers = () => {
     const pages = [];
     const maxVisible = 5;
-        
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-    
+
     // Adjust start if we're near the end
     if (endPage - startPage < maxVisible - 1) {
       startPage = Math.max(1, endPage - maxVisible + 1);
@@ -45,15 +45,10 @@ export function Pagination({ currentPage, totalPages, onPageChange }) {
       {/* First Page */}
       {pageNumbers[0] > 1 && (
         <>
-          <button
-            className="pagination-btn pagination-number"
-            onClick={() => onPageChange(1)}
-          >
+          <button className="pagination-btn pagination-number" onClick={() => onPageChange(1)}>
             1
           </button>
-          {pageNumbers[0] > 2 && (
-            <span className="pagination-ellipsis">...</span>
-          )}
+          {pageNumbers[0] > 2 && <span className="pagination-ellipsis">...</span>}
         </>
       )}
 

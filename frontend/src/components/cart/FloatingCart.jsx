@@ -15,19 +15,17 @@ export default function FloatingCart({ onCheckout }) {
     <>
       {/* Ẩn nút giỏ hàng khi popup đang mở */}
       {!open && (
-        <button
-          className="floating-cart-btn"
-          onClick={() => setOpen(true)}
-          aria-label="Giỏ hàng"
-        >
+        <button className="floating-cart-btn" onClick={() => setOpen(true)} aria-label="Giỏ hàng">
           <span className="cart-icon">🛒</span>
           {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
         </button>
       )}
       {open && (
         <div className="cart-popup-overlay" onClick={() => setOpen(false)}>
-          <div className="cart-popup" onClick={e => e.stopPropagation()}>
-            <button className="cart-popup-close" onClick={() => setOpen(false)}>&times;</button>
+          <div className="cart-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="cart-popup-close" onClick={() => setOpen(false)}>
+              &times;
+            </button>
             <CartSummary onCheckout={handleCheckout} />
           </div>
         </div>

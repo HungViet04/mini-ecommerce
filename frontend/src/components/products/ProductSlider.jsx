@@ -4,7 +4,7 @@
  * Pattern: Presentational Component
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Button } from '../ui';
+import { Button } from '../ui';
 import { formatPrice } from '../../utils';
 import { useAuth } from '../../contexts';
 
@@ -68,9 +68,9 @@ export function ProductSlider({ products = [], onAddToCart, onViewDetail }) {
         <div className="slider-content">
           <div className="slider-image-wrapper" onClick={() => onViewDetail?.(currentProduct)}>
             {currentProduct.image_url ? (
-              <img 
-                src={currentProduct.image_url} 
-                alt={currentProduct.name} 
+              <img
+                src={currentProduct.image_url}
+                alt={currentProduct.name}
                 className="slider-image"
               />
             ) : (
@@ -78,28 +78,26 @@ export function ProductSlider({ products = [], onAddToCart, onViewDetail }) {
                 <span className="slider-emoji">📦</span>
               </div>
             )}
-            
+
             {/* Badge */}
             <div className="slider-badge">🔥 Nổi bật</div>
           </div>
 
           <div className="slider-info">
             <h2 className="slider-title">{currentProduct.name}</h2>
-            
+
             <p className="slider-description">
               {currentProduct.description
-                ? (currentProduct.description.length > 150
-                    ? currentProduct.description.substring(0, 150) + '...'
-                    : currentProduct.description)
+                ? currentProduct.description.length > 150
+                  ? currentProduct.description.substring(0, 150) + '...'
+                  : currentProduct.description
                 : '\u00A0'}
             </p>
 
             <div className="slider-price">{formatPrice(currentProduct.price)}</div>
 
             <div className="slider-stock">
-              {currentProduct.stock > 0 
-                ? `Còn ${currentProduct.stock} sản phẩm` 
-                : 'Hết hàng'}
+              {currentProduct.stock > 0 ? `Còn ${currentProduct.stock} sản phẩm` : 'Hết hàng'}
             </div>
 
             <div className="slider-actions">
@@ -113,11 +111,7 @@ export function ProductSlider({ products = [], onAddToCart, onViewDetail }) {
                   {currentProduct.stock > 0 ? '🛒 Thêm vào giỏ' : 'Hết hàng'}
                 </Button>
               )}
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => onViewDetail?.(currentProduct)}
-              >
+              <Button variant="secondary" size="lg" onClick={() => onViewDetail?.(currentProduct)}>
                 Xem chi tiết
               </Button>
             </div>

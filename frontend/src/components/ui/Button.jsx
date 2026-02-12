@@ -29,13 +29,9 @@ export function Button({
   onClick,
   ...props
 }) {
-  const classNames = [
-    'btn',
-    variants[variant],
-    sizes[size],
-    loading && 'btn-loading',
-    className,
-  ].filter(Boolean).join(' ');
+  const classNames = ['btn', variants[variant], sizes[size], loading && 'btn-loading', className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <button

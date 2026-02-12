@@ -15,17 +15,17 @@ import { RegisterForm } from './RegisterForm';
  */
 function validateLogin(values) {
   const errors = {};
-  
+
   if (!values.email) {
     errors.email = 'Vui lòng nhập email';
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
     errors.email = 'Email không đúng định dạng';
   }
-  
+
   if (!values.password) {
     errors.password = 'Vui lòng nhập mật khẩu';
   }
-  
+
   return errors;
 }
 
@@ -34,31 +34,31 @@ function validateLogin(values) {
  */
 function validateRegister(values) {
   const errors = {};
-  
+
   if (!values.name) {
     errors.name = 'Vui lòng nhập họ tên';
   } else if (values.name.length < 2) {
     errors.name = 'Họ tên phải có ít nhất 2 ký tự';
   }
-  
+
   if (!values.email) {
     errors.email = 'Vui lòng nhập email';
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
     errors.email = 'Email không đúng định dạng';
   }
-  
+
   if (!values.password) {
     errors.password = 'Vui lòng nhập mật khẩu';
   } else if (values.password.length < 6) {
     errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
   }
-  
+
   if (!values.confirmPassword) {
     errors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
   } else if (values.password !== values.confirmPassword) {
     errors.confirmPassword = 'Mật khẩu không khớp';
   }
-  
+
   return errors;
 }
 

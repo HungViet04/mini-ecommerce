@@ -60,38 +60,22 @@ export function OrderCard({ order, onCancel, onConfirmDelivery, onViewDetail }) 
         </div>
       )}
 
-      {isPending && (
-        <div className="order-payment-hint">
-          💡 Nhấn để xem mã QR thanh toán
-        </div>
-      )}
+      {isPending && <div className="order-payment-hint">💡 Nhấn để xem mã QR thanh toán</div>}
 
       <div className="order-actions" onClick={(e) => e.stopPropagation()}>
         {canCancel && onCancel && (
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => onCancel(id)}
-          >
+          <Button variant="danger" size="sm" onClick={() => onCancel(id)}>
             Hủy Đơn Hàng
           </Button>
         )}
-        
+
         {canConfirmDelivery && onConfirmDelivery && (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onConfirmDelivery(id)}
-          >
+          <Button variant="primary" size="sm" onClick={() => onConfirmDelivery(id)}>
             ✅ Đã Nhận Hàng
           </Button>
         )}
-        
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => onViewDetail?.(order)}
-        >
+
+        <Button variant="secondary" size="sm" onClick={() => onViewDetail?.(order)}>
           Xem Chi Tiết
         </Button>
       </div>

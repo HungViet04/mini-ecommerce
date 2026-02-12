@@ -22,7 +22,10 @@ const validateOrderItem = (item, index) => {
   const quantity = item.quantity;
 
   if (!isPositiveInteger(productId)) {
-    errors.push({ field: `items[${index}].productId`, message: 'ID sản phẩm phải là số nguyên dương' });
+    errors.push({
+      field: `items[${index}].productId`,
+      message: 'ID sản phẩm phải là số nguyên dương',
+    });
   }
   if (!isPositiveInteger(quantity)) {
     errors.push({ field: `items[${index}].quantity`, message: 'Số lượng phải là số nguyên dương' });
@@ -120,9 +123,8 @@ const validateCreateOrder = (data) => {
   errors.push(...shippingValidation.errors);
 
   // Validate payment method
-  const validPaymentMethod = paymentMethod && PAYMENT_METHODS.includes(paymentMethod) 
-    ? paymentMethod 
-    : 'cod';
+  const validPaymentMethod =
+    paymentMethod && PAYMENT_METHODS.includes(paymentMethod) ? paymentMethod : 'cod';
 
   if (errors.length > 0) {
     throw new ValidationError('Dữ liệu không hợp lệ', errors);
@@ -160,7 +162,10 @@ const validateStatusUpdate = (data) => {
 
   if (!status || !validStatuses.includes(status.toLowerCase())) {
     throw new ValidationError('Trạng thái đơn hàng không hợp lệ', [
-      { field: 'status', message: `Trạng thái phải là một trong: ${validStatuses.map(s => statusLabels[s] || s).join(', ')}` },
+      {
+        field: 'status',
+        message: `Trạng thái phải là một trong: ${validStatuses.map((s) => statusLabels[s] || s).join(', ')}`,
+      },
     ]);
   }
 
@@ -175,7 +180,7 @@ const validateStatusUpdate = (data) => {
  */
 const validateOrderId = (id) => {
   if (!isPositiveInteger(id)) {
-    throw new ValidationError("ID đơn hàng không hợp lệ");
+    throw new ValidationError('ID đơn hàng không hợp lệ');
   }
   return Number(id);
 };

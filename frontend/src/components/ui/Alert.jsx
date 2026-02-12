@@ -23,12 +23,7 @@ export function Alert({
     <div className={`alert ${variants[variant]} ${className}`}>
       <span className="alert-content">{children}</span>
       {dismissible && onDismiss && (
-        <button
-          type="button"
-          className="alert-dismiss"
-          onClick={onDismiss}
-          aria-label="Close"
-        >
+        <button type="button" className="alert-dismiss" onClick={onDismiss} aria-label="Close">
           ×
         </button>
       )}

@@ -52,7 +52,7 @@ const uploadProductImage = upload.single('image');
 
 // Wrapper để xử lý lỗi multer
 const handleUpload = (req, res, next) => {
-  uploadProductImage(req, res, err => {
+  uploadProductImage(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({

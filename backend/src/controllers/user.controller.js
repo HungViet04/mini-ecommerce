@@ -11,7 +11,7 @@ const { asyncHandler, response } = require('../helpers');
  */
 const getAll = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, role, search } = req.query;
-  
+
   const result = await userService.findAll({
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
@@ -37,11 +37,7 @@ const getById = asyncHandler(async (req, res) => {
  */
 const updateRole = asyncHandler(async (req, res) => {
   const { role } = req.body;
-  const user = await userService.updateRole(
-    parseInt(req.params.id, 10),
-    role,
-    req.user
-  );
+  const user = await userService.updateRole(parseInt(req.params.id, 10), role, req.user);
   response.success(res, { data: user, message: 'Cập nhật role thành công' });
 });
 
@@ -50,10 +46,7 @@ const updateRole = asyncHandler(async (req, res) => {
  * DELETE /api/v1/users/:id
  */
 const deleteUser = asyncHandler(async (req, res) => {
-  const result = await userService.delete(
-    parseInt(req.params.id, 10),
-    req.user
-  );
+  const result = await userService.delete(parseInt(req.params.id, 10), req.user);
   response.success(res, { data: result });
 });
 

@@ -26,8 +26,8 @@ export function CategoryNav({ selectedCategory, onSelectCategory }) {
         >
           Tất cả sản phẩm
         </button>
-        
-        {categories.map((category, index) => (
+
+        {categories.map((category) => (
           <React.Fragment key={category.id}>
             <span className="category-nav-separator">/</span>
             <button

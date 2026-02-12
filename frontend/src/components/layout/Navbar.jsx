@@ -3,9 +3,9 @@
  * Main navigation header
  * Pattern: Presentational Component
  */
-import { useAuth } from "../../contexts";
-import { Button } from "../ui";
-import { SearchBar } from "./SearchBar";
+import { useAuth } from '../../contexts';
+import { Button } from '../ui';
+import { SearchBar } from './SearchBar';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export function Navbar({ currentView, onSearch }) {
@@ -30,7 +30,7 @@ export function Navbar({ currentView, onSearch }) {
       <div
         className="navbar-brand brand-highlight"
         onClick={handleLogoClick}
-        style={isAdmin ? { cursor: "default" } : { cursor: "pointer" }}
+        style={isAdmin ? { cursor: 'default' } : { cursor: 'pointer' }}
       >
         <span className="brand-icon">🛒</span>
         <span className="brand-name">
@@ -57,33 +57,55 @@ export function Navbar({ currentView, onSearch }) {
       <nav className="navbar-nav">
         {/* My Orders - only for regular users, not admin */}
         {isAuthenticated && !isAdmin && (
-            <NavLink
-              active={location.pathname === '/orders'}
-              onClick={() => navigate('/orders')}
-            >
-              Đơn Hàng Của Tôi
-            </NavLink>
-          )}
+          <NavLink active={location.pathname === '/orders'} onClick={() => navigate('/orders')}>
+            Đơn Hàng Của Tôi
+          </NavLink>
+        )}
 
         {/* Admin Navigation */}
         {isAdmin && (
-          <NavLink active={location.pathname === '/admin/dashboard'} onClick={() => navigate('/admin/dashboard')}>📊 Dashboard</NavLink>
+          <NavLink
+            active={location.pathname === '/admin/dashboard'}
+            onClick={() => navigate('/admin/dashboard')}
+          >
+            📊 Dashboard
+          </NavLink>
         )}
 
         {isAdmin && (
-          <NavLink active={location.pathname === '/admin/orders'} onClick={() => navigate('/admin/orders')}>📦 Đơn Hàng</NavLink>
+          <NavLink
+            active={location.pathname === '/admin/orders'}
+            onClick={() => navigate('/admin/orders')}
+          >
+            📦 Đơn Hàng
+          </NavLink>
         )}
 
         {isAdmin && (
-          <NavLink active={location.pathname === '/admin/users'} onClick={() => navigate('/admin/users')}>👥 Người Dùng</NavLink>
+          <NavLink
+            active={location.pathname === '/admin/users'}
+            onClick={() => navigate('/admin/users')}
+          >
+            👥 Người Dùng
+          </NavLink>
         )}
 
         {isAdmin && (
-          <NavLink active={location.pathname === '/admin/products'} onClick={() => navigate('/admin/products')}>📱 Sản Phẩm</NavLink>
+          <NavLink
+            active={location.pathname === '/admin/products'}
+            onClick={() => navigate('/admin/products')}
+          >
+            📱 Sản Phẩm
+          </NavLink>
         )}
 
         {isAdmin && (
-          <NavLink active={location.pathname === '/admin/categories'} onClick={() => navigate('/admin/categories')}>🏷️ Danh Mục</NavLink>
+          <NavLink
+            active={location.pathname === '/admin/categories'}
+            onClick={() => navigate('/admin/categories')}
+          >
+            🏷️ Danh Mục
+          </NavLink>
         )}
       </nav>
 
@@ -100,11 +122,7 @@ export function Navbar({ currentView, onSearch }) {
           </>
         ) : (
           showAuthButton && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate('/auth')}
-            >
+            <Button variant="primary" size="sm" onClick={() => navigate('/auth')}>
               Đăng Nhập / Đăng Ký
             </Button>
           )
@@ -116,7 +134,7 @@ export function Navbar({ currentView, onSearch }) {
 
 function NavLink({ children, active, onClick }) {
   return (
-    <button className={`nav-link ${active ? "active" : ""}`} onClick={onClick}>
+    <button className={`nav-link ${active ? 'active' : ''}`} onClick={onClick}>
       {children}
     </button>
   );

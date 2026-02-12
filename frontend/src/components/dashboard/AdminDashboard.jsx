@@ -42,7 +42,7 @@ export function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       if (!isAuthenticated || !isAdmin) return;
-      
+
       try {
         setLoading(true);
         const data = await statsService.getDashboard();
@@ -134,7 +134,9 @@ export function AdminDashboard() {
             </div>
             <div className="revenue-item">
               <span className="revenue-label">Đã xác nhận</span>
-              <span className="revenue-value confirmed">{formatPrice(revenue.confirmedRevenue)}</span>
+              <span className="revenue-value confirmed">
+                {formatPrice(revenue.confirmedRevenue)}
+              </span>
             </div>
             <div className="revenue-item">
               <span className="revenue-label">Chờ thanh toán</span>
@@ -226,7 +228,7 @@ export function AdminDashboard() {
           <h3>📈 Doanh thu theo tháng</h3>
           <div className="monthly-chart">
             {monthlyRevenue.map((item) => {
-              const maxRevenue = Math.max(...monthlyRevenue.map(m => m.revenue)) || 1;
+              const maxRevenue = Math.max(...monthlyRevenue.map((m) => m.revenue)) || 1;
               const height = (item.revenue / maxRevenue) * 100;
               return (
                 <div key={item.month} className="chart-bar-container">

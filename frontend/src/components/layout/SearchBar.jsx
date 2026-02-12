@@ -92,9 +92,7 @@ export function SearchBar({ onSearch, placeholder = 'Bạn cần tìm gì...' })
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex((prev) => 
-          prev < suggestions.length - 1 ? prev + 1 : prev
-        );
+        setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
         break;
       case 'ArrowUp':
         e.preventDefault();
@@ -166,16 +164,14 @@ export function SearchBar({ onSearch, placeholder = 'Bạn cần tìm gì...' })
             ))}
           </div>
           <div className="search-suggestion-footer" onClick={handleSubmit}>
-            Xem tất cả kết quả cho "{query}"
+            Xem tất cả kết quả cho &quot;{query}&quot;
           </div>
         </div>
       )}
 
       {showSuggestions && query.trim() && suggestions.length === 0 && !loading && (
         <div className="search-suggestions">
-          <div className="search-no-results">
-            Không tìm thấy sản phẩm nào
-          </div>
+          <div className="search-no-results">Không tìm thấy sản phẩm nào</div>
         </div>
       )}
     </div>

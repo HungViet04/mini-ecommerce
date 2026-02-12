@@ -14,7 +14,7 @@ const logger = require('../utils/logger');
  * @param {Object} res - Express response
  * @param {Function} next - Next middleware
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res) => {
   // Log error based on environment and type
   if (config.env === 'development') {
     logger.error('Request Error', err);
@@ -89,9 +89,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Default error response (for unexpected errors)
   const statusCode = err.statusCode || err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR;
-  const message = config.env === 'development' 
-    ? err.message 
-    : 'Đã xảy ra lỗi không mong muốn';
+  const message = config.env === 'development' ? err.message : 'Đã xảy ra lỗi không mong muốn';
 
   return res.status(statusCode).json({
     success: false,
@@ -106,7 +104,7 @@ const errorHandler = (err, req, res, next) => {
 /**
  * 404 Not Found handler
  */
-const notFoundHandler = (req, res, next) => {
+const notFoundHandler = (req, res) => {
   res.status(HTTP_STATUS.NOT_FOUND).json({
     success: false,
     error: {

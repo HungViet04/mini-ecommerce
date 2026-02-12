@@ -10,7 +10,6 @@ const {
   isNonNegativeInteger,
   isPositiveInteger,
   hasMaxLength,
-  VALIDATION_RULES,
 } = require('./common.validator');
 
 /**

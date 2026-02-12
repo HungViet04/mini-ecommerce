@@ -19,7 +19,7 @@ class ProductRepository extends BaseRepository {
    * @returns {string}
    */
   getSelectColumns() {
-  return 'id, name, description, image_url, price, stock, category_id, created_at';
+    return 'id, name, description, image_url, price, stock, category_id, created_at';
   }
 
   /**
@@ -37,7 +37,7 @@ class ProductRepository extends BaseRepository {
       ORDER BY name ASC 
       LIMIT ? OFFSET ?
     `;
-  const [rows] = await this.query(sql, [`%${query}%`, parseInt(limit, 10), parseInt(offset, 10)]);
+    const [rows] = await this.query(sql, [`%${query}%`, parseInt(limit, 10), parseInt(offset, 10)]);
     return rows;
   }
 
@@ -57,7 +57,7 @@ class ProductRepository extends BaseRepository {
    * @returns {Promise<Array>}
    */
   async findInStock(options = {}) {
-  const { limit = 50, offset = 0, orderBy = 'name', order = 'ASC' } = options;
+    const { limit = 50, offset = 0, orderBy = 'name', order = 'ASC' } = options;
     const sql = `
       SELECT id, name, description, image_url, price, stock, category_id, created_at 
       FROM ${this.tableName} 
@@ -65,7 +65,7 @@ class ProductRepository extends BaseRepository {
       ORDER BY ${orderBy} ${order} 
       LIMIT ? OFFSET ?
     `;
-  const [rows] = await this.query(sql, [parseInt(limit, 10), parseInt(offset, 10)]);
+    const [rows] = await this.query(sql, [parseInt(limit, 10), parseInt(offset, 10)]);
     return rows;
   }
 
@@ -88,7 +88,7 @@ class ProductRepository extends BaseRepository {
    */
   async decrementStock(connection, productId, quantity) {
     const sql = `UPDATE ${this.tableName} SET stock = stock - ? WHERE id = ? AND stock >= ?`;
-  const [result] = await this.query(sql, [quantity, productId, quantity], connection);
+    const [result] = await this.query(sql, [quantity, productId, quantity], connection);
     return result;
   }
 

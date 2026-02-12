@@ -33,27 +33,33 @@ export function useOrders(options = {}) {
     }
   }, []);
 
-  const cancelOrder = useCallback(async (orderId) => {
-    try {
-      await orderService.cancel(orderId);
-      await fetchOrders(); // Refetch after cancel
-      return true;
-    } catch (err) {
-      setError(err.message || 'Không thể hủy đơn hàng');
-      return false;
-    }
-  }, [fetchOrders]);
+  const cancelOrder = useCallback(
+    async (orderId) => {
+      try {
+        await orderService.cancel(orderId);
+        await fetchOrders(); // Refetch after cancel
+        return true;
+      } catch (err) {
+        setError(err.message || 'Không thể hủy đơn hàng');
+        return false;
+      }
+    },
+    [fetchOrders]
+  );
 
-  const confirmDelivery = useCallback(async (orderId) => {
-    try {
-      await orderService.confirmDelivery(orderId);
-      await fetchOrders(); // Refetch after confirm
-      return true;
-    } catch (err) {
-      setError(err.message || 'Không thể xác nhận nhận hàng');
-      return false;
-    }
-  }, [fetchOrders]);
+  const confirmDelivery = useCallback(
+    async (orderId) => {
+      try {
+        await orderService.confirmDelivery(orderId);
+        await fetchOrders(); // Refetch after confirm
+        return true;
+      } catch (err) {
+        setError(err.message || 'Không thể xác nhận nhận hàng');
+        return false;
+      }
+    },
+    [fetchOrders]
+  );
 
   useEffect(() => {
     if (autoFetch) {

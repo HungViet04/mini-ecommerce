@@ -14,7 +14,10 @@ const { HTTP_STATUS } = require('../constants');
  * @param {number} options.statusCode - HTTP status code
  * @param {Object} options.meta - Additional metadata (pagination, etc.)
  */
-const success = (res, { data = null, message = 'Thành công', statusCode = HTTP_STATUS.OK, meta = null } = {}) => {
+const success = (
+  res,
+  { data = null, message = 'Thành công', statusCode = HTTP_STATUS.OK, meta = null } = {}
+) => {
   const response = {
     success: true,
     message,
@@ -37,7 +40,15 @@ const success = (res, { data = null, message = 'Thành công', statusCode = HTTP
  * @param {number} options.statusCode - HTTP status code
  * @param {any} options.details - Error details
  */
-const error = (res, { code = 'SERVER_ERROR', message = 'Đã xảy ra lỗi', statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR, details = null } = {}) => {
+const error = (
+  res,
+  {
+    code = 'SERVER_ERROR',
+    message = 'Đã xảy ra lỗi',
+    statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    details = null,
+  } = {}
+) => {
   const response = {
     success: false,
     error: {

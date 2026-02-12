@@ -44,7 +44,7 @@ export function CreateProductForm({ onSuccess, onClose, categories = [], product
 
   const form = useForm(
     { name: '', description: '', image_url: '', price: '', stock: '', category_id: '' },
-    async values => {
+    async (values) => {
       let imageUrl = values.image_url;
       const previousImage = product?.image_url;
       let shouldDeleteOld = false;
@@ -138,7 +138,7 @@ export function CreateProductForm({ onSuccess, onClose, categories = [], product
   }, [product]);
 
   // Xử lý khi chọn file ảnh
-  const handleImageChange = e => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Kiểm tra loại file
@@ -209,7 +209,7 @@ export function CreateProductForm({ onSuccess, onClose, categories = [], product
                   onChange={form.handleChange}
                 >
                   <option value="">-- Chọn danh mục --</option>
-                  {categories.map(cat => (
+                  {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
                     </option>

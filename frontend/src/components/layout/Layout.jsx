@@ -3,10 +3,10 @@
  * Main app layout wrapper
  * Pattern: Layout Component
  */
-import React from "react";
-import { Navbar } from "./Navbar";
-import FloatingCart from "../cart/FloatingCart";
-import { useAuth } from "../../contexts";
+import React from 'react';
+import { Navbar } from './Navbar';
+import FloatingCart from '../cart/FloatingCart';
+import { useAuth } from '../../contexts';
 import { useLocation } from 'react-router-dom';
 
 export function Layout({ children, onSearch, onCheckout }) {
@@ -22,8 +22,11 @@ export function Layout({ children, onSearch, onCheckout }) {
     return 'products';
   })();
 
-  const hideFooter = currentView === "login" || currentView === "register" || currentView === "auth";
-  const hideCart = ["login", "register", "auth", "checkout", "orders", "order-success"].includes(currentView) || isAdmin;
+  const hideFooter =
+    currentView === 'login' || currentView === 'register' || currentView === 'auth';
+  const hideCart =
+    ['login', 'register', 'auth', 'checkout', 'orders', 'order-success'].includes(currentView) ||
+    isAdmin;
   return (
     <div className="app-layout">
       <Navbar currentView={currentView} onSearch={onSearch} />

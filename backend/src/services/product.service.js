@@ -5,9 +5,9 @@
  */
 const { productRepository, categoryRepository } = require('../repositories');
 const { NotFoundError } = require('../errors');
-const { 
-  validateCreateProduct, 
-  validateUpdateProduct, 
+const {
+  validateCreateProduct,
+  validateUpdateProduct,
   validateProductId,
   validateSearchQuery,
 } = require('../validators/product.validator');

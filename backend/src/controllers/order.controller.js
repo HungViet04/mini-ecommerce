@@ -85,12 +85,21 @@ const exportOrders = asyncHandler(async (req, res) => {
     }
   }
 
-  const orders = await orderRepository.getOrdersForExport({ status, startDate: sDate, endDate: eDate });
+  const orders = await orderRepository.getOrdersForExport({
+    status,
+    startDate: sDate,
+    endDate: eDate,
+  });
 
   // Default to CSV, support XLSX
   const outFormat = (format || 'csv').toLowerCase();
 
-  const statusLabels = { pending: 'Chờ xử lý', paid: 'Đã thanh toán', shipped: 'Đang giao', delivered: 'Đã nhận' };
+  const statusLabels = {
+    pending: 'Chờ xử lý',
+    paid: 'Đã thanh toán',
+    shipped: 'Đang giao',
+    delivered: 'Đã nhận',
+  };
   const paymentLabels = { cod: 'COD', bank_transfer: 'Chuyển khoản' };
 
   if (outFormat === 'xlsx') {
@@ -134,8 +143,14 @@ const exportOrders = asyncHandler(async (req, res) => {
       });
     }
 
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="orders_${new Date().toISOString().split('T')[0]}.xlsx"`);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="orders_${new Date().toISOString().split('T')[0]}.xlsx"`
+    );
 
     await workbook.xlsx.write(res);
     res.end();
@@ -143,7 +158,22 @@ const exportOrders = asyncHandler(async (req, res) => {
   }
 
   // CSV fallback
-  const headers = ['Mã ĐH', 'Khách hàng', 'Email', 'Tổng tiền', 'Phí ship', 'Trạng thái', 'Thanh toán', 'Người nhận', 'SĐT', 'Địa chỉ', 'Thành phố', 'Ghi chú', 'Sản phẩm', 'Ngày tạo'];
+  const headers = [
+    'Mã ĐH',
+    'Khách hàng',
+    'Email',
+    'Tổng tiền',
+    'Phí ship',
+    'Trạng thái',
+    'Thanh toán',
+    'Người nhận',
+    'SĐT',
+    'Địa chỉ',
+    'Thành phố',
+    'Ghi chú',
+    'Sản phẩm',
+    'Ngày tạo',
+  ];
   const csvRows = [headers.join(',')];
 
   for (const order of orders) {
@@ -169,7 +199,10 @@ const exportOrders = asyncHandler(async (req, res) => {
   const csv = '\uFEFF' + csvRows.join('\n'); // BOM for UTF-8
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.setHeader('Content-Disposition', `attachment; filename="orders_${new Date().toISOString().split('T')[0]}.csv"`);
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="orders_${new Date().toISOString().split('T')[0]}.csv"`
+  );
   res.send(csv);
 });
 

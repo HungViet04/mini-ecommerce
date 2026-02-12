@@ -8,7 +8,6 @@ import { Button } from '../ui';
 import { formatPrice } from '../../utils';
 import { productService } from '../../services';
 
-
 export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
   const { productId, productName, price, quantity } = item;
   const subtotal = price * quantity;
@@ -20,7 +19,9 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
     productService.getById(productId).then((product) => {
       if (mounted) setStock(product.stock);
     });
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [productId]);
 
   const handleIncrease = () => {
@@ -45,11 +46,7 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
       </div>
 
       <div className="cart-item-quantity">
-        <button
-          className="qty-btn"
-          onClick={handleDecrease}
-          disabled={quantity <= 1}
-        >
+        <button className="qty-btn" onClick={handleDecrease} disabled={quantity <= 1}>
           -
         </button>
         <span className="qty-value">{quantity}</span>
@@ -62,17 +59,15 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
         </button>
       </div>
 
-      {error && <div className="cart-item-error" style={{ color: 'red', fontSize: 12 }}>{error}</div>}
+      {error && (
+        <div className="cart-item-error" style={{ color: 'red', fontSize: 12 }}>
+          {error}
+        </div>
+      )}
 
-      <div className="cart-item-subtotal">
-        {formatPrice(subtotal)}
-      </div>
+      <div className="cart-item-subtotal">{formatPrice(subtotal)}</div>
 
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onRemove(index)}
-      >
+      <Button variant="ghost" size="sm" onClick={() => onRemove(index)}>
         ✕
       </Button>
     </div>

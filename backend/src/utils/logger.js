@@ -102,10 +102,14 @@ class Logger {
    * @param {Object} options - Request options
    */
   http({ method, url, status, duration, userId = null }) {
-    const statusColor = status >= 500 ? COLORS.red
-      : status >= 400 ? COLORS.yellow
-      : status >= 300 ? COLORS.cyan
-      : COLORS.green;
+    const statusColor =
+      status >= 500
+        ? COLORS.red
+        : status >= 400
+          ? COLORS.yellow
+          : status >= 300
+            ? COLORS.cyan
+            : COLORS.green;
 
     const userStr = userId ? ` [user:${userId}]` : '';
     console.log(

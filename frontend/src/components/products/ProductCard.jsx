@@ -4,14 +4,12 @@
  * Pattern: Presentational Component
  */
 import React from 'react';
-import { Card, Button } from '../ui';
+import { Card } from '../ui';
 import { formatPrice } from '../../utils';
-import { useAuth } from '../../contexts';
 import { uploadService } from '../../services';
 
-export function ProductCard({ product, onAddToCart, onViewDetail, showActions = true }) {
-  const { isAdmin } = useAuth();
-  const { id, name, description, image_url, price, stock, category_name } = product;
+export function ProductCard({ product, onViewDetail = true }) {
+  const { name, image_url, price, stock, category_name } = product;
   const inStock = stock > 0;
 
   // Lấy URL hình ảnh đầy đủ

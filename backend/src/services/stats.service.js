@@ -3,7 +3,6 @@
  * Business logic for dashboard statistics
  */
 const database = require('../config/database');
-const { ORDER_STATUS } = require('../constants');
 
 class StatsService {
   /**
@@ -72,7 +71,16 @@ class StatsService {
       FROM orders
     `;
     const [rows] = await database.query(sql);
-    return rows[0] || { totalRevenue: 0, confirmedRevenue: 0, pendingRevenue: 0, todayRevenue: 0, weekRevenue: 0, monthRevenue: 0 };
+    return (
+      rows[0] || {
+        totalRevenue: 0,
+        confirmedRevenue: 0,
+        pendingRevenue: 0,
+        todayRevenue: 0,
+        weekRevenue: 0,
+        monthRevenue: 0,
+      }
+    );
   }
 
   /**
@@ -122,7 +130,7 @@ class StatsService {
       LIMIT ?
     `;
     const [rows] = await database.query(sql, [limit]);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.id,
       total: row.total,
       status: row.status,
@@ -151,7 +159,7 @@ class StatsService {
       LIMIT ?
     `;
     const [rows] = await database.query(sql, [limit]);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.id,
       name: row.name,
       price: row.price,
@@ -179,7 +187,7 @@ class StatsService {
       ORDER BY month ASC
     `;
     const [rows] = await database.query(sql, [months]);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       month: row.month,
       label: row.label,
       revenue: Number(row.revenue),

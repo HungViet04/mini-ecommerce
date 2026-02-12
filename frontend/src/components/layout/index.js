@@ -5,4 +5,4 @@ export { Navbar } from './Navbar';
 export { Layout } from './Layout';
 export { SearchBar } from './SearchBar';
 export { CategoryNav } from './CategoryNav';
-export { CategorySidebar, CategoryDrawer } from './CategorySidebar';
+export { CategorySidebar } from './CategorySidebar';

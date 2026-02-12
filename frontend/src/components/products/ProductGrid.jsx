@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { ProductCard } from './ProductCard';
-import { Loading, CardSkeleton } from '../ui';
+import { CardSkeleton } from '../ui';
 
 export function ProductGrid({ products, loading, error, onAddToCart, onViewDetail }) {
   if (loading) {

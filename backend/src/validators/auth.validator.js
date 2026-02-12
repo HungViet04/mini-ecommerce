@@ -29,9 +29,15 @@ const validateRegister = (data) => {
   if (!name) {
     errors.push({ field: 'name', message: 'Vui lòng nhập họ tên' });
   } else if (!hasMinLength(name, VALIDATION_RULES.NAME_MIN_LENGTH)) {
-    errors.push({ field: 'name', message: `Họ tên phải có ít nhất ${VALIDATION_RULES.NAME_MIN_LENGTH} ký tự` });
+    errors.push({
+      field: 'name',
+      message: `Họ tên phải có ít nhất ${VALIDATION_RULES.NAME_MIN_LENGTH} ký tự`,
+    });
   } else if (!hasMaxLength(name, VALIDATION_RULES.NAME_MAX_LENGTH)) {
-    errors.push({ field: 'name', message: `Họ tên không được vượt quá ${VALIDATION_RULES.NAME_MAX_LENGTH} ký tự` });
+    errors.push({
+      field: 'name',
+      message: `Họ tên không được vượt quá ${VALIDATION_RULES.NAME_MAX_LENGTH} ký tự`,
+    });
   }
 
   // Validate email
@@ -45,9 +51,15 @@ const validateRegister = (data) => {
   if (!password) {
     errors.push({ field: 'password', message: 'Vui lòng nhập mật khẩu' });
   } else if (!hasMinLength(password, VALIDATION_RULES.PASSWORD_MIN_LENGTH)) {
-    errors.push({ field: 'password', message: `Mật khẩu phải có ít nhất ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} ký tự` });
+    errors.push({
+      field: 'password',
+      message: `Mật khẩu phải có ít nhất ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} ký tự`,
+    });
   } else if (!hasMaxLength(password, VALIDATION_RULES.PASSWORD_MAX_LENGTH)) {
-    errors.push({ field: 'password', message: `Mật khẩu không được vượt quá ${VALIDATION_RULES.PASSWORD_MAX_LENGTH} ký tự` });
+    errors.push({
+      field: 'password',
+      message: `Mật khẩu không được vượt quá ${VALIDATION_RULES.PASSWORD_MAX_LENGTH} ký tự`,
+    });
   }
 
   if (errors.length > 0) {
@@ -102,7 +114,10 @@ const validatePasswordChange = (data) => {
   if (!newPassword) {
     errors.push({ field: 'newPassword', message: 'Vui lòng nhập mật khẩu mới' });
   } else if (!hasMinLength(newPassword, VALIDATION_RULES.PASSWORD_MIN_LENGTH)) {
-    errors.push({ field: 'newPassword', message: `Mật khẩu mới phải có ít nhất ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} ký tự` });
+    errors.push({
+      field: 'newPassword',
+      message: `Mật khẩu mới phải có ít nhất ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} ký tự`,
+    });
   }
 
   if (newPassword !== confirmPassword) {

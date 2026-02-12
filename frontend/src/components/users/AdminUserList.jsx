@@ -2,21 +2,11 @@
  * AdminUserList Component
  * User management for admin
  */
-import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../contexts";
-import { userService } from "../../services";
-import { Card, Button, Loading } from "../ui";
-import { formatPrice, formatDate } from "../../utils";
-
-// const roleLabels = {
-//   user: 'Khách hàng',
-//   admin: 'Quản trị viên',
-// };
-
-const roleColors = {
-  user: "role-user",
-  admin: "role-admin",
-};
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../contexts';
+import { userService } from '../../services';
+import { Card, Button, Loading } from '../ui';
+import { formatPrice, formatDate } from '../../utils';
 
 export function AdminUserList() {
   const { isAuthenticated, isAdmin, user: currentUser } = useAuth();
@@ -24,8 +14,8 @@ export function AdminUserList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     total: 0,
@@ -51,18 +41,11 @@ export function AdminUserList() {
       setUsers(result.items || []);
       setPagination((prev) => ({ ...prev, total: result.total || 0 }));
     } catch (err) {
-      setError(err.message || "Không thể tải danh sách người dùng");
+      setError(err.message || 'Không thể tải danh sách người dùng');
     } finally {
       setLoading(false);
     }
-  }, [
-    isAuthenticated,
-    isAdmin,
-    pagination.page,
-    pagination.limit,
-    roleFilter,
-    search,
-  ]);
+  }, [isAuthenticated, isAdmin, pagination.page, pagination.limit, roleFilter, search]);
 
   useEffect(() => {
     fetchUsers();
@@ -76,7 +59,7 @@ export function AdminUserList() {
 
   const handleRoleChange = async (userId, newRole) => {
     if (userId === currentUser?.id) {
-      setError("Không thể thay đổi role của chính mình");
+      setError('Không thể thay đổi role của chính mình');
       return;
     }
 
@@ -84,11 +67,11 @@ export function AdminUserList() {
       setUpdating(userId);
       setError(null);
       await userService.updateRole(userId, newRole);
-      setSuccess("Cập nhật role thành công");
+      setSuccess('Cập nhật role thành công');
       fetchUsers();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err.message || "Không thể cập nhật role");
+      setError(err.message || 'Không thể cập nhật role');
     } finally {
       setUpdating(null);
     }
@@ -101,7 +84,7 @@ export function AdminUserList() {
       const orders = await userService.getUserOrders(user.id);
       setUserOrders(orders);
     } catch (err) {
-      setError(err.message || "Không thể tải đơn hàng");
+      setError(err.message || 'Không thể tải đơn hàng');
     } finally {
       setLoadingOrders(false);
     }
@@ -109,7 +92,7 @@ export function AdminUserList() {
 
   const handleDeleteUser = async (user) => {
     if (user.id === currentUser?.id) {
-      setError("Không thể xóa tài khoản của chính mình");
+      setError('Không thể xóa tài khoản của chính mình');
       return;
     }
 
@@ -126,11 +109,11 @@ export function AdminUserList() {
       setUpdating(user.id);
       setError(null);
       await userService.delete(user.id);
-      setSuccess("Xóa người dùng thành công");
+      setSuccess('Xóa người dùng thành công');
       fetchUsers();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err.message || "Không thể xóa người dùng");
+      setError(err.message || 'Không thể xóa người dùng');
     } finally {
       setUpdating(null);
     }
@@ -188,11 +171,7 @@ export function AdminUserList() {
         </select> */}
 
         <div className="filter-actions">
-          <Button
-            variant="primary"
-            onClick={fetchUsers}
-            disabled={loading}
-          >
+          <Button variant="primary" onClick={fetchUsers} disabled={loading}>
             🔄 Làm mới
           </Button>
         </div>
@@ -220,9 +199,7 @@ export function AdminUserList() {
           {users.map((user) => (
             <Card key={user.id} className="user-card">
               <div className="user-header">
-                <div className="user-avatar">
-                  {user.name?.charAt(0).toUpperCase() || "?"}
-                </div>
+                <div className="user-avatar">{user.name?.charAt(0).toUpperCase() || '?'}</div>
                 <div className="user-info">
                   <span className="user-name">{user.name}</span>
                   <span className="user-email">{user.email}</span>
@@ -240,9 +217,7 @@ export function AdminUserList() {
                 </div>
                 <div className="user-stat">
                   <span className="stat-icon">💰</span>
-                  <span className="stat-value">
-                    {formatPrice(user.totalSpent)}
-                  </span>
+                  <span className="stat-value">{formatPrice(user.totalSpent)}</span>
                   <span className="stat-label">Đã chi</span>
                 </div>
               </div>
@@ -252,11 +227,7 @@ export function AdminUserList() {
               </div>
 
               <div className="user-actions">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => handleViewOrders(user)}
-                >
+                <Button variant="primary" size="sm" onClick={() => handleViewOrders(user)}>
                   📋 Xem đơn hàng
                 </Button>
 
@@ -279,8 +250,8 @@ export function AdminUserList() {
                       disabled={updating === user.id || user.orderCount > 0}
                       title={
                         user.orderCount > 0
-                          ? "Không thể xóa người dùng có đơn hàng"
-                          : "Xóa người dùng"
+                          ? 'Không thể xóa người dùng có đơn hàng'
+                          : 'Xóa người dùng'
                       }
                     >
                       🗑️
@@ -299,26 +270,19 @@ export function AdminUserList() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() =>
-              setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
-            }
+            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
             disabled={pagination.page <= 1}
           >
             ← Trước
           </Button>
           <span className="page-info">
-            Trang {pagination.page} /{" "}
-            {Math.ceil(pagination.total / pagination.limit)}
+            Trang {pagination.page} / {Math.ceil(pagination.total / pagination.limit)}
           </span>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() =>
-              setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
-            }
-            disabled={
-              pagination.page >= Math.ceil(pagination.total / pagination.limit)
-            }
+            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+            disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
           >
             Sau →
           </Button>
@@ -328,10 +292,7 @@ export function AdminUserList() {
       {/* User Orders Modal */}
       {selectedUser && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div
-            className="user-orders-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="user-orders-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>📦 Đơn hàng của {selectedUser.name}</h2>
               <button className="modal-close" onClick={handleCloseModal}>
@@ -356,9 +317,7 @@ export function AdminUserList() {
                       </div>
                       <div className="order-row">
                         <span>{formatDate(order.createdAt)}</span>
-                        <span className="order-total">
-                          {formatPrice(order.total)}
-                        </span>
+                        <span className="order-total">{formatPrice(order.total)}</span>
                       </div>
                       {order.shippingName && (
                         <div className="order-shipping">

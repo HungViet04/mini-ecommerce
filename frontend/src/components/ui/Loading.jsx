@@ -23,12 +23,7 @@ export function Loading({ text = 'Đang tải...', className = '' }) {
 }
 
 export function Skeleton({ width, height, className = '' }) {
-  return (
-    <div
-      className={`skeleton ${className}`}
-      style={{ width, height }}
-    />
-  );
+  return <div className={`skeleton ${className}`} style={{ width, height }} />;
 }
 
 export function CardSkeleton() {

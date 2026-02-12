@@ -5,9 +5,18 @@
  */
 const database = require('../config/database');
 const { productRepository, orderRepository } = require('../repositories');
-const { NotFoundError, OutOfStockError, AuthorizationError, ValidationError } = require('../errors');
+const {
+  NotFoundError,
+  OutOfStockError,
+  AuthorizationError,
+  ValidationError,
+} = require('../errors');
 const { USER_ROLES, ORDER_STATUS } = require('../constants');
-const { validateCreateOrder, validateStatusUpdate, validateOrderId } = require('../validators/order.validator');
+const {
+  validateCreateOrder,
+  validateStatusUpdate,
+  validateOrderId,
+} = require('../validators/order.validator');
 
 class OrderService {
   /**
@@ -23,7 +32,7 @@ class OrderService {
     // Check authorization for creating orders for other users
     if (validatedData.userId && validatedData.userId !== currentUser.id) {
       if (currentUser.role !== USER_ROLES.ADMIN) {
-  throw new AuthorizationError('Chỉ admin mới có thể tạo đơn hàng cho người khác');
+        throw new AuthorizationError('Chỉ admin mới có thể tạo đơn hàng cho người khác');
       }
     }
 
@@ -35,7 +44,7 @@ class OrderService {
     // Execute transaction
     const order = await database.transaction(async (connection) => {
       // Lock products for update
-  const products = await productRepository.findByIdsForUpdate(connection, productIds);
+      const products = await productRepository.findByIdsForUpdate(connection, productIds);
 
       // Create product map for quick lookup
       const productMap = new Map(products.map((p) => [p.id, p]));
@@ -92,7 +101,7 @@ class OrderService {
           price: item.price,
         });
 
-  await productRepository.decrementStock(connection, item.productId, item.quantity);
+        await productRepository.decrementStock(connection, item.productId, item.quantity);
       }
 
       return {
@@ -255,10 +264,10 @@ class OrderService {
    */
   validateStatusTransition(currentStatus, newStatus) {
     const statusLabels = {
-      'pending': 'Chờ xử lý',
-      'paid': 'Đã thanh toán',
-      'shipped': 'Đã giao hàng',
-      'delivered': 'Đã nhận hàng'
+      pending: 'Chờ xử lý',
+      paid: 'Đã thanh toán',
+      shipped: 'Đã giao hàng',
+      delivered: 'Đã nhận hàng',
     };
 
     const validTransitions = {
@@ -272,7 +281,7 @@ class OrderService {
     if (!allowed.includes(newStatus)) {
       const currentLabel = statusLabels[currentStatus] || currentStatus;
       const newLabel = statusLabels[newStatus] || newStatus;
-      const allowedLabels = allowed.map(s => statusLabels[s] || s).join(', ') || 'không có';
+      const allowedLabels = allowed.map((s) => statusLabels[s] || s).join(', ') || 'không có';
       throw new ValidationError(
         `Không thể chuyển từ "${currentLabel}" sang "${newLabel}". Trạng thái hợp lệ: ${allowedLabels}`
       );

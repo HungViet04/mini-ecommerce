@@ -21,38 +21,16 @@ const statusLabels = {
   delivered: 'Đã nhận hàng',
 };
 
-const ORDER_STATUSES = ['pending', 'paid', 'shipped', 'delivered'];
-
 // Valid status transitions (admin can update up to shipped, user confirms delivered)
 const validTransitions = {
   pending: ['paid'],
   paid: ['shipped'],
-  shipped: [],  // User confirms delivery, not admin
+  shipped: [], // User confirms delivery, not admin
   delivered: [],
 };
 
-const paymentMethodLabels = {
-  cod: 'Thanh toán khi nhận hàng (COD)',
-  bank_transfer: 'Chuyển khoản MoMo',
-};
-
 export function AdminOrderCard({ order, onUpdateStatus, updating }) {
-  const { 
-    id, 
-    status, 
-    total, 
-    createdAt, 
-    items = [], 
-    userName, 
-    userEmail,
-    shippingName,
-    shippingPhone,
-    shippingAddress,
-    shippingCity,
-    shippingNotes,
-    paymentMethod,
-    shippingFee,
-  } = order;
+  const { id, status, total, createdAt, items = [], userName } = order;
   const [selectedStatus, setSelectedStatus] = useState(status);
 
   const allowedStatuses = validTransitions[status] || [];
@@ -72,7 +50,9 @@ export function AdminOrderCard({ order, onUpdateStatus, updating }) {
     <Card className="order-card admin-order-card compact">
       <div className="order-header">
         <div className="order-id">#{id}</div>
-        <span className={`order-status ${statusColors[status]}`}>{statusLabels[status] || status}</span>
+        <span className={`order-status ${statusColors[status]}`}>
+          {statusLabels[status] || status}
+        </span>
       </div>
       <div className="order-meta">
         <span className="order-date">{formatDate(createdAt)}</span>
@@ -85,7 +65,9 @@ export function AdminOrderCard({ order, onUpdateStatus, updating }) {
         <div className="order-items order-items-compact">
           <span className="item-list-label">SP:</span>
           <span className="item-list-summary">
-            {items.map((item, idx) => `${item.productName || 'SP#'+item.productId} x${item.quantity}`).join(', ')}
+            {items
+              .map((item) => `${item.productName || 'SP#' + item.productId} x${item.quantity}`)
+              .join(', ')}
           </span>
         </div>
       )}
@@ -120,14 +102,10 @@ export function AdminOrderCard({ order, onUpdateStatus, updating }) {
       )}
 
       {allowedStatuses.length === 0 && status === 'shipped' && (
-        <div className="order-status-waiting">
-          ⏳ Đang chờ khách hàng xác nhận
-        </div>
+        <div className="order-status-waiting">⏳ Đang chờ khách hàng xác nhận</div>
       )}
       {allowedStatuses.length === 0 && status === 'delivered' && (
-        <div className="order-status-final">
-          ✅ Đã hoàn tất
-        </div>
+        <div className="order-status-final">✅ Đã hoàn tất</div>
       )}
     </Card>
   );

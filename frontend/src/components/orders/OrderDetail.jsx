@@ -3,43 +3,43 @@
  * Modal to show order details with QR payment info
  * Pattern: Presentational Component
  */
-import React, { useState } from "react";
-import { Button } from "../ui";
-import { formatPrice, formatDate } from "../../utils";
+import React, { useState } from 'react';
+import { Button } from '../ui';
+import { formatPrice, formatDate } from '../../utils';
 
 const BANK_INFO = {
-  bankName: "MoMo",
-  accountNumber: "*******470",
-  accountName: "NGUYỄN VĂN HÙNG",
-  qrImage: "/images/image.png",
+  bankName: 'MoMo',
+  accountNumber: '*******470',
+  accountName: 'NGUYỄN VĂN HÙNG',
+  qrImage: '/images/image.png',
 };
 
 const statusConfig = {
   pending: {
-    label: "Chờ thanh toán",
-    color: "#f59e0b",
-    bg: "#fef3c7",
-    icon: "⏳",
+    label: 'Chờ thanh toán',
+    color: '#f59e0b',
+    bg: '#fef3c7',
+    icon: '⏳',
   },
-  paid: { label: "Đã thanh toán", color: "#10b981", bg: "#d1fae5", icon: "✅" },
+  paid: { label: 'Đã thanh toán', color: '#10b981', bg: '#d1fae5', icon: '✅' },
   shipped: {
-    label: "Đang giao hàng",
-    color: "#3b82f6",
-    bg: "#dbeafe",
-    icon: "🚚",
+    label: 'Đang giao hàng',
+    color: '#3b82f6',
+    bg: '#dbeafe',
+    icon: '🚚',
   },
   delivered: {
-    label: "Đã nhận hàng",
-    color: "#059669",
-    bg: "#a7f3d0",
-    icon: "📦",
+    label: 'Đã nhận hàng',
+    color: '#059669',
+    bg: '#a7f3d0',
+    icon: '📦',
   },
-  cancelled: { label: "Đã hủy", color: "#ef4444", bg: "#fee2e2", icon: "❌" },
+  cancelled: { label: 'Đã hủy', color: '#ef4444', bg: '#fee2e2', icon: '❌' },
 };
 
 const paymentMethodLabels = {
-  cod: "Thanh toán khi nhận hàng",
-  bank_transfer: "Chuyển khoản MoMo",
+  cod: 'Thanh toán khi nhận hàng',
+  bank_transfer: 'Chuyển khoản MoMo',
 };
 
 export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
@@ -61,16 +61,13 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
     shippingFee = 30000,
   } = order;
 
-  const isPending = status === "pending";
-  const isBankTransfer = paymentMethod === "bank_transfer";
-  const canCancel = status === "pending";
-  const canConfirmDelivery = status === "shipped";
+  const isPending = status === 'pending';
+  const isBankTransfer = paymentMethod === 'bank_transfer';
+  const canCancel = status === 'pending';
+  const canConfirmDelivery = status === 'shipped';
 
   // Calculate subtotal from items (total from DB already includes shipping)
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const grandTotal = total || subtotal + shippingFee;
 
   const statusInfo = statusConfig[status] || statusConfig.pending;
@@ -83,15 +80,12 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
 
   const handleCopyAmount = () => {
     navigator.clipboard.writeText(grandTotal.toString());
-    alert("Đã sao chép số tiền!");
+    alert('Đã sao chép số tiền!');
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="order-detail-modal-new"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="order-detail-modal-new" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="odm-header">
           <div className="odm-header-left">
@@ -127,13 +121,9 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
                 <p className="odm-shipping-name">{shippingName}</p>
                 <p className="odm-shipping-phone">{shippingPhone}</p>
                 <p className="odm-shipping-address">{shippingAddress}</p>
-                {shippingNotes && (
-                  <p className="odm-shipping-note">📝 {shippingNotes}</p>
-                )}
+                {shippingNotes && <p className="odm-shipping-note">📝 {shippingNotes}</p>}
                 <p className="odm-payment-method">
-                  💳{" "}
-                  {paymentMethodLabels[paymentMethod] ||
-                    "Thanh toán khi nhận hàng"}
+                  💳 {paymentMethodLabels[paymentMethod] || 'Thanh toán khi nhận hàng'}
                 </p>
               </div>
             </div>
@@ -149,7 +139,7 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
               <table className="odm-products-table">
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left" }}>Tên sản phẩm</th>
+                    <th style={{ textAlign: 'left' }}>Tên sản phẩm</th>
                     <th>Đơn giá</th>
                     <th>Số lượng</th>
                     <th>Thành tiền</th>
@@ -158,14 +148,10 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
                 <tbody>
                   {items.map((item, index) => (
                     <tr key={index}>
-                      <td>
-                        {item.productName || `Sản phẩm #${item.productId}`}
-                      </td>
+                      <td>{item.productName || `Sản phẩm #${item.productId}`}</td>
                       <td>{formatPrice(item.price)}</td>
-                      <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                      <td style={{ fontWeight: 600 }}>
-                        {formatPrice(item.price * item.quantity)}
-                      </td>
+                      <td style={{ textAlign: 'center' }}>{item.quantity}</td>
+                      <td style={{ fontWeight: 600 }}>{formatPrice(item.price * item.quantity)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -199,26 +185,18 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
 
               <div className="odm-qr-content">
                 <div className="odm-qr-image-box">
-                  <img
-                    src={BANK_INFO.qrImage}
-                    alt="QR Code MoMo"
-                    className="odm-qr-image"
-                  />
+                  <img src={BANK_INFO.qrImage} alt="QR Code MoMo" className="odm-qr-image" />
                 </div>
 
                 <div className="odm-qr-info">
                   <div className="odm-qr-amount" onClick={handleCopyAmount}>
                     <span className="odm-amount-label">Số tiền</span>
-                    <span className="odm-amount-value">
-                      {formatPrice(grandTotal)}
-                    </span>
+                    <span className="odm-amount-value">{formatPrice(grandTotal)}</span>
                   </div>
 
                   <div className="odm-qr-detail">
                     <span className="odm-detail-label">Chủ TK</span>
-                    <span className="odm-detail-value">
-                      {BANK_INFO.accountName}
-                    </span>
+                    <span className="odm-detail-value">{BANK_INFO.accountName}</span>
                   </div>
 
                   <div className="odm-qr-detail odm-qr-content-ck">
@@ -228,10 +206,10 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
                         DH{id} {shippingPhone}
                       </code>
                       <button
-                        className={`odm-copy-btn ${copied ? "copied" : ""}`}
+                        className={`odm-copy-btn ${copied ? 'copied' : ''}`}
                         onClick={handleCopyContent}
                       >
-                        {copied ? "✓ Đã chép" : "📋 Copy"}
+                        {copied ? '✓ Đã chép' : '📋 Copy'}
                       </button>
                     </div>
                   </div>
@@ -240,9 +218,7 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
 
               <div className="odm-qr-note">
                 <span className="odm-note-icon">💡</span>
-                <span>
-                  Nhập đúng nội dung chuyển khoản để đơn được xác nhận tự động
-                </span>
+                <span>Nhập đúng nội dung chuyển khoản để đơn được xác nhận tự động</span>
               </div>
             </div>
           )}

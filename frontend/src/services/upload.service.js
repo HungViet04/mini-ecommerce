@@ -6,8 +6,6 @@
 import httpClient from './http.client';
 import { tokenStorage } from '../utils/storage';
 
-const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api/v1';
-
 export const uploadService = {
   /**
    * Upload product image
@@ -81,4 +79,3 @@ export const uploadService = {
 };
 
 export default uploadService;
-

@@ -43,7 +43,7 @@ const db = asyncHandler(async (req, res) => {
  */
 const check = asyncHandler(async (req, res) => {
   let dbStatus = 'healthy';
-  
+
   try {
     await database.query('SELECT 1');
   } catch (error) {
