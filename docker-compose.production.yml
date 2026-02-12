@@ -1,0 +1,61 @@
+# Docker Compose for Production (EC2 + RDS)
+# Usage: docker-compose -f docker-compose.production.yml up -d
+
+services:
+  # Backend API
+  backend:
+    image: hungviet/mini-ecommerce-backend:latest
+    container_name: ecommerce-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # RDS MySQL Connection
+      DB_HOST: ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com
+      DB_PORT: 3306
+      DB_USER: admin
+      DB_PASSWORD: 23062004Hung
+      DB_NAME: ecommerce_db
+      # JWT
+      ACCESS_TOKEN_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - ecommerce-network
+
+  # Frontend
+  frontend:
+    image: hungviet/mini-ecommerce-frontend:latest
+    container_name: ecommerce-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ecommerce-network
+
+  # phpMyAdmin (optional - để quản lý RDS)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ecommerce-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com
+      PMA_PORT: 3306
+      PMA_USER: admin
+      PMA_PASSWORD: 23062004Hung
+    ports:
+      - "8080:80"
+    networks:
+      - ecommerce-network
+    profiles:
+      - admin
+
+networks:
+  ecommerce-network:
+    driver: bridge

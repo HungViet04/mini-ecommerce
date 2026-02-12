@@ -6,7 +6,7 @@
 -- Thời gian đã tạo: Th1 12, 2026 lúc 04:14 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
-CREATE DATABASE ecommerce_db;
+CREATE DATABASE IF NOT EXISTS ecommerce_db;
 USE ecommerce_db;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
