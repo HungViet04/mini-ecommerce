@@ -12,6 +12,7 @@ export function Navbar({ currentView, onSearch }) {
   const { user, isAdmin, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const showAuthButton = location.pathname !== '/auth';
 
   const handleLogout = () => {
     logout();
@@ -98,13 +99,15 @@ export function Navbar({ currentView, onSearch }) {
             </Button>
           </>
         ) : (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate('/auth')}
-          >
-            Đăng Nhập / Đăng Ký
-          </Button>
+          showAuthButton && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/auth')}
+            >
+              Đăng Nhập / Đăng Ký
+            </Button>
+          )
         )}
       </div>
     </header>
