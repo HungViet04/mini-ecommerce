@@ -26,8 +26,8 @@ function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [orderData, setOrderData] = useState(null);
 
-  const handleAuthSuccess = () => {
-    if (isAdmin) {
+  const handleAuthSuccess = (loggedInUser) => {
+    if (loggedInUser?.role === 'admin') {
       navigate('/admin/dashboard');
     } else {
       navigate('/');

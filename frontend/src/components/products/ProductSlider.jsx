@@ -7,6 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../ui';
 import { formatPrice } from '../../utils';
 import { useAuth } from '../../contexts';
+import { uploadService } from '../../services';
 
 export function ProductSlider({ products = [], onAddToCart, onViewDetail }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,7 +70,7 @@ export function ProductSlider({ products = [], onAddToCart, onViewDetail }) {
           <div className="slider-image-wrapper" onClick={() => onViewDetail?.(currentProduct)}>
             {currentProduct.image_url ? (
               <img
-                src={currentProduct.image_url}
+                src={uploadService.getImageUrl(currentProduct.image_url)}
                 alt={currentProduct.name}
                 className="slider-image"
               />

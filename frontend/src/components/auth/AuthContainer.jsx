@@ -71,8 +71,9 @@ export function AuthContainer({ onSuccess }) {
   const loginForm = useForm(
     { email: '', password: '' },
     async (values) => {
-      await login(values);
-      onSuccess?.();
+      const result = await login(values);
+      const loggedInUser = result?.user;
+      onSuccess?.(loggedInUser);
     },
     validateLogin
   );
