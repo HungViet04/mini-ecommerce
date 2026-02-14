@@ -43,7 +43,7 @@ services:
     ports:
       - "3001:3000"
     volumes:
-      - ./data/image:/app/uploads
+      - ./data/image:/data/image
     networks:
       - ecommerce-network
     extra_hosts:
