@@ -263,10 +263,50 @@ frontend:
    - **Value**: `https://xxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1`
 4. Click **"Save"**
 
-### 3.4. Deploy
+### 3.4. **⚠️ QUAN TRỌNG: Cấu hình Redirects cho SPA (Single Page Application)**
+
+**Vấn đề**: Khi refresh trang tại routes như `/admin/dashboard/`, sẽ bị lỗi **404 Not Found**
+
+**Nguyên nhân**: 
+- React Router xử lý routing ở client-side
+- Khi refresh, browser gửi request đến server cho path đó
+- Server không có file tại path đó → 404
+
+**Giải pháp**: Cấu hình redirect tất cả requests về `index.html`
+
+#### Cách 1: Sử dụng file amplify.yml (Khuyên dùng)
+File `amplify.yml` đã được tạo sẵn ở root của repo, Amplify sẽ tự động đọc.
+
+#### Cách 2: Cấu hình trực tiếp trong Amplify Console
+1. Vào **AWS Amplify Console** → Chọn app của bạn
+2. Menu trái → **"Rewrites and redirects"**
+3. Click **"Edit"** → Thêm rule:
+
+```
+Source address: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
+Target address: /index.html
+Type: 200 (Rewrite)
+```
+
+Hoặc đơn giản hơn:
+```
+Source address: /<*>
+Target address: /index.html  
+Type: 200 (Rewrite)
+```
+
+4. Click **"Save"**
+5. **Redeploy** app để apply thay đổi
+
+#### Test sau khi cấu hình
+- Truy cập `https://pigtech.me/admin/dashboard/`
+- Nhấn **F5 (refresh)**  
+- ✅ Trang load thành công thay vì 404
+
+### 3.5. Deploy
 Click **"Save and deploy"**
 
-### 3.5. Cấu hình Custom Domain với NameCheap
+### 3.6. Cấu hình Custom Domain với NameCheap
 
 #### Bước 1: Thêm Domain vào Amplify
 1. Vào **AWS Amplify Console** → App của bạn
@@ -500,33 +540,275 @@ Nếu gặp lỗi CORS:
 
 ---
 
-## Bước 4: Cập nhật sau khi thay đổi code
+## Bước 4: Quy trình Update Code Frontend & Backend
 
-### 4.1. Cập nhật Backend (EC2)
-```bash
-# Trên máy local - Build và push image mới
+### 4.1. Quy trình Update hoàn chỉnh
+
+#### **📋 Checklist trước khi update**
+- [ ] Code đã test local thành công
+- [ ] Database migrations (nếu có) đã chuẩn bị
+- [ ] Environment variables mới đã setup
+- [ ] Backup dữ liệu quan trọng (nếu cần)
+- [ ] Notify users về maintenance (nếu downtime dự kiến)
+
+#### **🔄 Quy trình Update theo thứ tự**
+
+### **BƯỚC 1: Update Backend trước**
+
+#### 1.1. Chuẩn bị và test local
+```powershell
+# Chuyển về thư mục project
 cd c:\Users\Lenovo\Downloads\mini-ecommerce
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-docker push hungviet/mini-ecommerce-backend:latest
 
-# Trên EC2 - Pull và restart
+# Test backend local (nếu cần)
+cd backend
+npm install
+npm run dev
+
+# Test endpoints quan trọng
+curl http://localhost:3000/api/v1/health
+```
+
+#### 1.2. Build và Push Docker Image
+```powershell
+# Build image mới với tag version (recommended)
+docker build -t hungviet/mini-ecommerce-backend:v1.2.0 ./backend
+docker build -t hungviet/mini-ecommerce-backend:latest ./backend
+
+# Push lên Docker Hub  
+docker push hungviet/mini-ecommerce-backend:v1.2.0
+docker push hungviet/mini-ecommerce-backend:latest
+```
+
+#### 1.3. Deploy lên EC2
+```bash
+# SSH vào EC2
+ssh -i "your-key.pem" ec2-user@YOUR-ELASTIC-IP
+
+# Backup container hiện tại (optional)
+docker tag ecommerce-backend ecommerce-backend:backup-$(date +%Y%m%d)
+
+# Pull image mới
 cd ~/mini-ecommerce
 docker-compose pull
+
+# Rolling update (zero downtime)
+docker-compose up -d --no-deps backend
+```
+
+#### 1.4. Verify Backend deployment
+```bash
+# Kiểm tra container status
+docker ps
+docker logs -f ecommerce-backend
+
+# Test API
+curl http://localhost:3001/api/v1/health
+curl http://YOUR-ELASTIC-IP:3001/api/v1/health
+
+# Test qua API Gateway
+curl https://YOUR-API-GATEWAY-URL/api/v1/health
+```
+
+### **BƯỚC 2: Update Frontend sau khi Backend ổn định**
+
+#### 2.1. Cập nhật Environment Variables (nếu cần)
+```bash
+# Cập nhật frontend/.env nếu có thay đổi API endpoints
+VITE_API_BASE=https://YOUR-API-GATEWAY-URL/api/v1
+VITE_APP_URL=https://pigtech.me
+```
+
+#### 2.2. Test Frontend local với Backend mới
+```bash
+cd frontend
+npm install
+npm run dev
+
+# Test kết nối API bằng browser
+# Mở http://localhost:5173 và test các features
+```
+
+#### 2.3. Deploy Frontend lên Amplify
+**Phương pháp 1: Auto deploy qua GitHub**
+```bash
+# Commit và push code
+git add .
+git commit -m "feat: update frontend for v1.2.0 backend"
+git push origin main
+
+# Amplify sẽ tự động trigger build
+```
+
+**Phương pháp 2: Manual deploy**
+1. Vào **Amplify Console** → Chọn app
+2. **Environment variables** → Update nếu cần
+3. **Deployments** → **"Redeploy this version"**
+
+#### 2.4. Monitor Amplify Build
+1. Vào **Amplify Console** → App → **"Build history"**
+2. Click vào build đang chạy để xem logs
+3. Chờ build complete (~3-5 phút)
+4. Status: **"Deployed"** = Thành công
+
+### **BƯỚC 3: Testing End-to-End**
+
+#### 3.1. Test Production Environment
+```bash
+# Test API Gateway trực tiếp  
+curl https://YOUR-API-GATEWAY-URL/api/v1/health
+curl https://YOUR-API-GATEWAY-URL/api/v1/users
+curl https://YOUR-API-GATEWAY-URL/api/v1/products
+
+# Test CORS từ frontend domain
+curl -H "Origin: https://pigtech.me" \
+     -H "Access-Control-Request-Method: GET" \
+     -X OPTIONS \
+     https://YOUR-API-GATEWAY-URL/api/v1/health
+```
+
+#### 3.2. Manual Testing trên Production
+- ✅ Homepage load thành công: `https://pigtech.me`
+- ✅ Products listing hiển thị data
+- ✅ User authentication (login/register)
+- ✅ Add to cart functionality
+- ✅ Checkout process
+- ✅ Admin dashboard (nếu có)
+
+#### 3.3. Monitoring và Logs
+```bash
+# EC2 backend logs
+ssh -i "key.pem" ec2-user@YOUR-ELASTIC-IP
+docker logs -f ecommerce-backend --tail 100
+
+# Amplify frontend logs  
+# Vào Amplify Console → Monitoring → Access logs
+```
+
+### **BƯỚC 4: Rollback nếu có lỗi**
+
+#### 4.1. Rollback Backend
+```bash
+# SSH vào EC2
+ssh -i "key.pem" ec2-user@YOUR-ELASTIC-IP
+
+# Option 1: Restore từ backup container
+docker stop ecommerce-backend
+docker run -d --name ecommerce-backend \
+  --network mini-ecommerce_default \
+  -p 3001:3000 \
+  ecommerce-backend:backup-20260214
+
+# Option 2: Pull version cũ
+docker pull hungviet/mini-ecommerce-backend:v1.1.0
+# Update docker-compose.yml với tag cũ, rồi:
 docker-compose up -d
 ```
 
-### 4.2. Cập nhật Frontend (Amplify)
-Chỉ cần push code lên GitHub, Amplify sẽ tự động redeploy:
+#### 4.2. Rollback Frontend
+**Cách 1: Revert commit và push**
 ```bash
-git add .
-git commit -m "Update frontend"
-git push
+git log --oneline -5  # Xem commit history
+git revert HEAD       # Revert commit gần nhất
+git push origin main  # Amplify sẽ auto deploy
 ```
 
-Hoặc redeploy thủ công:
-1. Vào **Amplify Console** → App
-2. **"Deployments"** → Click deployment gần nhất
-3. **"Redeploy this version"**
+**Cách 2: Redeploy version cũ**
+1. **Amplify Console** → **"Build history"**
+2. Tìm deployment thành công gần nhất
+3. Click **"Redeploy this version"**
+
+### **BƯỚC 5: Post-deployment Tasks**
+
+#### 5.1. Update Documentation
+```bash
+# Cập nhật version trong README
+# Ghi lại breaking changes (nếu có)
+# Update API documentation (nếu có)
+
+git commit -m "docs: update deployment notes for v1.2.0"
+git push origin main
+```
+
+#### 5.2. Tag Release (Optional but recommended)
+```bash
+# Tag version sau khi deploy thành công
+git tag -a v1.2.0 -m "Release version 1.2.0"
+git push origin v1.2.0
+
+# Tạo GitHub Release nếu muốn
+```
+
+#### 5.3. Monitor Performance sau deploy
+- ✅ Response time API có bình thường?
+- ✅ Database connections stable?
+- ✅ Memory/CPU usage EC2 acceptable?
+- ✅ Frontend loading speed OK?
+
+---
+
+### **❗ Advanced: Zero-downtime deployment**
+
+#### Blue-Green Deployment (Optional)
+```bash
+# Tạo container mới song song
+docker run -d --name ecommerce-backend-new \
+  -p 3002:3000 \
+  hungviet/mini-ecommerce-backend:latest
+
+# Test container mới
+curl http://localhost:3002/api/v1/health
+
+# Swap ports (requires load balancer)
+# Hoặc update API Gateway integration từ 3001 → 3002
+```
+
+#### Database Migrations
+```bash
+# Nếu có schema changes
+# SSH vào EC2, run migration trước khi deploy backend:
+
+docker exec -it ecommerce-backend npm run migrate
+
+# Hoặc chạy script migration riêng:
+mysql -h RDS-HOST -u admin -pPASSWORD ecommerce_db < migrations/v1.2.0.sql
+```
+
+---
+
+### 4.3. Quick Commands Cheat Sheet
+
+#### Update Backend Only
+```powershell
+# Local
+docker build -t hungviet/mini-ecommerce-backend:latest ./backend
+docker push hungviet/mini-ecommerce-backend:latest
+
+# EC2  
+ssh ec2-user@ELASTIC-IP "cd ~/mini-ecommerce && docker-compose pull && docker-compose up -d"
+```
+
+#### Update Frontend Only  
+```bash
+git add frontend/
+git commit -m "update frontend"
+git push origin main
+```
+
+#### Update Both (Complete flow)
+```powershell
+# 1. Backend
+docker build -t hungviet/mini-ecommerce-backend:latest ./backend
+docker push hungviet/mini-ecommerce-backend:latest
+
+# 2. Deploy backend
+ssh ec2-user@ELASTIC-IP "cd ~/mini-ecommerce && docker-compose pull && docker-compose up -d"
+
+# 3. Frontend
+git add .
+git commit -m "update: frontend + backend v1.2.0"  
+git push origin main
+```
 
 ---
 
@@ -606,6 +888,30 @@ docker logs ecommerce-backend
 1. Redeploy Amplify
 2. Hard refresh: `Ctrl + Shift + R`
 3. Clear cache browser
+
+### ⚠️ Lỗi 404 khi Refresh trang (ví dụ: /admin/dashboard/)
+**Nguyên nhân**: Single Page Application (SPA) routing issue
+- Khi navigate trong app (click link): React Router xử lý → OK ✅
+- Khi refresh trang: Browser request trực tiếp path đó từ server → Server không có file → 404 ❌
+
+**Giải pháp 1: Cấu hình Rewrites trong Amplify Console**
+1. **AWS Amplify Console** → Chọn app → **"Rewrites and redirects"**
+2. Click **"Edit"** → **"Add rule"**:
+   ```
+   Source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
+   Target: /index.html
+   Type: 200 (Rewrite)
+   ```
+3. **Save** → **Redeploy** app
+
+**Giải pháp 2: Sử dụng amplify.yml (Đã có sẵn trong repo)**
+- File `amplify.yml` ở root của repo đã có cấu hình này
+- Amplify tự động đọc khi deploy
+- Không cần config thêm gì
+
+**Test**:
+- Truy cập `https://pigtech.me/admin/dashboard/`
+- Nhấn **F5 (refresh)** → Should work! ✅
 
 ### Backend container bị crash/restart
 **Kiểm tra**:
