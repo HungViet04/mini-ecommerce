@@ -30,6 +30,15 @@ export function AdminOrderList() {
       status: statusFilter || undefined,
     });
 
+  // Debounced live search: update hook search after user stops typing
+  //  FIXED: Move useEffect to top level (before any conditional returns)
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchQuery, setSearch]);
+
   if (!isAuthenticated) {
     return (
       <div className="orders-container">
@@ -61,15 +70,6 @@ export function AdminOrderList() {
     // Immediate search on form submit (Enter / search button)
     setSearch(searchQuery);
   };
-
-  // Debounced live search: update hook search after user stops typing
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  React.useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchQuery);
-    }, 400);
-    return () => clearTimeout(t);
-  }, [searchQuery, setSearch]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     const success = await updateOrderStatus(orderId, newStatus);

@@ -22,11 +22,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Khởi tạo user từ token khi mount
     const token = tokenStorage.get();
-    console.log('[AuthContext] accessToken on mount:', token);
     async function initUser() {
       if (token) {
         const decoded = authService.decodeToken(token);
-        console.log('[AuthContext] decoded token:', decoded);
         if (decoded && !authService.isTokenExpired(decoded)) {
           let userObj = {
             id: decoded.id,
@@ -38,21 +36,17 @@ export function AuthProvider({ children }) {
             try {
               const profile = await authService.getProfile();
               userObj = { ...userObj, ...profile };
-              console.log('[AuthContext] fetched profile for email (mount):', profile);
             } catch (err) {
-              console.warn('[AuthContext] Không lấy được profile (mount):', err);
+              // Silent fail - user will have basic info from token
             }
           }
           setUser(userObj);
-          console.log('[AuthContext] setUser:', userObj);
         } else {
           setUser(null);
           tokenStorage.clear();
-          console.log('[AuthContext] Token expired or invalid, setUser null');
         }
       } else {
         setUser(null);
-        console.log('[AuthContext] No token, setUser null');
       }
       setLoading(false);
     }
@@ -62,12 +56,10 @@ export function AuthProvider({ children }) {
     const handleStorage = (e) => {
       if (e.key === 'ecom_access_token') {
         const token = tokenStorage.get();
-        console.log('[AuthContext] accessToken on storage event:', token);
         // eslint-disable-next-line no-inner-declarations
         async function syncUser() {
           if (token) {
             const decoded = authService.decodeToken(token);
-            console.log('[AuthContext] decoded token (storage event):', decoded);
             if (decoded && !authService.isTokenExpired(decoded)) {
               let userObj = {
                 id: decoded.id,
@@ -78,21 +70,17 @@ export function AuthProvider({ children }) {
                 try {
                   const profile = await authService.getProfile();
                   userObj = { ...userObj, ...profile };
-                  console.log('[AuthContext] fetched profile for email (storage event):', profile);
                 } catch (err) {
-                  console.warn('[AuthContext] Không lấy được profile (storage event):', err);
+                  // Silent fail
                 }
               }
               setUser(userObj);
-              console.log('[AuthContext] setUser (storage event):', userObj);
             } else {
               setUser(null);
               tokenStorage.clear();
-              console.log('[AuthContext] Token expired/invalid (storage event), setUser null');
             }
           } else {
             setUser(null);
-            console.log('[AuthContext] No token (storage event), setUser null');
           }
         }
         syncUser();
@@ -106,7 +94,6 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (credentials) => {
     const result = await authService.login(credentials);
     const { accessToken, user: userData } = result;
-    console.log('[AuthContext] login result:', result);
     tokenStorage.set(accessToken);
     let finalUser = userData;
     // Nếu user không có email, gọi API lấy profile
@@ -114,13 +101,11 @@ export function AuthProvider({ children }) {
       try {
         const profile = await authService.getProfile();
         finalUser = { ...userData, ...profile };
-        console.log('[AuthContext] fetched profile for email:', profile);
       } catch (err) {
-        console.warn('[AuthContext] Không lấy được profile:', err);
+        // Silent fail
       }
     }
     setUser(finalUser);
-    console.log('[AuthContext] setUser (login):', finalUser);
     // Trigger storage event for other tabs
     window.dispatchEvent(new StorageEvent('storage', { key: 'ecom_access_token' }));
     return result;
