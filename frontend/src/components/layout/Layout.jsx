@@ -29,7 +29,7 @@ export function Layout({ children, onSearch, onCheckout }) {
     isAdmin;
   return (
     <div className="app-layout">
-      <Navbar currentView={currentView} onSearch={onSearch} />
+      <Navbar onSearch={onSearch} />
       {/* Ẩn FloatingCart khi ở trang đăng nhập/đăng ký/auth hoặc là admin */}
       {!hideCart && <FloatingCart onCheckout={onCheckout} />}
       <main className="main-content">

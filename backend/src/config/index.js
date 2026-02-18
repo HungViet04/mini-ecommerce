@@ -41,7 +41,11 @@ const config = {
 
   // CORS
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
+    // Parse CORS_ORIGIN from comma-separated string to array
+    // or use '*' for development, or function for dynamic origin check
+    origin: process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+      : '*',
     credentials: true,
   },
 };

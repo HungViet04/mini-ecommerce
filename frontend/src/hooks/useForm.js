@@ -28,7 +28,7 @@ export function useForm(initialValues = {}, onSubmit, validate) {
         [name]: type === 'checkbox' ? checked : value,
       }));
 
-      // Clear error on change
+      // Clear field error on change
       if (errors[name]) {
         setErrors((prev) => {
           const newErrors = { ...prev };
@@ -36,8 +36,13 @@ export function useForm(initialValues = {}, onSubmit, validate) {
           return newErrors;
         });
       }
+
+      // Clear submit error when user starts typing
+      if (submitError) {
+        setSubmitError(null);
+      }
     },
-    [errors]
+    [errors, submitError]
   );
 
   // Handle blur
@@ -87,7 +92,14 @@ export function useForm(initialValues = {}, onSubmit, validate) {
       try {
         await onSubmit(values);
       } catch (err) {
-        setSubmitError(err.message || 'Submit failed');
+        // Use the error message from backend or fallback
+        const errorMessage = err.message || err.toString() || 'Đã xảy ra lỗi, vui lòng thử lại';
+        setSubmitError(errorMessage);
+        
+        // Log error in development for debugging
+        if (import.meta.env.DEV) {
+          console.error('Form submission error:', err);
+        }
       } finally {
         setLoading(false);
       }

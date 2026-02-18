@@ -6,9 +6,10 @@
 import { useAuth } from '../../contexts';
 import { Button } from '../ui';
 import { SearchBar } from './SearchBar';
+import { UserDropdown } from './UserDropdown';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-export function Navbar({ currentView, onSearch }) {
+export function Navbar({ onSearch }) {
   const { user, isAdmin, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,9 +56,13 @@ export function Navbar({ currentView, onSearch }) {
       )}
 
       <nav className="navbar-nav">
-        {/* My Orders - only for regular users, not admin */}
+        {/* My Orders - only for regular users, not admin, hidden on mobile (in dropdown) */}
         {isAuthenticated && !isAdmin && (
-          <NavLink active={location.pathname === '/orders'} onClick={() => navigate('/orders')}>
+          <NavLink
+            active={location.pathname === '/orders'}
+            onClick={() => navigate('/orders')}
+            className="nav-link-desktop-only"
+          >
             Đơn Hàng Của Tôi
           </NavLink>
         )}
@@ -112,13 +117,26 @@ export function Navbar({ currentView, onSearch }) {
       <div className="navbar-actions">
         {isAuthenticated ? (
           <>
-            <span className="user-info">
-              {user?.email}
-              {isAdmin && <span className="badge">Quản trị</span>}
-            </span>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              Đăng Xuất
-            </Button>
+            {/* Desktop version - traditional user info + logout button */}
+            <div className="navbar-actions-desktop">
+              <span className="user-info">
+                {user?.email}
+                {isAdmin && <span className="badge">Quản trị</span>}
+              </span>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                Đăng Xuất
+              </Button>
+            </div>
+
+            {/* Mobile version - dropdown menu */}
+            <div className="navbar-actions-mobile">
+              <UserDropdown
+                user={user}
+                isAdmin={isAdmin}
+                onLogout={handleLogout}
+                onViewOrders={() => navigate('/orders')}
+              />
+            </div>
           </>
         ) : (
           showAuthButton && (
@@ -132,9 +150,9 @@ export function Navbar({ currentView, onSearch }) {
   );
 }
 
-function NavLink({ children, active, onClick }) {
+function NavLink({ children, active, onClick, className = '' }) {
   return (
-    <button className={`nav-link ${active ? 'active' : ''}`} onClick={onClick}>
+    <button className={`nav-link ${active ? 'active' : ''} ${className}`} onClick={onClick}>
       {children}
     </button>
   );

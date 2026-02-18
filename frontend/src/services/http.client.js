@@ -11,7 +11,42 @@ const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api/v1'
  */
 export class HttpError extends Error {
   constructor(status, data) {
-    super(data?.message || data?.error?.message || 'Yêu cầu thất bại');
+    // Priority: backend message > error.message > friendly status message > generic fallback
+    let message = 'Yêu cầu thất bại';
+
+    // Try to extract message from backend response
+    if (data?.error?.message) {
+      message = data.error.message;
+    } else if (data?.message) {
+      message = data.message;
+    } else {
+      // Provide friendly messages for common status codes
+      switch (status) {
+        case 400:
+          message = 'Dữ liệu không hợp lệ';
+          break;
+        case 401:
+          message = 'Email hoặc mật khẩu không đúng';
+          break;
+        case 403:
+          message = 'Bạn không có quyền truy cập';
+          break;
+        case 404:
+          message = 'Không tìm thấy dữ liệu';
+          break;
+        case 409:
+          message = 'Dữ liệu đã tồn tại';
+          break;
+        case 500:
+          message = 'Lỗi máy chủ, vui lòng thử lại sau';
+          break;
+        default:
+          message = 'Yêu cầu thất bại';
+      }
+    }
+
+    super(message);
+    this.name = 'HttpError';
     this.status = status;
     this.data = data;
   }
