@@ -37,9 +37,9 @@ services:
       DB_USER: ${DB_USER:-root}
       DB_PASSWORD: ${DB_PASSWORD:-}
       DB_NAME: ${DB_NAME:-ecommerce_db}
-      ACCESS_TOKEN_SECRET: ${JWT_SECRET:-your-super-secret-key-change-in-production}
+      ACCESS_TOKEN_SECRET: ${JWT_SECRET:-MySuper$ecureJWT$ecretKey2024!@}
       ACCESS_TOKEN_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
-      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      CORS_ORIGIN: "https://pigtech.me,https://www.pigtech.me"
     ports:
       - "3001:3000"
     volumes:
