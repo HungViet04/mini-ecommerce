@@ -38,7 +38,7 @@ class AuthService {
     });
 
     // Return user without password
-    const { ...userWithoutPassword } = user;
+    const { password: _pw, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
@@ -84,7 +84,7 @@ class AuthService {
    */
   async getProfile(userId) {
     const user = await userRepository.findByIdOrFail(userId, 'User');
-    const { ...profile } = user;
+    const { password: _pw, ...profile } = user;
     return profile;
   }
 

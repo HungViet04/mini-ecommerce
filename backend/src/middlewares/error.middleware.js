@@ -14,7 +14,7 @@ const logger = require('../utils/logger');
  * @param {Object} res - Express response
  * @param {Function} next - Next middleware
  */
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   // Log error based on environment and type
   if (config.env === 'development') {
     logger.error('Request Error', err);

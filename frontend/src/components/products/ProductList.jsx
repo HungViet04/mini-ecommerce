@@ -7,12 +7,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useProducts } from '../../hooks';
 import { useCart, useAuth } from '../../contexts';
 import { ProductSlider } from './ProductSlider';
+import ProductCard from './ProductCard';
 import { ProductDetail } from './ProductDetail';
 import { productService } from '../../services';
 import { CategorySidebar } from '../layout';
 import { Pagination } from '../ui';
 import { Toast } from '../ui/Toast';
-import { ProductCard } from './ProductCard';
+// ProductCard imported dynamically in renderProductCard
 
 const PRODUCTS_PER_PAGE = 8;
 const FEATURED_PRODUCTS_COUNT = 4;
@@ -219,6 +220,8 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
             </h2>
             <p className="section-subtitle">{getSubtitle()}</p>
           </div>
+
+          {error && <div className="alert alert-error">{error}</div>}
 
           <div className="product-grid">
             {paginatedProducts.map((product) =>

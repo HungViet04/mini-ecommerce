@@ -8,6 +8,7 @@ const orderService = require('./order.service');
 const categoryService = require('./category.service');
 const statsService = require('./stats.service');
 const userService = require('./user.service');
+const s3Service = require('./s3.service');
 
 module.exports = {
   authService,
@@ -16,4 +17,5 @@ module.exports = {
   categoryService,
   statsService,
   userService,
+  s3Service,
 };

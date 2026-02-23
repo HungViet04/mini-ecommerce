@@ -12,7 +12,13 @@
     "db:reset": "npm run db:rollback && npm run db:migrate && npm run db:seed",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "format": "prettier --write \"src/**/*.{js,json,md}\""
+    "format": "prettier --write \"src/**/*.{js,json,md}\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest --testPathPattern=tests/unit",
+    "test:integration": "jest --testPathPattern=tests/integration",
+    "test:ci": "jest --ci --coverage --reporters=default --reporters=jest-junit"
   },
   "keywords": [
     "ecommerce",
@@ -28,6 +34,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.983.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -43,6 +50,10 @@
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.1",
     "nodemon": "^3.1.11",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "supertest": "^7.0.0"
   }
 }
+

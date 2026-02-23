@@ -18,7 +18,7 @@ export function isValidEmail(email) {
  * @returns {boolean}
  */
 export function isValidPassword(password) {
-  return password && password.length >= 6;
+  return !!password && password.length >= 6;
 }
 
 /**

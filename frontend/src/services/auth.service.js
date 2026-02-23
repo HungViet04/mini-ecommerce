@@ -3,8 +3,8 @@
  * Handles all authentication-related API calls
  * Pattern: Service Layer
  */
-import httpClient from "./http.client";
-import { tokenStorage } from "../utils/storage";
+import httpClient from './http.client';
+import { tokenStorage } from '../utils/storage';
 
 export const authService = {
   /**
@@ -18,7 +18,7 @@ export const authService = {
       password: credentials.password,
     };
 
-    const response = await httpClient.post("/auth/login", body, {
+    const response = await httpClient.post('/auth/login', body, {
       skipAuth: true,
     });
 
@@ -38,7 +38,7 @@ export const authService = {
    */
   async register(data) {
     const response = await httpClient.post(
-      "/auth/register",
+      '/auth/register',
       {
         name: data.name,
         email: data.email,
@@ -57,7 +57,7 @@ export const authService = {
    */
   async refreshToken(refreshToken) {
     const response = await httpClient.post(
-      "/auth/refresh",
+      '/auth/refresh',
       {
         refreshToken,
       },
@@ -72,7 +72,7 @@ export const authService = {
    * @returns {Promise<Object>}
    */
   async getProfile() {
-    const response = await httpClient.get("/auth/profile");
+    const response = await httpClient.get('/auth/profile');
     return response.data || response;
   },
 
@@ -83,7 +83,7 @@ export const authService = {
    * @returns {Promise<void>}
    */
   async changePassword(currentPassword, newPassword) {
-    await httpClient.put("/auth/password", {
+    await httpClient.put('/auth/password', {
       currentPassword,
       newPassword,
     });
@@ -96,7 +96,7 @@ export const authService = {
    */
   decodeToken(token) {
     try {
-      const payload = token.split(".")[1];
+      const payload = token.split('.')[1];
       return JSON.parse(atob(payload));
     } catch {
       return null;

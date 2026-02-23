@@ -43,10 +43,18 @@ const config = {
   cors: {
     // Parse CORS_ORIGIN from comma-separated string to array
     // or use '*' for development, or function for dynamic origin check
-    origin: process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
       : '*',
     credentials: true,
+  },
+
+  // AWS S3
+  s3: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    region: process.env.S3_REGION || 'ap-southeast-1',
+    bucket: process.env.S3_BUCKET || '',
   },
 };
 
@@ -57,5 +65,6 @@ Object.freeze(config.jwt);
 Object.freeze(config.bcrypt);
 Object.freeze(config.pagination);
 Object.freeze(config.cors);
+Object.freeze(config.s3);
 
 module.exports = config;

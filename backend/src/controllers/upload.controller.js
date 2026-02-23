@@ -1,15 +1,13 @@
 /**
  * Upload Controller
- * Handles image upload requests
+ * Handles image upload requests to S3
  */
-const path = require('path');
-const fs = require('fs');
 const { asyncHandler } = require('../helpers/async.helper');
 const { response } = require('../helpers');
-const { UPLOAD_DIR } = require('../middlewares/upload.middleware');
+const s3Service = require('../services/s3.service');
 
 /**
- * Upload product image
+ * Upload product image to S3
  * POST /api/v1/upload/image
  */
 const uploadImage = asyncHandler(async (req, res) => {
@@ -20,48 +18,54 @@ const uploadImage = asyncHandler(async (req, res) => {
     });
   }
 
-  // Trả về đường dẫn ảnh
-  const imageUrl = `/uploads/${req.file.filename}`;
+  // Upload to S3
+  const result = await s3Service.uploadFile(req.file);
 
   return response.success(res, {
     data: {
-      filename: req.file.filename,
-      url: imageUrl,
-      originalName: req.file.originalname,
-      size: req.file.size,
-      mimetype: req.file.mimetype,
+      filename: result.filename,
+      url: result.url,
+      key: result.key,
+      originalName: result.originalName,
+      size: result.size,
+      mimetype: result.mimetype,
     },
     message: 'Upload ảnh thành công',
   });
 });
 
 /**
- * Delete product image
- * DELETE /api/v1/upload/image/:filename
+ * Delete product image from S3
+ * DELETE /api/v1/upload/image/:key
+ * Note: key can be passed as query param if contains slashes
  */
 const deleteImage = asyncHandler(async (req, res) => {
-  const { filename } = req.params;
+  // Support both URL param and query param for S3 key
+  let key = req.params.key || req.query.key;
 
-  // Kiểm tra filename hợp lệ (tránh path traversal)
-  if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+  // If key from URL, it might be just filename - prepend folder
+  if (key && !key.includes('/')) {
+    key = `products/${key}`;
+  }
+
+  if (!key) {
     return res.status(400).json({
       success: false,
-      error: { message: 'Tên file không hợp lệ' },
+      error: { message: 'Vui lòng cung cấp key của file cần xóa' },
     });
   }
 
-  const filePath = path.join(UPLOAD_DIR, filename);
-
-  // Kiểm tra file tồn tại
-  if (!fs.existsSync(filePath)) {
+  // Check if file exists
+  const exists = await s3Service.fileExists(key);
+  if (!exists) {
     return res.status(404).json({
       success: false,
       error: { message: 'Không tìm thấy file' },
     });
   }
 
-  // Xóa file
-  fs.unlinkSync(filePath);
+  // Delete from S3
+  await s3Service.deleteFile(key);
 
   return response.success(res, {
     message: 'Xóa ảnh thành công',

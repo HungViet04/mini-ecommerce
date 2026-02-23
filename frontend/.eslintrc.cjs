@@ -5,6 +5,7 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
+    jest: true,
   },
 
   extends: [
@@ -12,11 +13,15 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
+    'prettier',
   ],
 
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
 
   settings: {
@@ -30,5 +35,6 @@ module.exports = {
     'react/prop-types': 'off',
     'no-unused-vars': ['warn', { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
     'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    'react-hooks/exhaustive-deps': 'warn',
   },
 };

@@ -29,6 +29,8 @@ const validTransitions = {
   delivered: [],
 };
 
+// payment method labels removed (not used in this compact card)
+
 export function AdminOrderCard({ order, onUpdateStatus, updating }) {
   const { id, status, total, createdAt, items = [], userName } = order;
   const [selectedStatus, setSelectedStatus] = useState(status);

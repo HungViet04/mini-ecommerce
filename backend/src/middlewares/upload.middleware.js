@@ -1,31 +1,11 @@
 /**
  * Upload Middleware
- * Handles file uploads using multer
+ * Handles file uploads using multer with memory storage for S3
  */
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-// Đường dẫn lưu ảnh
-const UPLOAD_DIR = path.resolve(__dirname, '../../../data/image');
-
-// Đảm bảo thư mục tồn tại
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
-
-// Cấu hình storage cho multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    // Tạo tên file unique: timestamp + random + extension
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `product-${uniqueSuffix}${ext}`);
-  },
-});
+// Use memory storage (buffer) for S3 upload
+const storage = multer.memoryStorage();
 
 // Filter chỉ cho phép upload ảnh
 const fileFilter = (req, file, cb) => {
@@ -38,7 +18,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Khởi tạo multer với cấu hình
+// Khởi tạo multer với cấu hình memory storage
 const upload = multer({
   storage,
   fileFilter,
@@ -78,5 +58,4 @@ module.exports = {
   upload,
   uploadProductImage,
   handleUpload,
-  UPLOAD_DIR,
 };

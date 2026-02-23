@@ -8,7 +8,7 @@ import { Card } from '../ui';
 import { formatPrice } from '../../utils';
 import { uploadService } from '../../services';
 
-export function ProductCard({ product, onViewDetail = true }) {
+export function ProductCard({ product, onViewDetail }) {
   const { name, image_url, price, stock, category_name } = product;
   const inStock = stock > 0;
 

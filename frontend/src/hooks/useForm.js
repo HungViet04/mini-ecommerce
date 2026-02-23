@@ -95,7 +95,7 @@ export function useForm(initialValues = {}, onSubmit, validate) {
         // Use the error message from backend or fallback
         const errorMessage = err.message || err.toString() || 'Đã xảy ra lỗi, vui lòng thử lại';
         setSubmitError(errorMessage);
-        
+
         // Log error in development for debugging
         if (import.meta.env.DEV) {
           console.error('Form submission error:', err);

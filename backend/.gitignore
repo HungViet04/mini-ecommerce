@@ -125,7 +125,6 @@ Thumbs.db
 *.temp
 
 # Ignore lock files if not needed
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .env

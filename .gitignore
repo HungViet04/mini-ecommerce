@@ -10,4 +10,3 @@ dist/
 # logs
 npm-debug.log*
 yarn-debug.log*
-package-lock.json

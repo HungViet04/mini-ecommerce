@@ -12,7 +12,7 @@ import { OrderDetail } from './OrderDetail';
 
 export function OrderList() {
   const { isAuthenticated } = useAuth();
-  const { orders, loading, error, cancelOrder, confirmDelivery, refetch } = useOrders({
+  const { orders, loading, error, cancelOrder, confirmDelivery } = useOrders({
     autoFetch: isAuthenticated,
   });
   const [selectedOrder, setSelectedOrder] = useState(null);

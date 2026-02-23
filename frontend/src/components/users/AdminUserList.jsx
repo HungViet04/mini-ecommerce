@@ -15,7 +15,6 @@ export function AdminUserList() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     total: 0,
@@ -35,7 +34,7 @@ export function AdminUserList() {
       const result = await userService.getAll({
         page: pagination.page,
         limit: pagination.limit,
-        role: roleFilter || undefined,
+        role: undefined,
         search: search || undefined,
       });
       setUsers(result.items || []);
@@ -45,7 +44,7 @@ export function AdminUserList() {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, isAdmin, pagination.page, pagination.limit, roleFilter, search]);
+  }, [isAuthenticated, isAdmin, pagination.page, pagination.limit, search]);
 
   useEffect(() => {
     fetchUsers();
@@ -57,25 +56,7 @@ export function AdminUserList() {
     fetchUsers();
   };
 
-  const handleRoleChange = async (userId, newRole) => {
-    if (userId === currentUser?.id) {
-      setError('Không thể thay đổi role của chính mình');
-      return;
-    }
-
-    try {
-      setUpdating(userId);
-      setError(null);
-      await userService.updateRole(userId, newRole);
-      setSuccess('Cập nhật role thành công');
-      fetchUsers();
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (err) {
-      setError(err.message || 'Không thể cập nhật role');
-    } finally {
-      setUpdating(null);
-    }
-  };
+  // role change handled elsewhere (UI for changing role currently disabled)
 
   const handleViewOrders = async (user) => {
     try {
