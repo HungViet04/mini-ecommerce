@@ -3,11 +3,13 @@
 ## Kiến trúc Deployment
 
 ### Local Development
+
 - **Frontend**: React + Vite (localhost:5173)
 - **Backend**: Node.js + Express (localhost:3001)
 - **Database**: MySQL local (XAMPP/Docker)
 
 ### AWS Production
+
 - **Frontend**: AWS Amplify (HTTPS) - Tự động deploy từ GitHub
 - **Backend**: EC2 (Docker containers) - Manual deploy
 - **API Gateway**: HTTPS proxy cho Backend API
@@ -19,12 +21,19 @@
 ## Mục lục
 
 ### PHẦN 0: CHẠY LOCAL (Development)
+
 ### PHẦN 1: Setup Database - RDS MySQL
+
 ### PHẦN 2: Deploy Backend - EC2 với Docker
+
 ### PHẦN 3: Setup API Gateway - HTTPS Proxy
+
 ### PHẦN 4: Deploy Frontend - Amplify với GitHub
+
 ### PHẦN 5: Build và Push Docker Image
+
 ### PHẦN 6: Quy trình Update Code
+
 ### PHẦN 7: Troubleshooting & Best Practices
 
 ---
@@ -43,12 +52,14 @@
 ### Bước 1: Setup Database
 
 #### 1.1. Khởi động XAMPP
+
 ```powershell
 # Mở XAMPP Control Panel
 # Start Apache và MySQL
 ```
 
 #### 1.2. Tạo Database
+
 1. Mở **phpMyAdmin**: http://localhost/phpmyadmin
 2. Tạo database: `ecommerce_db`
 3. Import file SQL:
@@ -61,17 +72,19 @@
 ### Bước 2: Setup Backend
 
 #### 2.1. Tạo file `.env` trong thư mục backend
+
 ```bash
 cd backend
 ```
 
 Tạo file `.env`:
+
 ```env
 NODE_ENV=development
 PORT=3001
 
 # Database Local (XAMPP default)
-DB_HOST=localhost  
+DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=        # Để trống nếu dùng XAMPP mặc định
@@ -89,6 +102,7 @@ UPLOAD_DIR=uploads
 ```
 
 #### 2.2. Cài đặt và chạy Backend
+
 ```powershell
 cd backend
 npm install
@@ -101,11 +115,13 @@ npm run dev
 ### Bước 3: Setup Frontend
 
 #### 3.1. Tạo file `.env` trong thư mục frontend
+
 ```bash
 cd frontend
 ```
 
 Tạo file `.env`:
+
 ```env
 # API Backend URL (local)
 VITE_API_BASE=http://localhost:3001/api/v1
@@ -116,6 +132,7 @@ VITE_APP_VERSION=1.0.0
 ```
 
 #### 3.2. Cài đặt và chạy Frontend
+
 ```powershell
 cd frontend
 npm install
@@ -133,6 +150,7 @@ npm run dev
 ### Bước 5: Test kết nối
 
 #### Test Backend
+
 ```powershell
 # Test health endpoint
 curl http://localhost:3001/api/v1/health
@@ -141,6 +159,7 @@ curl http://localhost:3001/api/v1/health
 ```
 
 #### Test Database
+
 ```powershell
 # Mở browser: http://localhost/phpmyadmin
 # Chọn database: ecommerce_db
@@ -148,6 +167,7 @@ curl http://localhost:3001/api/v1/health
 ```
 
 #### Test Frontend
+
 ```
 1. Mở http://localhost:5173
 2. Register tài khoản mới
@@ -161,11 +181,13 @@ curl http://localhost:3001/api/v1/health
 ## 🐳 Option 2: Chạy với Docker (Production-like)
 
 ### Bước 1: Chuẩn bị
+
 ```powershell
 cd c:\Users\Lenovo\Downloads\mini-ecommerce
 ```
 
 ### Bước 2: Chạy toàn bộ stack với Docker Compose
+
 ```powershell
 # Chạy MySQL + Backend + Frontend
 docker-compose up -d
@@ -178,6 +200,7 @@ docker-compose down
 ```
 
 ### Bước 3: Import database vào MySQL container
+
 ```powershell
 # Copy SQL file vào container
 docker cp ecommerce_db_updated.sql mini-ecommerce-db:/tmp/
@@ -187,6 +210,7 @@ docker exec -i mini-ecommerce-db mysql -uroot -proot ecommerce_db < ecommerce_db
 ```
 
 ### Bước 4: Truy cập
+
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:3001
 - **MySQL**: localhost:3306
@@ -197,39 +221,47 @@ docker exec -i mini-ecommerce-db mysql -uroot -proot ecommerce_db < ecommerce_db
 # PHẦN 1: DEPLOY DATABASE (RDS)
 
 ## Tổng quan
+
 Deploy MySQL database lên AWS RDS để có database production ổn định, backup tự động, và dễ scale.
 
 ## Bước 1: Tạo RDS MySQL Instance
 
 ### 1.1. Tạo Database trên AWS Console
+
 1. Vào **RDS Console**: https://console.aws.amazon.com/rds
 2. Click **"Create database"**
 3. Cấu hình như sau:
 
 **Engine options:**
+
 - Engine type: **MySQL**
 - Engine version: **MySQL 8.0.35** (hoặc latest)
 
 **Templates:**
+
 - **Free tier** (cho testing)
 - Hoặc **Production** (cho production thật)
 
 **Settings:**
+
 - DB instance identifier: `ecommerce-demo-db` (hoặc tên bạn muốn)
 - Master username: `admin`
 - Master password: `23062004Hung` (hoặc password mạnh hơn)
 - Confirm password
 
 **DB instance class:**
+
 - **db.t3.micro** (Free tier eligible)
 - Hoặc **db.t3.small** (nếu cần performance cao hơn)
 
 **Storage:**
+
 - Storage type: **General Purpose SSD (gp2)**
 - Allocated storage: **20 GB**
 - ✅ Enable storage autoscaling: **Yes** (max: 100 GB)
 
 **Connectivity:**
+
 - Compute resource: **Don't connect to an EC2 compute resource** (setup manual sau)
 - VPC: **Default VPC** (hoặc VPC bạn đang dùng)
 - Public access: **Yes** ⚠️ (để EC2 và local có thể kết nối)
@@ -237,9 +269,11 @@ Deploy MySQL database lên AWS RDS để có database production ổn định, b
 - Availability Zone: **No preference**
 
 **Database authentication:**
+
 - **Password authentication**
 
 **Additional configuration:**
+
 - Initial database name: `ecommerce_db` ✅ (Quan trọng! Tạo database mặc định)
 - Backup retention: **7 days** (hoặc theo nhu cầu)
 - ✅ Enable automated backups
@@ -252,6 +286,7 @@ Deploy MySQL database lên AWS RDS để có database production ổn định, b
 ### 1.2. Lưu thông tin kết nối
 
 Sau khi RDS tạo xong:
+
 1. Click vào DB instance → Tab **"Connectivity & security"**
 2. Lưu lại:
    - **Endpoint**: `ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com`
@@ -269,11 +304,12 @@ Sau khi RDS tạo xong:
 
 **Thêm các rules sau:**
 
-| Type | Protocol | Port | Source | Description |
-|------|----------|------|--------|-------------|
-| MySQL/Aurora | TCP | 3306 | 0.0.0.0/0 | Allow from anywhere (dev/testing) |
+| Type         | Protocol | Port | Source    | Description                       |
+| ------------ | -------- | ---- | --------- | --------------------------------- |
+| MySQL/Aurora | TCP      | 3306 | 0.0.0.0/0 | Allow from anywhere (dev/testing) |
 
 ⚠️ **Security Note:**
+
 - `0.0.0.0/0` cho phép kết nối từ bất kỳ IP nào (tốt cho dev/testing)
 - Cho production thật, nên giới hạn: `xx.xx.xx.xx/32` (IP EC2) hoặc chỉ Security Group của EC2
 
@@ -294,6 +330,7 @@ mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admi
 ### 1.5. Import Database Schema và Data
 
 **Option 1: Từ máy local**
+
 ```powershell
 cd c:\Users\Lenovo\Downloads\mini-ecommerce
 
@@ -302,6 +339,7 @@ mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admi
 ```
 
 **Option 2: Từ EC2 (sau khi tạo EC2)**
+
 ```bash
 # Cài MySQL client trên EC2
 sudo yum install mariadb105 -y
@@ -330,73 +368,34 @@ SELECT COUNT(*) FROM users;
 
 # PHẦN 2: DEPLOY BACKEND (EC2 với Docker)
 
-## Bước 1: Tạo RDS MySQL Instance
-
-### 1.1. Tạo Database
-1. Vào **RDS Console**: https://console.aws.amazon.com/rds
-2. Click **"Create database"**
-3. Cấu hình:
-   - Engine: **MySQL 8.0**
-   - Template: **Free tier** (hoặc Production)
-   - DB instance identifier: `ecommerce-demo-db`
-   - Master username: `admin`
-   - Master password: `23062004Hung`
-   - DB instance class: **db.t3.micro** (Free tier)
-   - Storage: **20 GB gp2**
-   - Public access: **Yes** (để EC2 có thể kết nối)
-4. Click **"Create database"**
-
-### 1.2. Cấu hình Security Group cho RDS
-1. Vào RDS → Chọn database → **"Connectivity & security"**
-2. Click vào **Security group**
-3. **Inbound rules** → **Edit** → **Add rule**:
-   - Type: **MySQL/Aurora**
-   - Port: **3306**
-   - Source: **Security group của EC2** hoặc **0.0.0.0/0** (cho test)
-4. Save
-
-### 1.3. Tạo Database và Import Data
-Từ EC2 hoặc máy local có MySQL client:
-
-```bash
-# Cài MySQL client (trên Amazon Linux)
-sudo yum install mariadb105 -y
-
-# Tạo database
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung -e "CREATE DATABASE ecommerce_db;"
-
-# Import data
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce_db < ecommerce_db_updated.sql
-```
-
----
-
-# PHẦN 2: DEPLOY BACKEND (EC2)
-
-# PHẦN 2: DEPLOY BACKEND (EC2 với Docker)
-
 ## Tổng quan
+
 Deploy Backend Node.js application lên EC2 instance sử dụng Docker containers để dễ quản lý và scale.
 
 ## Bước 1: Tạo EC2 Instance
 
 ### 1.1. Launch Instance
+
 1. Vào **EC2 Console**: https://console.aws.amazon.com/ec2
 2. Click **"Launch Instance"**
 3. Cấu hình:
 
 **Name and tags:**
+
 - Name: `ecommerce-backend`
 
 **Application and OS Images (AMI):**
+
 - **Amazon Linux 2023 AMI** (Free tier eligible)
 - Architecture: **64-bit (x86)**
 
 **Instance type:**
+
 - **t2.micro** (Free tier) - 1 vCPU, 1 GB RAM
 - Hoặc **t3.small** (Production) - 2 vCPU, 2 GB RAM
 
 **Key pair (login):**
+
 - Click **"Create new key pair"** (nếu chưa có)
   - Key pair name: `ecommerce-key`
   - Key pair type: **RSA**
@@ -404,6 +403,7 @@ Deploy Backend Node.js application lên EC2 instance sử dụng Docker containe
   - Download và lưu file `.pem` an toàn
 
 **Network settings:**
+
 - VPC: **Default VPC**
 - Subnet: **No preference** (hoặc public subnet)
 - Auto-assign public IP: **Enable** ✅
@@ -412,6 +412,7 @@ Deploy Backend Node.js application lên EC2 instance sử dụng Docker containe
   - Description: `Security group for ecommerce backend`
 
 **Configure storage:**
+
 - **8 GB gp3** (Free tier)
 - Hoặc **20 GB gp3** (nếu cần lưu nhiều data/logs)
 
@@ -426,29 +427,32 @@ Deploy Backend Node.js application lên EC2 instance sử dụng Docker containe
 3. Tab **"Inbound rules"** → **"Edit inbound rules"**
 4. **Add rules:**
 
-| Type | Protocol | Port | Source | Description |
-|------|----------|------|--------|-------------|
-| SSH | TCP | 22 | My IP | SSH from my IP |
-| Custom TCP | TCP | 3001 | 0.0.0.0/0 | Backend API (for API Gateway) |
-| HTTP | TCP | 80 | 0.0.0.0/0 | HTTP (optional) |
-| HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS (optional) |
+| Type       | Protocol | Port | Source    | Description                   |
+| ---------- | -------- | ---- | --------- | ----------------------------- |
+| SSH        | TCP      | 22   | My IP     | SSH from my IP                |
+| Custom TCP | TCP      | 3001 | 0.0.0.0/0 | Backend API (for API Gateway) |
+| HTTP       | TCP      | 80   | 0.0.0.0/0 | HTTP (optional)               |
+| HTTPS      | TCP      | 443  | 0.0.0.0/0 | HTTPS (optional)              |
 
 5. Click **"Save rules"**
 
 ### 1.3. ⚠️ QUAN TRỌNG: Tạo Elastic IP (IP cố định)
 
 **Tại sao cần Elastic IP?**
+
 - EC2 mặc định có Public IP động → Mỗi lần stop/start sẽ đổi IP
 - API Gateway integration cần IP cố định
 - Elastic IP = IP tĩnh, không đổi
 
 **Cách tạo:**
+
 1. **EC2 Console** → Menu trái → **Network & Security** → **Elastic IPs**
 2. Click **"Allocate Elastic IP address"**
 3. Network border group: **ap-southeast-1** (hoặc region bạn dùng)
 4. Click **"Allocate"**
 
 **Associate Elastic IP với EC2:**
+
 1. Chọn Elastic IP vừa tạo
 2. **Actions** → **"Associate Elastic IP address"**
 3. Instance: Chọn `ecommerce-backend`
@@ -458,6 +462,7 @@ Deploy Backend Node.js application lên EC2 instance sử dụng Docker containe
 ✅ **Lưu lại Elastic IP** (ví dụ: `54.255.211.151`) → Dùng cho tất cả các bước tiếp theo
 
 💰 **Cost note:**
+
 - Elastic IP **FREE** khi đang associate với EC2 running
 - **$0.005/hour** khi Elastic IP không dùng (not associated)
 
@@ -523,18 +528,15 @@ docker-compose --version
 
 ## Bước 3: Deploy Backend Application
 
-### 3.1. Tạo thư mục project và docker-compose.yml
+### 3.1. Tạo thư mục project và docker-compose.production.yml
 
 ```bash
 # Tạo thư mục
 mkdir -p ~/mini-ecommerce
 cd ~/mini-ecommerce
 
-# Tạo thư mục uploads
-mkdir -p uploads
-
-# Tạo file docker-compose.yml
-cat > docker-compose.yml << 'EOF'
+# Tạo file docker-compose.production.yml
+cat > docker-compose.production.yml << 'EOF'
 version: '3.8'
 
 services:
@@ -547,21 +549,27 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      
+
       # RDS Database
-      DB_HOST: ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com
+      DB_HOST: your-rds-endpoint.rds.amazonaws.com
       DB_PORT: 3306
-      DB_USER: admin
-      DB_PASSWORD: 23062004Hung
-      DB_NAME: ecommerce_db
-      
+      DB_USER: your-db-username
+      DB_PASSWORD: your-db-password
+      DB_NAME: your-db-name
+
       # JWT
       ACCESS_TOKEN_SECRET: your-super-secret-key-change-this-in-production
       ACCESS_TOKEN_EXPIRES_IN: 24h
-      
+
       # CORS - Cho phép tất cả origins (có thể giới hạn sau)
       CORS_ORIGIN: "*"
-      
+
+      # S3
+      S3_ACCESS_KEY_ID: "your-access-key-id"  # Thay bằng Access Key ID của bạn
+      S3_SECRET_ACCESS_KEY: "your-secret-access-key"  # Thay bằng Secret Access Key của bạn
+      S3_BUCKET: "your-s3-bucket-name"  # Thay bằng tên bucket S3 của bạn
+      S3_REGION: "ap-southeast-1"  # Thay bằng region của bucket S3 của bạn
+
     volumes:
       - ./uploads:/app/uploads
     networks:
@@ -574,6 +582,7 @@ EOF
 ```
 
 ⚠️ **Lưu ý:**
+
 - Thay `DB_HOST`, `DB_PASSWORD` bằng thông tin RDS của bạn
 - Thay `ACCESS_TOKEN_SECRET` bằng secret key mạnh hơn
 - `CORS_ORIGIN: "*"` cho phép mọi domain (dev). Production nên set: `https://your-domain.com`
@@ -622,12 +631,15 @@ curl http://54.255.211.151:3001/api/v1/health
 ## Bước 4: Troubleshooting
 
 ### Lỗi: "Connection refused" khi test từ ngoài
+
 **Nguyên nhân:** Security Group chưa mở port 3001
 **Giải pháp:** Kiểm tra lại Security Group inbound rules (Bước 1.2)
 
 ### Lỗi: "Database connection failed"
+
 **Nguyên nhân:** Backend không kết nối được RDS
 **Kiểm tra:**
+
 ```bash
 # Test DNS resolution
 nslookup ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com
@@ -638,9 +650,11 @@ telnet ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com 3306
 # Check backend logs
 docker logs ecommerce-backend
 ```
+
 **Giải pháp:** Kiểm tra RDS Security Group cho phép EC2 connect (port 3306)
 
 ### Container bị restart liên tục
+
 ```bash
 # Xem logs chi tiết
 docker logs ecommerce-backend --tail 100
@@ -691,7 +705,9 @@ sudo certbot --nginx -d your-domain.com
 # PHẦN 3: SETUP API GATEWAY (HTTPS Proxy)
 
 ## Tổng quan
+
 API Gateway làm HTTPS proxy cho Backend EC2:
+
 - Frontend (Amplify HTTPS) → API Gateway (HTTPS) → Backend EC2 (HTTP)
 - Giải quyết Mixed Content error
 - Cung cấp SSL/TLS encryption
@@ -700,11 +716,13 @@ API Gateway làm HTTPS proxy cho Backend EC2:
 ## Bước 1: Tạo HTTP API
 
 ### 1.1. Create API
+
 1. Vào **API Gateway Console**: https://console.aws.amazon.com/apigateway
 2. Click **"Create API"**
 3. Chọn **"HTTP API"** → Click **"Build"**
 
 ### 1.2. Add Integration
+
 1. Click **"Add integration"**
 2. Cấu hình:
    - Integration type: **HTTP**
@@ -715,6 +733,7 @@ API Gateway làm HTTPS proxy cho Backend EC2:
 3. Click **"Next"**
 
 ### 1.3. Configure routes
+
 1. **API name**: `ecommerce-api`
 2. **Routes**: Giữ mặc định
    - Method: **ANY**
@@ -724,11 +743,13 @@ API Gateway làm HTTPS proxy cho Backend EC2:
 3. Click **"Next"**
 
 ### 1.4. Configure stages
+
 1. Stage name: **$default** (mặc định, tự động deploy)
 2. Auto-deploy: **✅ Enabled**
 3. Click **"Next"**
 
 ### 1.5. Review and create
+
 1. Review cấu hình
 2. Click **"Create"**
 
@@ -746,6 +767,7 @@ API Gateway làm HTTPS proxy cho Backend EC2:
 ## Bước 3: Test API Gateway
 
 ### 3.1. Test health endpoint
+
 ```powershell
 # Test health check (thay YOUR-API-URL)
 curl https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/health
@@ -755,6 +777,7 @@ curl https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/health
 ```
 
 ### 3.2. Test full path
+
 ```bash
 # Test products endpoint
 curl https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/products
@@ -770,11 +793,13 @@ curl -X POST https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/
 ## Bước 4: ⚠️ Cập nhật Integration khi IP thay đổi
 
 **Khi nào cần:**
+
 - EC2 stop/start và IP đổi (nếu không dùng Elastic IP)
 - Chuyển sang EC2 instance mới
 - Update backend lên server khác
 
 **Cách cập nhật:**
+
 1. **API Gateway Console** → Chọn API `ecommerce-api`
 2. Sidebar → **"Routes"**
 3. Click vào route **ANY /{proxy+}**
@@ -802,6 +827,7 @@ curl -X POST https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/
 ## Bước 6: Monitoring và Logging (Optional)
 
 ### 6.1. Enable CloudWatch Logs
+
 1. **API Gateway Console** → API → **"Stages"** → **$default**
 2. Tab **"Logs"**
 3. Enable **CloudWatch Logs**:
@@ -810,6 +836,7 @@ curl -X POST https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/
 4. Click **"Save"**
 
 ### 6.2. View Logs
+
 1. **CloudWatch Console**: https://console.aws.amazon.com/cloudwatch
 2. **Logs** → **Log groups**
 3. Tìm log group: `/aws/apigateway/ecommerce-api`
@@ -817,12 +844,15 @@ curl -X POST https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/
 ## Troubleshooting
 
 ### Error: 502 Bad Gateway
+
 **Nguyên nhân:**
+
 - Backend EC2 không chạy
 - Security Group block kết nối
 - Sai IP trong Integration URL
 
 **Kiểm tra:**
+
 ```bash
 # Test backend trực tiếp
 curl http://54.255.211.151:3001/api/v1/health
@@ -834,11 +864,14 @@ docker logs ecommerce-backend
 ```
 
 ### Error: 503 Service Unavailable
+
 **Nguyên nhân:** Backend timeout hoặc crash
 **Kiểm tra:** Backend logs và restart nếu cần
 
 ### Error: CORS Policy blocked
+
 **Giải pháp:**
+
 1. Check Backend CORS config trong `.env`: `CORS_ORIGIN=*`
 2. Configure CORS trong API Gateway (Bước 5)
 3. Restart backend
@@ -850,7 +883,9 @@ docker logs ecommerce-backend
 # PHẦN 4: DEPLOY FRONTEND (AMPLIFY với GitHub)
 
 ## Tổng quan
+
 AWS Amplify tự động build và deploy Frontend React từ GitHub repository:
+
 - Auto deploy khi push code lên GitHub
 - Built-in CI/CD pipeline
 - Free SSL certificate
@@ -911,39 +946,13 @@ git push -u origin main
 5. Chọn branch: `main`
 6. Click **"Next"**
 
-### 2.3. Configure Build Settings
+### 2.3. Turn off auto build
 
-**App name:** `mini-ecommerce-app`
-
-**Build specification:** Amplify tự detect `frontend/` folder, nhưng cần custom:
-
-Click **"Edit"** và thay bằng config sau:
-
-```yaml
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - cd frontend
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: frontend/dist
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - frontend/node_modules/**/*
-```
-
-**⚠️ Giải thích:**
-- `baseDirectory: frontend/dist` - Build output của Vite
-- `cd frontend` - Di chuyển vào thư mục frontend
-- `npm ci` - Install dependencies (faster than npm install)
-- `npm run build` - Build production
+1. **Amplify Console** → App
+2. **App settings** → **General**
+3. **Branch** → Edit
+4. Toggle **"Enable auto build"** → OFF
+5. Save
 
 ### 2.4. Advanced Settings - Environment Variables
 
@@ -951,11 +960,11 @@ Click **"Advanced settings"** (expand)
 
 Thêm environment variables:
 
-| Key | Value | 
-|-----|-------|
-| `VITE_API_BASE` | `https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1` |
-| `VITE_APP_NAME` | `Mini E-commerce` |
-| `VITE_APP_VERSION` | `1.0.0` |
+| Key                | Value                                                                |
+| ------------------ | -------------------------------------------------------------------- |
+| `VITE_API_BASE`    | `https://xxxxxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1` |
+| `VITE_APP_NAME`    | `Mini E-commerce`                                                    |
+| `VITE_APP_VERSION` | `1.0.0`                                                              |
 
 ⚠️ **Thay `https://xxxxxxxxxx...`** bằng API Gateway Invoke URL của bạn (từ PHẦN 3)
 
@@ -968,8 +977,9 @@ Thêm environment variables:
 ### 2.6. Monitor Build Process
 
 **Build stages:**
+
 1. **Provision** - Tạo build environment
-2. **Build** - Run build commands  
+2. **Build** - Run build commands
 3. **Deploy** - Deploy to CDN
 4. **Verify** - Health check
 
@@ -982,12 +992,14 @@ Click vào build đang chạy để xem logs real-time.
 ### 3.1. Lấy URL
 
 Sau khi deploy xong:
+
 1. **Amplify Console** → App → Domain
 2. Copy URL: `https://main.xxxxxxxxxxxxx.amplifyapp.com`
 
 ### 3.2. Test Application
 
 Mở browser và test:
+
 - ✅ Homepage loads
 - ✅ Products listing (kết nối API Gateway)
 - ✅ User registration/login
@@ -1012,11 +1024,13 @@ fetch('YOUR-API-GATEWAY-URL/api/v1/products')
 ## Bước 4: ⚠️ QUAN TRỌNG - Cấu hình SPA Routing (Fix 404 Error)
 
 **Vấn đề:**
+
 - Khi refresh trang tại `/admin/dashboard/` hoặc `/products/123`
 - Browser gửi request đến server cho path đó
 - Server không có file tại path đó → **404 Not Found**
 
 **Nguyên nhân:**
+
 - React Router xử lý routing ở client-side
 - Server cần redirect mọi requests về `index.html`
 
@@ -1030,6 +1044,7 @@ fetch('YOUR-API-GATEWAY-URL/api/v1/products')
 4. Thêm rule:
 
 **Rule:**
+
 ```
 Source address: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
 Target address: /index.html
@@ -1037,11 +1052,13 @@ Type: 200 (Rewrite)
 ```
 
 **Giải thích:**
+
 - Regex match tất cả routes KHÔNG phải static files
 - Rewrite (200) về `/index.html` thay vì redirect (301/302)
 - React Router sẽ handle routing phía client
 
 **Hoặc rule đơn giản hơn:**
+
 ```
 Source address: /<*>
 Target address: /index.html
@@ -1050,45 +1067,10 @@ Type: 200 (Rewrite)
 
 5. Click **"Save"**
 
-### 4.2. Redeploy để apply thay đổi
-
-**Option 1: Trigger từ Amplify Console**
-1. **Amplify Console** → **"Deployments"**
-2. Click **"Redeploy this version"** ở deployment hiện tại
-
-**Option 2: Push commit mới lên GitHub** (Recommended)
-```bash
-# Tạo file amplify.yml ở root để persist config
-cat > amplify.yml << 'EOF'
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - cd frontend
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: frontend/dist
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - frontend/node_modules/**/*
-EOF
-
-git add amplify.yml
-git commit -m "Add Amplify build config"
-git push origin main
-```
-
-Amplify sẽ tự động detect push và trigger rebuild.
-
 ### 4.3. Test SPA Routing
 
 Sau khi redeploy:
+
 ```
 1. Vào https://YOUR-APP.amplifyapp.com/admin/dashboard/
 2. Nhấn F5 (hard refresh)
@@ -1113,6 +1095,7 @@ Sau khi redeploy:
 Amplify sẽ hiển thị DNS records cần thêm. Ví dụ với **NameCheap**:
 
 **Truy cập NameCheap:**
+
 1. Domain List → Manage → **Advanced DNS**
 
 **Add records:**
@@ -1131,13 +1114,14 @@ Value: dxxxxxxxxxxxx.cloudfront.net
 TTL: Automatic
 
 ✅ WWW SUBDOMAIN:
-Type: CNAME  
+Type: CNAME
 Host: www
 Value: dxxxxxxxxxxxx.cloudfront.net
 TTL: Automatic
 ```
 
 ⚠️ **Lưu ý:**
+
 - Copy CHÍNH XÁC values từ Amplify Console
 - ANAME/ALIAS cho root domain
 - CNAME cho www subdomain
@@ -1149,6 +1133,7 @@ TTL: Automatic
 - **Status check:** Amplify Console → Domain management → Status
 
 **Tools để check:**
+
 ```powershell
 # Check DNS
 nslookup yourdomain.com
@@ -1163,11 +1148,13 @@ curl -I https://yourdomain.com
 Sau khi có custom domain, update:
 
 **Amplify Console → Environment variables:**
+
 ```
 VITE_APP_URL=https://yourdomain.com
 ```
 
 **Backend CORS (EC2):**
+
 ```bash
 # SSH vào EC2
 ssh ec2-user@YOUR-ELASTIC-IP
@@ -1182,53 +1169,21 @@ CORS_ORIGIN: "https://yourdomain.com"
 docker-compose down && docker-compose up -d
 ```
 
-## Bước 6: Auto-deploy Workflow
-
-### 6.1. Amplify CI/CD Flow
-
-```
-Push to GitHub → Amplify detect changes → Auto build → Auto deploy → Live
-```
-
-### 6.2. Update Frontend Code
-
-```powershell
-# Make changes
-cd frontend
-# ... edit files ...
-
-# Commit and push  
-git add .
-git commit -m "feat: add new feature"
-git push origin main
-
-# Amplify sẽ tự động:
-# 1. Detect push
-# 2. Trigger build (~3-5 phút)
-# 3. Deploy to CDN
-# 4. Invalidate cache
-```
-
 ### 6.3. Monitor Builds
 
 **Amplify Console → Build history:**
+
 - ✅ Green = Success
 - 🔴 Red = Failed (click để xem logs)
 - 🟡 Yellow = In progress
 
-### 6.4. Disable Auto-deploy (nếu cần)
-
-1. **Amplify Console** → App
-2. **App settings** → **General**
-3. **Branch** → Edit
-4. Toggle **"Enable auto build"** → OFF
-5. Save
-
 ## Troubleshooting
 
 ### Build Failed - "Module not found"
+
 **Nguyên nhân:** Missing dependencies
 **Giải pháp:**
+
 ```bash
 # Check package.json
 cd frontend
@@ -1242,33 +1197,35 @@ git push origin main
 ```
 
 ### Build Success but App shows blank page
+
 **Kiểm tra:**
+
 1. Browser Console (F12) → Xem errors
 2. Check `VITE_API_BASE` environment variable
 3. Check API Gateway CORS
 4. Verify build artifacts: `frontend/dist/index.html` exists
 
 ### CORS Error
+
 **Nguyên nhân:** API Gateway hoặc Backend CORS config sai
 **Giải pháp:**
+
 1. Check Backend `.env`: `CORS_ORIGIN=*`
 2. Configure CORS trong API Gateway (PHẦN 3, Bước 5)
 3. Restart backend
 
 ### SSL Certificate Pending
+
 **Nguyên nhân:** DNS verification chưa xong
 **Giải pháp:**
+
 1. Wait 2-24 hours
 2. Check DNS records: `nslookup _verification-record.yourdomain.com`
 3. Verify CNAME records chính xác
 
 ---
 
-# PHẦN 5: BUILD VÀ PUSH DOCKER IMAGE
-# PHẦN 5: BUILD VÀ PUSH DOCKER IMAGE
-
-## Tổng quan
-Khi update Backend code, cần build Docker image mới và push lên Docker Hub, sau đó deploy lên EC2.
+# PHẦN 5: Setup CI/CD
 
 ## Bước 1: Chuẩn bị Docker Hub
 
@@ -1298,409 +1255,81 @@ docker login
 # Expected: "Login Succeeded"
 ```
 
-## Bước 2: Build Backend Docker Image
-
-### 2.1. Check Dockerfile
-
-Verify file `backend/Dockerfile` exists:
-
-```dockerfile
-# backend/Dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy source code
-COPY . .
-
-# Expose port
-EXPOSE 3000
-
-# Start app
-CMD ["node", "src/server.js"]
-```
-
-### 2.2. Build Image
-
-```powershell
-# Di chuyển vào thư mục project
-cd c:\Users\Lenovo\Downloads\mini-ecommerce
-
-# Build với tag latest
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:latest ./backend
-
-# Build với version tag (recommended)
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:v1.0.0 ./backend
-
-# Hoặc build cả 2 tags cùng lúc
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:latest -t YOUR-USERNAME/mini-ecommerce-backend:v1.0.0 ./backend
-```
-
-**Example:**
-```powershell
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-```
-
-### 2.3. Test Image locally (Optional)
-
-```powershell
-# Run container từ image vừa build
-docker run -d -p 3001:3000 \
-  -e NODE_ENV=production \
-  -e DB_HOST=localhost \
-  -e DB_USER=root \
-  -e DB_PASSWORD= \
-  -e DB_NAME=ecommerce_db \
-  YOUR-USERNAME/mini-ecommerce-backend:latest
-
-# Test API
-curl http://localhost:3001/api/v1/health
-
-# Stop container
-docker stop $(docker ps -q --filter ancestor=YOUR-USERNAME/mini-ecommerce-backend:latest)
-```
-
-## Bước 3: Push Image lên Docker Hub
-
-### 3.1. Push Image
-
-```powershell
-# Push latest tag
-docker push YOUR-USERNAME/mini-ecommerce-backend:latest
-
-# Push version tag
-docker push YOUR-USERNAME/mini-ecommerce-backend:v1.0.0
-```
-
-**Output:**
-```
-The push refers to repository [docker.io/YOUR-USERNAME/mini-ecommerce-backend]
-abc123: Pushed
-def456: Pushed
-latest: digest: sha256:xxx... size: 1234
-```
-
-✅ Image đã được push lên Docker Hub!
-
-### 3.2. Verify trên Docker Hub
-
-1. Vào https://hub.docker.com/
-2. Repositories → chọn `mini-ecommerce-backend`
-3. Tab **Tags** → Thấy `latest` và `v1.0.0`
-
-## Bước 4: Pull Image trên EC2
-
-```bash
-# SSH vào EC2
-ssh -i "ecommerce-key.pem" ec2-user@YOUR-ELASTIC-IP
-
-# Pull latest image
-cd ~/mini-ecommerce
-docker-compose pull
-
-# Hoặc pull thủ công
-docker pull YOUR-USERNAME/mini-ecommerce-backend:latest
-
-# Restart containers với image mới
-docker-compose down
-docker-compose up -d
-
-# Verify
-docker ps
-curl http://localhost:3001/api/v1/health
-```
-
-## Bước 5: Build Frontend Image (Optional)
-
-**Lưu ý:** Frontend thường deploy qua Amplify, không cần Docker. But nếu muốn:
-
-### 5.1. Check Dockerfile
-
-```dockerfile
-# frontend/Dockerfile
-FROM node:18-alpine as build
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source
-COPY . .
-
-# Build argument for API URL
-ARG VITE_API_BASE
-ENV VITE_API_BASE=$VITE_API_BASE
-
-# Build
-RUN npm run build
-
-# Production stage - Nginx
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### 5.2. Build and Push
-
-```powershell
-# Build với build arg
-docker build \
-  --build-arg VITE_API_BASE=https://YOUR-API-GATEWAY-URL/api/v1 \
-  -t YOUR-USERNAME/mini-ecommerce-frontend:latest \
-  ./frontend
-
-# Push
-docker push YOUR-USERNAME/mini-ecommerce-frontend:latest
-```
-
----
-
-# PHẦN 6: QUY TRÌNH UPDATE CODE
-
-## Workflow Overview
-
-```
-Local Development → GitHub → AWS Services
-     ↓                ↓            ↓
-  Testing          Commit      Auto Deploy
-                    Push       (Amplify)
-                                  ↓
-                    Build      Manual Deploy
-                   Docker         (EC2)
-                    Image
-```
-
-## 📋 Update Checklist
-
-**Trước khi update:**
-- [ ] Code đã test local thành công
-- [ ] Database migrations đã chuẩn bị (nếu có)
-- [ ] Environment variables updated
-- [ ] Backup dữ liệu quan trọng (if needed)
-- [ ] Document breaking changes
-
-## 🔄 Update Backend (EC2 + Docker)
-
-### Bước 1: Development và Testing Local
-
-```powershell
-# Update code
-cd c:\Users\Lenovo\Downloads\mini-ecommerce\backend
-
-# Install dependencies (if added new)
-npm install
-
-# Test local
-npm run dev
-
-# Test endpoints
-curl http://localhost:3001/api/v1/health
-curl http://localhost:3001/api/v1/products
-```
-
-### Bước 2: Build và Push Docker Image
-
-```powershell
-# Build new version
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:v1.1.0 ./backend
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:latest ./backend
-
-# Push to Docker Hub
-docker push YOUR-USERNAME/mini-ecommerce-backend:v1.1.0
-docker push YOUR-USERNAME/mini-ecommerce-backend:latest
-```
-
-### Bước 3: Deploy lên EC2
-
-```bash
-# SSH vào EC2
-ssh -i "ecommerce-key.pem" ec2-user@YOUR-ELASTIC-IP
-
-# Backup current container (optional)
-docker commit ecommerce-backend ecommerce-backend:backup-$(date +%Y%m%d)
-
-# Pull new image
-cd ~/mini-ecommerce
-docker-compose pull
-
-# Restart với image mới
-docker-compose down
-docker-compose up -d
-
-# Check logs
-docker-compose logs -f backend
-```
-
-### Bước 4: Verify Deployment
-
-```bash
-# Test trực tiếp EC2
-curl http://localhost:3001/api/v1/health
-
-# Test qua Elastic IP
-curl http://YOUR-ELASTIC-IP:3001/api/v1/health
-
-# Test qua API Gateway
-curl https://YOUR-API-GATEWAY-URL/api/v1/health
-```
-
-✅ Backend updated successfully!
-
-## 🔄 Update Frontend (Amplify Auto-deploy)
-
-### Bước 1: Development và Testing Local
-
-```powershell
-# Update code
-cd c:\Users\Lenovo\Downloads\mini-ecommerce\frontend
-
-# Install dependencies (if needed)
-npm install
-
-# Test local với backend mới
-npm run dev
-
-# Test trong browser: http://localhost:5173
-```
-
-### Bước 2: Commit và Push lên GitHub
-
-```powershell
-# Check changes
-git status
-git diff
-
-# Stage changes
-git add frontend/
-
-# Commit với semantic message
-git commit -m "feat: add new product filter feature"
-
-# Push to GitHub
-git push origin main
-```
-
-### Bước 3: Monitor Amplify Build
-
-1. **Amplify Console** → App → **Build history**
-2. Click vào build đang chạy
-3. Xem logs real-time
-4. Chờ build complete (~3-5 phút)
-5. Status: **"Deployed"** ✅
-
-### Bước 4: Verify Deployment
-
-```powershell
-# Test app
-Start-Process "https://YOUR-AMPLIFY-URL.amplifyapp.com"
-
-# Test API integration
-# Open browser DevTools (F12) → Console
-fetch('https://YOUR-API-GATEWAY-URL/api/v1/products')
-  .then(r => r.json())
-  .then(console.log)
-```
-
-✅ Frontend updated successfully!
-
-## 🔄 Update Both Backend + Frontend
-
-### Full Update Flow
-
-```powershell
-# 1. Update Backend FIRST
-cd c:\Users\Lenovo\Downloads\mini-ecommerce
-
-# Test backend local
-cd backend
-npm run dev
-
-# Build and push Docker
-cd ..
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:latest ./backend
-docker push YOUR-USERNAME/mini-ecommerce-backend:latest
-
-# Deploy to EC2
-ssh ec2-user@YOUR-ELASTIC-IP "cd ~/mini-ecommerce && docker-compose pull && docker-compose up -d"
-
-# 2. Wait for backend to be stable, then update Frontend
-cd frontend
-npm run dev  # Test with new backend
-
-# Commit all changes
-cd ..
-git add .
-git commit -m "feat: update backend API and frontend UI"
-git push origin main
-
-# Monitor Amplify build
-```
-
-## ⚡ Quick Update Commands
-
-### Backend Only (one-liner)
-```powershell
-docker build -t YOUR-USERNAME/mini-ecommerce-backend:latest ./backend; docker push YOUR-USERNAME/mini-ecommerce-backend:latest; ssh ec2-user@YOUR-ELASTIC-IP "cd ~/mini-ecommerce && docker-compose pull && docker-compose up -d"
-```
-
-### Frontend Only
-```bash
-git add frontend/ && git commit -m "update frontend" && git push origin main
-```
-
-## 🔙 Rollback Strategies
-
-### Rollback Backend
-
-**Option 1: Restore từ backup container**
-```bash
-ssh ec2-user@YOUR-ELASTIC-IP
-
-# Stop current
-docker stop ecommerce-backend
-
-# Start backup
-docker start ecommerce-backend-backup
-# Hoặc rename backup thành main container
-```
-
-**Option 2: Pull previous version**
-```bash
-# Update docker-compose.yml
-nano ~/mini-ecommerce/docker-compose.yml
-
-# Change image tag:
-# image: YOUR-USERNAME/mini-ecommerce-backend:v1.0.0
-
-# Restart
-docker-compose down && docker-compose up -d
-```
-
-### Rollback Frontend
-
-**Option 1: Revert Git commit**
-```bash
-git log --oneline -5  # Find commit hash
-git revert HEAD
-git push origin main  # Amplify auto rebuild
-```
-
-**Option 2: Redeploy previous build**
-1. **Amplify Console** → **Build history**
-2. Find successful previous deployment
-3. Click **"Redeploy this version"**
+## Bước 2: Add secret cho github actions
+
+1. Vào GitHub repository → **Settings** → **Secrets and variables** → **Actions**
+2. Click **"New repository secret"**
+3. Thêm secrets:
+   | Name | Value | Description |
+   |------|-------|-------------|
+   | DOCKER_USERNAME | your-dockerhub-username | Docker Hub username |
+   | DOCKER_TOKEN | your-dockerhub-token | Docker Hub token (use personal access token) |
+   | AMPLIFY_APP_ID | your-amplify-app-id | Amplify App ID (from Amplify Console) |
+   | AWS_ACCESS_KEY_ID | your-aws-access-key-id | AWS Access Key ID |
+   | AWS_REGION | your-aws-region | AWS Region |
+   | AWS_SECRET_ACCESS_KEY | your-aws-secret-access-key | AWS Secret Access Key |
+   | EC2_HOST | your-ec2-host | EC2 Host |
+   | EC2_SSH_KEY | your-ec2-ssh-key | EC2 SSH Key |
+   | EC2_USER | your-ec2-user | EC2 User Name |
+
+## Bước 3: Logic CI/CD Workflow
+
+Dưới đây là mô tả cập nhật cho CI/CD theo trạng thái hiện tại của repository (`.github/workflows`).
+
+- CI (files: `ci-backend.yml`, `ci-frontend.yml`)
+  - Kích hoạt: `push` / `pull_request` (với bộ lọc `paths`) và `workflow_dispatch` để chạy thủ công.
+  - Path filters:
+    - `ci-backend.yml` chạy khi có thay đổi trong `backend/**` (hoặc khi thay đổi file workflow liên quan).
+    - `ci-frontend.yml` chạy khi có thay đổi trong `frontend/**` (hoặc khi thay đổi file workflow liên quan).
+  - Jobs:
+    - `backend` (CI Backend): chạy unit/integration tests cho backend (MySQL service), lint và `npm test`.
+    - `frontend` (CI Frontend): chạy lint và frontend tests (`vitest`).
+
+- CD Backend (file: `cd-backend.yml`)
+  - Kích hoạt: `workflow_run` lắng nghe `CI Backend` khi hoàn tất; có `workflow_dispatch` để chạy thủ công.
+  - Hành vi:
+    - Đăng nhập Docker Hub (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
+    - Build backend image (Docker Buildx) và push lên Docker Hub (tags: SHA + `latest`).
+    - SSH vào EC2 (`EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`), cập nhật repo / ghi `.env` từ GitHub Secrets, rồi chạy `docker compose pull` + `docker compose up -d` (hoặc `docker-compose` nếu server không có plugin `docker compose`).
+
+- CD Frontend (file: `cd-frontend.yml`)
+  - Kích hoạt: `workflow_run` lắng nghe `CI Frontend` khi hoàn tất; có `workflow_dispatch` để chạy thủ công.
+  - Hành vi (hiện tại):
+    - workflow trực tiếp gọi `aws amplify start-job --job-type RELEASE` để yêu cầu Amplify build & release từ repository (dùng khi app đã kết nối GitHub).
+
+Secrets / Variables cần thiết
+
+- GitHub Actions (Repository secrets / variables):
+  - `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` (push image; token cần quyền write/push)
+  - `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY` (SSH deploy)
+  - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` (Amplify / AWS CLI)
+  - `AMPLIFY_APP_ID` (deploy target)
+  - `API_GATEWAY_URL` (inject vào build for frontend, nếu cần)
+  - DB / S3 / JWT secrets cho backend (ví dụ `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`, `ACCESS_TOKEN_SECRET`, ...)
+
+Lưu ý về trigger CD
+
+- Mỗi CD workflow lắng nghe tên workflow CI tương ứng: `CI Backend` hoặc `CI Frontend`.
+  - Thay đổi `backend/**` → chạy `CI Backend` → `CD Backend` chạy.
+  - Thay đổi `frontend/**` → chạy `CI Frontend` → `CD Frontend` chạy (và trigger Amplify release).
+  - Thay đổi cả hai → cả 2 CI + CD chạy.
+- Cả CI và CD đều có `workflow_dispatch` để chạy thủ công từ trang Actions khi cần.
+
+Kiểm tra & debugging nhanh
+
+- Xem logs CI: GitHub Actions → chọn run → xem job logs.
+- Nếu backend image push bị 401: kiểm tra `DOCKERHUB_TOKEN` có quyền push vào repo.
+- Nếu SSH timeout hoặc `No such file or directory`: kiểm tra `EC2_HOST`, security group cho phép SSH, và đường dẫn repo trên EC2.
+- Nếu gặp lỗi `docker compose -f` trên EC2: server có thể chỉ có `docker-compose` cũ hoặc chỉ có plugin `docker compose` — deploy script đã kiểm tra cả hai và sẽ dùng lệnh phù hợp.
+- Nếu Amplify trả lỗi `Operation not supported` khi gọi `create-deployment`, thì app đang connect repo; trong cấu hình hiện tại CD gọi `start-job` thay vì upload zip.
+
+Tóm tắt ngắn các bước deploy thủ công (nếu cần):
+
+1. Push code lên `main` (hoặc chạy `workflow_dispatch` trên CI) → CI Backend hoặc CI Frontend chạy tuỳ phần thay đổi.
+2. Nếu CI Backend success → `cd-backend.yml` sẽ build/push image rồi SSH deploy lên EC2.
+3. Nếu CI Frontend success → `cd-frontend.yml` sẽ trigger Amplify release (`start-job`) và Amplify sẽ build & deploy từ repository.
+
+Nếu bạn muốn tôi thêm mẫu `workflow_dispatch` snippet, ví dụ secrets, hoặc hướng dẫn test trigger bằng `gh workflow run`, tôi sẽ thêm vào mục này.
 
 ---
 
@@ -1711,6 +1340,7 @@ git push origin main  # Amplify auto rebuild
 ### Issue 1: Mixed Content Error (HTTPS → HTTP)
 
 **Error:**
+
 ```
 Mixed Content: The page at 'https://...' was loaded over HTTPS,
 but requested an insecure resource 'http://...'. This request has been blocked.
@@ -1718,18 +1348,20 @@ but requested an insecure resource 'http://...'. This request has been blocked.
 
 **Nguyên nhân:** Frontend (HTTPS) gọi Backend (HTTP)
 
-**Giải pháp:** 
+**Giải pháp:**
 ✅ Dùng API Gateway làm HTTPS proxy (đã setup ở PHẦN 3)
 ✅ Update `VITE_API_BASE` thành API Gateway HTTPS URL
 
 ### Issue 2: CORS Policy Blocked
 
 **Error:**
+
 ```
 Access to fetch at '...' from origin '...' has been blocked by CORS policy
 ```
 
 **Kiểm tra:**
+
 ```bash
 # 1. Backend CORS config
 ssh ec2-user@YOUR-ELASTIC-IP
@@ -1739,6 +1371,7 @@ cat ~/mini-ecommerce/docker-compose.yml | grep CORS_ORIGIN
 ```
 
 **Giải pháp:**
+
 ```bash
 # Update backend environment variable
 nano ~/mini-ecommerce/docker-compose.yml
@@ -1763,11 +1396,13 @@ docker-compose down && docker-compose up -d
 ### Issue 4: Database Connection Failed
 
 **Error:**
+
 ```
 ERROR: Can't connect to MySQL server on 'xxx.rds.amazonaws.com'
 ```
 
 **Kiểm tra:**
+
 ```bash
 # 1. RDS Security Group cho phép EC2 connect
 # AWS Console → RDS → Security group → Inbound rules
@@ -1782,6 +1417,7 @@ docker logs ecommerce-backend
 ```
 
 **Giải pháp:**
+
 - Update RDS Security Group inbound rules
 - Verify DB credentials trong docker-compose.yml
 
@@ -1790,11 +1426,13 @@ docker logs ecommerce-backend
 **Error:** API Gateway returns 502
 
 **Nguyên nhân:**
+
 - Backend EC2 không chạy
 - Security Group block port 3001
 - Sai IP trong Integration URL
 
 **Kiểm tra:**
+
 ```bash
 # Test backend trực tiếp
 curl http://YOUR-ELASTIC-IP:3001/api/v1/health
@@ -1806,6 +1444,7 @@ docker logs ecommerce-backend
 ```
 
 **Giải pháp:**
+
 - Restart backend: `docker-compose up -d`
 - Update API Gateway Integration URL nếu IP đổi
 - Check EC2 Security Group port 3001 open
@@ -1815,6 +1454,7 @@ docker logs ecommerce-backend
 **Error:** Build fails với errors
 
 **Common causes:**
+
 ```
 1. Module not found → Missing dependencies
 2. Build command failed → Wrong build config
@@ -1822,6 +1462,7 @@ docker logs ecommerce-backend
 ```
 
 **Giải pháp:**
+
 ```bash
 # 1. Test build local
 cd frontend
@@ -1842,6 +1483,7 @@ git push origin main
 **Nguyên nhân:** Upload path không persist khi container restart
 
 **Giải pháp:**
+
 ```bash
 # Verify volume mount trong docker-compose.yml
 volumes:
@@ -1860,6 +1502,7 @@ chmod -R 755 ~/mini-ecommerce/uploads/
 ### Security
 
 ✅ **Never commit sensitive data**
+
 ```bash
 # .gitignore should include:
 .env
@@ -1870,33 +1513,39 @@ chmod -R 755 ~/mini-ecommerce/uploads/
 ```
 
 ✅ **Use strong passwords**
+
 - RDS password: Minimum 16 characters
 - JWT secret: Random generated string
 
 ✅ **Restrict CORS in production**
+
 ```bash
 # Development: CORS_ORIGIN=*
 # Production: CORS_ORIGIN=https://yourdomain.com
 ```
 
 ✅ **Restrict Security Groups**
+
 ```
 # RDS: Only allow EC2 security group
 # EC2: Only allow API Gateway, SSH from your IP
 ```
 
 ✅ **Enable RDS Encryption**
+
 - Storage encryption at rest
 - SSL/TLS for connections
 
 ### Performance
 
 ✅ **Enable Caching**
+
 - API Gateway caching cho GET requests
 - CloudFront CDN (Amplify tự động có)
 - Redis/ElastiCache cho session/data (advanced)
 
 ✅ **Optimize Docker Images**
+
 ```dockerfile
 # Use Alpine Linux (smaller size)
 FROM node:18-alpine
@@ -1909,6 +1558,7 @@ COPY --from=build ...
 ```
 
 ✅ **Database Indexing**
+
 ```sql
 -- Add indexes cho slow queries
 CREATE INDEX idx_products_category ON products(category_id);
@@ -1918,11 +1568,13 @@ CREATE INDEX idx_orders_user ON orders(user_id);
 ### Monitoring
 
 ✅ **Enable CloudWatch Logs**
+
 - API Gateway logs
 - EC2 logs (via CloudWatch agent)
 - RDS slow query logs
 
 ✅ **Setup Alarms**
+
 ```
 - EC2 CPU > 80%
 - RDS connections > 90% of max
@@ -1930,6 +1582,7 @@ CREATE INDEX idx_orders_user ON orders(user_id);
 ```
 
 ✅ **Regular Backups**
+
 - RDS automated backups (enabled by default)
 - Manual snapshots trước major updates
 - Export important data định kỳ
@@ -1937,6 +1590,7 @@ CREATE INDEX idx_orders_user ON orders(user_id);
 ### Cost Optimization
 
 💰 **Free Tier Resources**
+
 ```
 - EC2: t2.micro (750 hours/month free first 12 months)
 - RDS: db.t2.micro (750 hours/month free first 12 months)
@@ -1945,6 +1599,7 @@ CREATE INDEX idx_orders_user ON orders(user_id);
 ```
 
 💰 **Stop EC2 khi không dùng**
+
 ```bash
 # Stop instance (giữ data, không charge EC2 compute)
 aws ec2 stop-instances --instance-ids i-xxxxx
@@ -1956,6 +1611,7 @@ aws ec2 start-instances --instance-ids i-xxxxx
 ⚠️ **Lưu ý:** Release Elastic IP khi không dùng để tránh phí
 
 💰 **RDS Snapshots before terminate**
+
 ```bash
 # Take snapshot
 aws rds create-db-snapshot \
@@ -1972,71 +1628,8 @@ aws rds create-db-snapshot \
 
 ---
 
-## 🎉 Tổng kết
+### Thêm Environment Variable
 
-**Deployment Architecture:**
-```
-[User Browser]
-     ↓ HTTPS
-[CloudFront CDN] ← Amplify Frontend (React)
-     ↓ HTTPS
-[API Gateway] ← HTTPS Proxy
-     ↓ HTTP
-[EC2 + Docker] ← Backend (Node.js)
-     ↓ MySQL
-[RDS MySQL] ← Database
-```
-
-**URLs Summary:**
-```
-Frontend (Amplify): https://YOUR-APP.amplifyapp.com
-Custom Domain:      https://yourdomain.com
-API Gateway:        https://xxxxxx.execute-api.region.amazonaws.com
-Backend EC2:        http://YOUR-ELASTIC-IP:3001
-RDS Database:       your-db.rds.amazonaws.com:3306
-```
-
-**Update Workflow:**
-```
-1. Update Backend:
-   → Build Docker → Push Docker Hub → Pull on EC2 → Restart
-
-2. Update Frontend:
-   → Commit → Push GitHub → Amplify Auto Build → Auto Deploy
-```
-
-✅ **Deployment Complete!** Happy coding! 🚀
-
-### 3.1. Tạo App trên Amplify
-1. Vào **AWS Amplify Console**: https://console.aws.amazon.com/amplify
-2. Click **"Create new app"** → **"Host web app"**
-3. Chọn **"GitHub"** → Authorize
-4. Chọn repo `mini-ecommerce`, branch `main`
-
-### 3.2. Cấu hình Build Settings
-Sửa build settings thành:
-
-```yaml
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - cd frontend
-        - npm install
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: frontend/dist
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - frontend/node_modules/**/*
-```
-
-### 3.3. Thêm Environment Variable
 1. Trong phần **"Advanced settings"** hoặc sau khi deploy
 2. Vào **"Hosting"** → **"Environment variables"** → **"Manage variables"**
 3. Thêm:
@@ -2044,11 +1637,12 @@ frontend:
    - **Value**: `https://xxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1`
 4. Click **"Save"**
 
-### 3.4. **⚠️ QUAN TRỌNG: Cấu hình Redirects cho SPA (Single Page Application)**
+### **⚠️ QUAN TRỌNG: Cấu hình Redirects cho SPA (Single Page Application)**
 
 **Vấn đề**: Khi refresh trang tại routes như `/admin/dashboard/`, sẽ bị lỗi **404 Not Found**
 
-**Nguyên nhân**: 
+**Nguyên nhân**:
+
 - React Router xử lý routing ở client-side
 - Khi refresh, browser gửi request đến server cho path đó
 - Server không có file tại path đó → 404
@@ -2056,9 +1650,11 @@ frontend:
 **Giải pháp**: Cấu hình redirect tất cả requests về `index.html`
 
 #### Cách 1: Sử dụng file amplify.yml (Khuyên dùng)
+
 File `amplify.yml` đã được tạo sẵn ở root của repo, Amplify sẽ tự động đọc.
 
 #### Cách 2: Cấu hình trực tiếp trong Amplify Console
+
 1. Vào **AWS Amplify Console** → Chọn app của bạn
 2. Menu trái → **"Rewrites and redirects"**
 3. Click **"Edit"** → Thêm rule:
@@ -2070,9 +1666,10 @@ Type: 200 (Rewrite)
 ```
 
 Hoặc đơn giản hơn:
+
 ```
 Source address: /<*>
-Target address: /index.html  
+Target address: /index.html
 Type: 200 (Rewrite)
 ```
 
@@ -2080,34 +1677,98 @@ Type: 200 (Rewrite)
 5. **Redeploy** app để apply thay đổi
 
 #### Test sau khi cấu hình
+
 - Truy cập `https://pigtech.me/admin/dashboard/`
-- Nhấn **F5 (refresh)**  
+- Nhấn **F5 (refresh)**
 - ✅ Trang load thành công thay vì 404
 
-### 3.5. Deploy
-Click **"Save and deploy"**
+---
+
+# PHẦN 8: DOMAIN VÀ CUSTOM SETUP
+
+## Nhà cung cấp Domain khuyên dùng (cho Free Tier)
+
+### 1. NameCheap (Khuyên dùng)
+
+- **Giá**: ~$10-13/năm
+- **Ưu điểm**: Giá rẻ, UI đơn giản, DNS management tốt
+- **Domain tốt**: `.com`, `.net`, `.org`, `.xyz` (rẻ)
+- **Link**: https://namecheap.com
+
+### 2. Porkbun
+
+- **Giá**: ~$8-12/năm
+- **Ưu điểm**: Rẻ nhất, không hidden fee
+- **Domain tốt**: `.dev`, `.tech`, `.online`
+- **Link**: https://porkbun.com
+
+### 3. Route 53 (AWS)
+
+- **Giá**: ~$12/năm + $0.50/tháng hosted zone
+- **Ưu điểm**: Tích hợp hoàn toàn với AWS, setup tự động
+- **Nhược điểm**: Đắt hơn một chút
+
+## Setup DNS cho pigtech.me (NameCheap)
+
+Vào NameCheap Dashboard → **pigtech.me** → **"Manage"** → **"Advanced DNS"**
+
+**Xóa records cũ:**
+
+- Parking page
+- URL Redirect Records (nếu có)
+
+**Thêm records mới:**
+
+```
+Type: A Record
+Host: @
+Value: [IP từ Amplify Console]
+TTL: Automatic
+
+Type: CNAME Record
+Host: www
+Value: [CloudFront domain từ Amplify]
+TTL: Automatic
+```
+
+**Ví dụ cụ thể sau khi lấy thông tin từ Amplify:**
+
+```
+A Record: @ → 76.76.21.21 (ví dụ)
+CNAME: www → d1abc123xyz.cloudfront.net
+```
+
+**Lưu ý Free Tier:**
+
+- Domain phải tự mua ($8-15/năm)
+- SSL Certificate: **MIỄN PHÍ**
+- Amplify Hosting: **MIỄN PHÍ** (1000 build minutes/tháng)
+- Route 53: **MIỄN PHÍ** (1 hosted zone đầu tiên)
 
 ### 3.6. Cấu hình Custom Domain với NameCheap
 
 #### Bước 1: Thêm Domain vào Amplify
+
 1. Vào **AWS Amplify Console** → App của bạn
 2. Menu trái → **"Domain management"**
 3. Click **"Add domain"**
 4. Nhập domain: `pigtech.me`
 5. Chọn subdomain cần setup:
-   - `pigtech.me` (root domain)  
+   - `pigtech.me` (root domain)
    - `www.pigtech.me` (subdomain)
 6. Click **"Configure domain"**
 
 #### Bước 2: Cấu hình DNS trên NameCheap
 
 **2.1. Truy cập NameCheap DNS Management**
-1. Đăng nhập **NameCheap** → **Domain List** 
+
+1. Đăng nhập **NameCheap** → **Domain List**
 2. Tìm domain `pigtech.me` → Click **"Manage"**
 3. Tab **"Advanced DNS"**
 
 **2.2. Xóa Records mặc định**
 Xóa các records sau (nếu có):
+
 - Parking page records
 - URL Redirect records
 - Default A/CNAME records
@@ -2124,7 +1785,7 @@ TTL: Automatic (hoặc 1800)
 
 ✅ ROOT DOMAIN:
 Type: ANAME (hoặc ALIAS nếu có)
-Host: @  
+Host: @
 Value: d111dlyhkepyw.cloudfront.net
 TTL: Automatic
 
@@ -2136,16 +1797,18 @@ Value: [IP từ: dig d111dlyhkepyw.cloudfront.net]
 ✅ WWW SUBDOMAIN:
 Type: CNAME
 Host: www
-Value: d111dlyhkepyw.cloudfront.net  
+Value: d111dlyhkepyw.cloudfront.net
 TTL: Automatic
 ```
 
 **Lưu ý quan trọng:**
-- Verification record **CHỈ** dùng hostname (phần trước `.pigtech.me`) 
+
+- Verification record **CHỈ** dùng hostname (phần trước `.pigtech.me`)
 - CloudFront URL lấy từ Amplify Console
 - Không thêm https:// hoặc trailing slash
 
 #### Bước 3: Chờ DNS Propagation
+
 1. **Save** tất cả records trên NameCheap
 2. Quay lại **Amplify Console** → **Domain management**
 3. Click **"Update domain"** hoặc chờ auto-refresh
@@ -2157,11 +1820,12 @@ TTL: Automatic
 #### Bước 4: Kiểm tra và Troubleshooting
 
 **4.1. Kiểm tra DNS**
+
 ```powershell
 # Kiểm tra A record
 nslookup pigtech.me
 
-# Kiểm tra CNAME  
+# Kiểm tra CNAME
 nslookup www.pigtech.me
 
 # Kiểm tra verification record
@@ -2169,20 +1833,22 @@ nslookup bddd0ab2a9ba71d62b22414bc67686e3.pigtech.me
 ```
 
 **4.2. Test Website**
+
 - ✅ `https://pigtech.me` → Frontend
-- ✅ `https://www.pigtech.me` → Frontend  
+- ✅ `https://www.pigtech.me` → Frontend
 - ✅ HTTP tự động redirect sang HTTPS
 
 **4.3. Các lỗi thường gặp:**
 
-| Lỗi | Nguyên nhân | Khắc phục |
-|-----|-------------|-----------|
-| Certificate pending | Verification record sai | Kiểm tra lại CNAME verification |
-| Domain not accessible | DNS chưa propagate | Chờ thêm 2-4h |
-| SSL error | Mixed content | Check API calls dùng HTTPS |
-| 404 Error | Build artifacts sai | Kiểm tra build path trong Amplify |
+| Lỗi                   | Nguyên nhân             | Khắc phục                         |
+| --------------------- | ----------------------- | --------------------------------- |
+| Certificate pending   | Verification record sai | Kiểm tra lại CNAME verification   |
+| Domain not accessible | DNS chưa propagate      | Chờ thêm 2-4h                     |
+| SSL error             | Mixed content           | Check API calls dùng HTTPS        |
+| 404 Error             | Build artifacts sai     | Kiểm tra build path trong Amplify |
 
 **4.4. Tools hữu ích:**
+
 - **DNS Checker**: https://dnschecker.org/
 - **SSL Test**: https://www.ssllabs.com/ssltest/
 - **Amplify Console Logs**: Monitor → Logs
@@ -2191,6 +1857,7 @@ nslookup bddd0ab2a9ba71d62b22414bc67686e3.pigtech.me
 
 **5.1. Cập nhật Frontend (.env)**
 Sửa file `frontend/.env`:
+
 ```bash
 # Thay API Gateway URL thật vào dòng này:
 VITE_API_BASE=https://YOUR-REAL-API-GATEWAY-URL.execute-api.ap-southeast-1.amazonaws.com/api/v1
@@ -2199,6 +1866,7 @@ VITE_APP_URL=https://pigtech.me
 
 **5.2. Cập nhật Backend (.env)**  
 Sửa file `backend/.env`:
+
 ```bash
 # Comment/uncomment theo environment:
 
@@ -2215,639 +1883,25 @@ DB_USER=admin
 
 **5.3. Cập nhật Amplify Environment Variables**
 Copy từ `frontend/.env` vào **Amplify Console** → **Environment variables**:
+
 ```
 VITE_API_BASE=https://YOUR-API-GATEWAY-URL/api/v1
 VITE_APP_URL=https://pigtech.me
 VITE_APP_NAME=Mini E-commerce
 VITE_APP_VERSION=1.0.0
 ```
+
 Sau khi update environment variables:
+
 1. **Amplify Console** → **Hosting** → **Build history**
 2. Click **"Redeploy this version"** hoặc trigger new build
 3. Chờ build complete (~3-5 phút)
 
 **5.4. Test kết nối Frontend-Backend**
+
 ```bash
 # Test API từ custom domain
 curl https://pigtech.me/api/health
 # hoặc
 curl https://xxxxxxx.execute-api.ap-southeast-1.amazonaws.com/api/v1/health
 ```
-
-#### Bước 6: Commit và Deploy Code mới
-
-**6.1. Commit và Push lên GitHub**
-```bash
-# Thêm files đã cập nhật
-git add frontend/.env backend/.env
-
-# Commit changes  
-git commit -m "feat: add custom domain config (simplified single .env files)"
-
-# Push to GitHub
-git push origin main
-```
-
-**6.2. Amplify sẽ tự động rebuild**
-- Amplify detect GitHub push → Auto trigger new build
-- Build sẽ sử dụng `.env.production` variables
-- Thời gian build: ~3-5 phút
-
-**6.3. Restart Backend với config mới**
-```bash
-# SSH vào EC2
-ssh -i "your-key.pem" ec2-user@54.255.211.151
-
-# Pull latest code
-cd /home/ec2-user/mini-ecommerce
-git pull origin main
-
-# Restart với production config
-docker-compose down
-NODE_ENV=production docker-compose up -d
-
-# Verify backend với CORS mới
-curl -H "Origin: https://pigtech.me" \
-     -H "Access-Control-Request-Method: GET" \
-     -H "Access-Control-Request-Headers: X-Requested-With" \
-     -X OPTIONS \
-     http://54.255.211.151:3001/api/v1/health
-```
-
-#### Bước 7: Kiểm tra và Troubleshooting
-
-**7.1. Test CORS và API Connection**
-```bash
-# Test API Gateway health (thay YOUR-API-URL)
-curl https://1zdkcn9yya.execute-api.ap-southeast-1.amazonaws.com/api/v1/health
-
-# Test CORS preflight từ frontend origin
-curl -H "Origin: https://main.d1ymi985p9iosx.amplifyapp.com" \
-     -H "Access-Control-Request-Method: GET" \
-     -X OPTIONS \
-     https://1zdkcn9yya.execute-api.ap-southeast-1.amazonaws.com/api/v1/health
-```
-
-**7.2. Các lỗi thường gặp**
-
-| Lỗi | Nguyên nhân | Khắc phục |
-|-----|-------------|-----------|
-| **CORS Policy blocked** | API Gateway integration sai IP | Cập nhật Integration URL với Elastic IP mới |
-| **503 Service Unavailable** | Backend không chạy trên EC2 | SSH vào EC2, start Docker containers |
-| **502 Bad Gateway** | API Gateway không reach được EC2 | Kiểm tra Security Group port 3001 |  
-| **404 Not Found** | Route không match | Kiểm tra API Gateway routes config |
-| **SSL Certificate pending** | DNS chưa verify | Chờ hoặc kiểm tra DNS Records |
-
-**7.3. Commands debug**
-```bash 
-# Check EC2 backend status
-ssh -i "key.pem" ec2-user@ELASTIC-IP
-docker ps
-curl localhost:3001/api/v1/health
-
-# Check API Gateway integration
-curl -v https://YOUR-API-GATEWAY-URL/api/v1/health
-
-# Check frontend environment
-# Vào Amplify Console → Environment Variables
-```
-
-**7.4. Quick Fix CORS**
-Nếu gặp lỗi CORS:
-1. **Kiểm tra Backend CORS config** trong `.env`
-2. **Cập nhật API Gateway Integration URL** với Elastic IP mới  
-3. **Deploy API Gateway** → Stage `$default`
-4. **Restart EC2 backend** với config mới
-
----
-
-## Bước 4: Quy trình Update Code Frontend & Backend
-
-### 4.1. Quy trình Update hoàn chỉnh
-
-#### **📋 Checklist trước khi update**
-- [ ] Code đã test local thành công
-- [ ] Database migrations (nếu có) đã chuẩn bị
-- [ ] Environment variables mới đã setup
-- [ ] Backup dữ liệu quan trọng (nếu cần)
-- [ ] Notify users về maintenance (nếu downtime dự kiến)
-
-#### **🔄 Quy trình Update theo thứ tự**
-
-### **BƯỚC 1: Update Backend trước**
-
-#### 1.1. Chuẩn bị và test local
-```powershell
-# Chuyển về thư mục project
-cd c:\Users\Lenovo\Downloads\mini-ecommerce
-
-# Test backend local (nếu cần)
-cd backend
-npm install
-npm run dev
-
-# Test endpoints quan trọng
-curl http://localhost:3000/api/v1/health
-```
-
-#### 1.2. Build và Push Docker Image
-```powershell
-# Build image mới với tag version (recommended)
-docker build -t hungviet/mini-ecommerce-backend:v1.2.0 ./backend
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-
-# Push lên Docker Hub  
-docker push hungviet/mini-ecommerce-backend:v1.2.0
-docker push hungviet/mini-ecommerce-backend:latest
-```
-
-#### 1.3. Deploy lên EC2
-```bash
-# SSH vào EC2
-ssh -i "your-key.pem" ec2-user@YOUR-ELASTIC-IP
-
-# Backup container hiện tại (optional)
-docker tag ecommerce-backend ecommerce-backend:backup-$(date +%Y%m%d)
-
-# Pull image mới
-cd ~/mini-ecommerce
-docker-compose pull
-
-# Rolling update (zero downtime)
-docker-compose up -d --no-deps backend
-```
-
-#### 1.4. Verify Backend deployment
-```bash
-# Kiểm tra container status
-docker ps
-docker logs -f ecommerce-backend
-
-# Test API
-curl http://localhost:3001/api/v1/health
-curl http://YOUR-ELASTIC-IP:3001/api/v1/health
-
-# Test qua API Gateway
-curl https://YOUR-API-GATEWAY-URL/api/v1/health
-```
-
-### **BƯỚC 2: Update Frontend sau khi Backend ổn định**
-
-#### 2.1. Cập nhật Environment Variables (nếu cần)
-```bash
-# Cập nhật frontend/.env nếu có thay đổi API endpoints
-VITE_API_BASE=https://YOUR-API-GATEWAY-URL/api/v1
-VITE_APP_URL=https://pigtech.me
-```
-
-#### 2.2. Test Frontend local với Backend mới
-```bash
-cd frontend
-npm install
-npm run dev
-
-# Test kết nối API bằng browser
-# Mở http://localhost:5173 và test các features
-```
-
-#### 2.3. Deploy Frontend lên Amplify
-**Phương pháp 1: Auto deploy qua GitHub**
-```bash
-# Commit và push code
-git add .
-git commit -m "feat: update frontend for v1.2.0 backend"
-git push origin main
-
-# Amplify sẽ tự động trigger build
-```
-
-**Phương pháp 2: Manual deploy**
-1. Vào **Amplify Console** → Chọn app
-2. **Environment variables** → Update nếu cần
-3. **Deployments** → **"Redeploy this version"**
-
-#### 2.4. Monitor Amplify Build
-1. Vào **Amplify Console** → App → **"Build history"**
-2. Click vào build đang chạy để xem logs
-3. Chờ build complete (~3-5 phút)
-4. Status: **"Deployed"** = Thành công
-
-### **BƯỚC 3: Testing End-to-End**
-
-#### 3.1. Test Production Environment
-```bash
-# Test API Gateway trực tiếp  
-curl https://YOUR-API-GATEWAY-URL/api/v1/health
-curl https://YOUR-API-GATEWAY-URL/api/v1/users
-curl https://YOUR-API-GATEWAY-URL/api/v1/products
-
-# Test CORS từ frontend domain
-curl -H "Origin: https://pigtech.me" \
-     -H "Access-Control-Request-Method: GET" \
-     -X OPTIONS \
-     https://YOUR-API-GATEWAY-URL/api/v1/health
-```
-
-#### 3.2. Manual Testing trên Production
-- ✅ Homepage load thành công: `https://pigtech.me`
-- ✅ Products listing hiển thị data
-- ✅ User authentication (login/register)
-- ✅ Add to cart functionality
-- ✅ Checkout process
-- ✅ Admin dashboard (nếu có)
-
-#### 3.3. Monitoring và Logs
-```bash
-# EC2 backend logs
-ssh -i "key.pem" ec2-user@YOUR-ELASTIC-IP
-docker logs -f ecommerce-backend --tail 100
-
-# Amplify frontend logs  
-# Vào Amplify Console → Monitoring → Access logs
-```
-
-### **BƯỚC 4: Rollback nếu có lỗi**
-
-#### 4.1. Rollback Backend
-```bash
-# SSH vào EC2
-ssh -i "key.pem" ec2-user@YOUR-ELASTIC-IP
-
-# Option 1: Restore từ backup container
-docker stop ecommerce-backend
-docker run -d --name ecommerce-backend \
-  --network mini-ecommerce_default \
-  -p 3001:3000 \
-  ecommerce-backend:backup-20260214
-
-# Option 2: Pull version cũ
-docker pull hungviet/mini-ecommerce-backend:v1.1.0
-# Update docker-compose.yml với tag cũ, rồi:
-docker-compose up -d
-```
-
-#### 4.2. Rollback Frontend
-**Cách 1: Revert commit và push**
-```bash
-git log --oneline -5  # Xem commit history
-git revert HEAD       # Revert commit gần nhất
-git push origin main  # Amplify sẽ auto deploy
-```
-
-**Cách 2: Redeploy version cũ**
-1. **Amplify Console** → **"Build history"**
-2. Tìm deployment thành công gần nhất
-3. Click **"Redeploy this version"**
-
-### **BƯỚC 5: Post-deployment Tasks**
-
-#### 5.1. Update Documentation
-```bash
-# Cập nhật version trong README
-# Ghi lại breaking changes (nếu có)
-# Update API documentation (nếu có)
-
-git commit -m "docs: update deployment notes for v1.2.0"
-git push origin main
-```
-
-#### 5.2. Tag Release (Optional but recommended)
-```bash
-# Tag version sau khi deploy thành công
-git tag -a v1.2.0 -m "Release version 1.2.0"
-git push origin v1.2.0
-
-# Tạo GitHub Release nếu muốn
-```
-
-#### 5.3. Monitor Performance sau deploy
-- ✅ Response time API có bình thường?
-- ✅ Database connections stable?
-- ✅ Memory/CPU usage EC2 acceptable?
-- ✅ Frontend loading speed OK?
-
----
-
-### **❗ Advanced: Zero-downtime deployment**
-
-#### Blue-Green Deployment (Optional)
-```bash
-# Tạo container mới song song
-docker run -d --name ecommerce-backend-new \
-  -p 3002:3000 \
-  hungviet/mini-ecommerce-backend:latest
-
-# Test container mới
-curl http://localhost:3002/api/v1/health
-
-# Swap ports (requires load balancer)
-# Hoặc update API Gateway integration từ 3001 → 3002
-```
-
-#### Database Migrations
-```bash
-# Nếu có schema changes
-# SSH vào EC2, run migration trước khi deploy backend:
-
-docker exec -it ecommerce-backend npm run migrate
-
-# Hoặc chạy script migration riêng:
-mysql -h RDS-HOST -u admin -pPASSWORD ecommerce_db < migrations/v1.2.0.sql
-```
-
----
-
-### 4.3. Quick Commands Cheat Sheet
-
-#### Update Backend Only
-```powershell
-# Local
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-docker push hungviet/mini-ecommerce-backend:latest
-
-# EC2  
-ssh ec2-user@ELASTIC-IP "cd ~/mini-ecommerce && docker-compose pull && docker-compose up -d"
-```
-
-#### Update Frontend Only  
-```bash
-git add frontend/
-git commit -m "update frontend"
-git push origin main
-```
-
-#### Update Both (Complete flow)
-```powershell
-# 1. Backend
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-docker push hungviet/mini-ecommerce-backend:latest
-
-# 2. Deploy backend
-ssh ec2-user@ELASTIC-IP "cd ~/mini-ecommerce && docker-compose pull && docker-compose up -d"
-
-# 3. Frontend
-git add .
-git commit -m "update: frontend + backend v1.2.0"  
-git push origin main
-```
-
----                     
-
-# PHẦN 4: BUILD VÀ PUSH DOCKER IMAGE
-
-## Build và Push lên Docker Hub
-
-### 4.1. Đăng nhập Docker Hub
-```powershell
-docker login
-```
-
-### 4.2. Build Backend Image
-```powershell
-cd c:\Users\Lenovo\Downloads\mini-ecommerce
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-```
-
-### 4.3. Build Frontend Image (nếu cần)
-```powershell
-docker build -t hungviet/mini-ecommerce-frontend:latest ./frontend --build-arg VITE_API_BASE=http://[IPv4_Address_EC2]:3001/api/v1
-```
-
-### 4.4. Push Images
-```powershell
-docker push hungviet/mini-ecommerce-backend:latest
-docker push hungviet/mini-ecommerce-frontend:latest
-```
-
----
-
-# PHẦN 5: THÔNG TIN CẤU HÌNH
-
-## URLs và Endpoints hiện tại
-
-| Service | URL/Endpoint |
-|---------|--------------|
-| Frontend (Amplify) | https://main.d1cl8paqwxlfg0.amplifyapp.com |
-| Frontend (Custom Domain) | https://pigtech.me (sau khi setup) |
-| API Gateway | https://b5kcaatdt3.execute-api.ap-southeast-1.amazonaws.com |
-| Backend (EC2) | http://54.255.211.151:3001 |
-| RDS Database | ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com |
-
-## Environment Variables (Amplify)
-- `VITE_API_BASE`: `https://b5kcaatdt3.execute-api.ap-southeast-1.amazonaws.com/api/v1`
-
-### Database Credentials
-- Host: `ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com`
-- User: `admin`
-- Password: `23062004Hung`
-- Database: `ecommerce_db`
-
----
-
-# PHẦN 6: TROUBLESHOOTING
-
-### Lỗi Mixed Content (HTTPS → HTTP)
-**Nguyên nhân**: Frontend (HTTPS) gọi Backend (HTTP)
-**Giải pháp**: Dùng API Gateway làm HTTPS proxy
-
-### Lỗi 404 từ API Gateway
-**Kiểm tra**:
-1. Integration URL đúng: `http://54.255.211.151:3001/{proxy}`
-2. Route đúng: `ANY /{proxy+}`
-
-### Lỗi Database connection
-**Kiểm tra**:
-1. RDS Security Group cho phép EC2 kết nối (port 3306)
-2. Database `ecommerce_db` đã được tạo
-3. Kiểm tra logs:
-```bash
-docker logs ecommerce-backend
-```
-
-### Frontend không load data mới
-**Giải pháp**:
-1. Redeploy Amplify
-2. Hard refresh: `Ctrl + Shift + R`
-3. Clear cache browser
-
-### ⚠️ Lỗi 404 khi Refresh trang (ví dụ: /admin/dashboard/)
-**Nguyên nhân**: Single Page Application (SPA) routing issue
-- Khi navigate trong app (click link): React Router xử lý → OK ✅
-- Khi refresh trang: Browser request trực tiếp path đó từ server → Server không có file → 404 ❌
-
-**Giải pháp 1: Cấu hình Rewrites trong Amplify Console**
-1. **AWS Amplify Console** → Chọn app → **"Rewrites and redirects"**
-2. Click **"Edit"** → **"Add rule"**:
-   ```
-   Source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
-   Target: /index.html
-   Type: 200 (Rewrite)
-   ```
-3. **Save** → **Redeploy** app
-
-**Giải pháp 2: Sử dụng amplify.yml (Đã có sẵn trong repo)**
-- File `amplify.yml` ở root của repo đã có cấu hình này
-- Amplify tự động đọc khi deploy
-- Không cần config thêm gì
-
-**Test**:
-- Truy cập `https://pigtech.me/admin/dashboard/`
-- Nhấn **F5 (refresh)** → Should work! ✅
-
-### Backend container bị crash/restart
-**Kiểm tra**:
-```bash
-# Xem status
-docker ps -a
-
-# Xem logs
-docker logs ecommerce-backend
-
-# Restart container
-docker restart ecommerce-backend
-```
-
-### Không kết nối được EC2
-**Kiểm tra**:
-1. Security Group mở port 22 (SSH)
-2. Key pair đúng
-3. EC2 đang chạy
-
-### Lỗi CORS từ API Gateway
-**Nguyên nhân**: API Gateway chưa cấu hình CORS
-**Giải pháp**:
-1. Vào **API Gateway Console** → Chọn API
-2. Menu trái → **"CORS"**
-3. Click **"Configure"**:
-   - **Access-Control-Allow-Origin**: `*`
-   - **Access-Control-Allow-Headers**: `*` 
-   - **Access-Control-Allow-Methods**: `*`
-4. **Save** → **Deploy API**
-
-### Domain không hoạt động
-**Kiểm tra**:
-1. DNS records đã được thêm đúng trong NameCheap
-2. Certificate status = "Issued" trong Amplify
-3. Đợi DNS propagation (tối đa 24h)
-4. Test DNS: `nslookup pigtech.me`
-
-### SSL Certificate pending cho pigtech.me
-**Giải pháp**:
-1. Vào NameCheap → pigtech.me → Advanced DNS
-2. Kiểm tra CNAME record đã thêm chưa
-3. Xóa hết records parking page cũ
-4. Chờ AWS xác thực (có thể mất vài giờ)
-
----
-
-# PHẦN 7: COMMANDS CHEAT SHEET
-
-## EC2 Commands
-```bash
-# SSH vào EC2
-ssh -i "key.pem" ec2-user@54.255.211.151
-
-# Vào thư mục project
-cd ~/mini-ecommerce
-
-# Xem containers
-docker ps -a
-
-# Xem logs
-docker logs -f ecommerce-backend
-
-# Restart container
-docker restart ecommerce-backend
-
-# Pull và restart
-docker-compose pull
-docker-compose up -d
-
-# Stop all
-docker-compose down
-```
-
-## Local Commands (PowerShell)
-```powershell
-# Build và push backend
-docker build -t hungviet/mini-ecommerce-backend:latest ./backend
-docker push hungviet/mini-ecommerce-backend:latest
-
-# Build và push frontend
-docker build -t hungviet/mini-ecommerce-frontend:latest ./frontend
-docker push hungviet/mini-ecommerce-frontend:latest
-
-# Git push để trigger Amplify
-git add .
-git commit -m "Update"
-git push
-```
-
-## MySQL Commands (từ EC2)
-```bash
-# Kết nối RDS
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung
-
-# Tạo database
-CREATE DATABASE ecommerce_db;
-
-# Import SQL
-mysql -h [RDS_HOST] -u admin -p[PASSWORD] ecommerce_db < file.sql
-```
-
----
-
-# PHẦN 8: DOMAIN VÀ CUSTOM SETUP
-
-## Nhà cung cấp Domain khuyên dùng (cho Free Tier)
-
-### 1. NameCheap (Khuyên dùng)
-- **Giá**: ~$10-13/năm
-- **Ưu điểm**: Giá rẻ, UI đơn giản, DNS management tốt
-- **Domain tốt**: `.com`, `.net`, `.org`, `.xyz` (rẻ)
-- **Link**: https://namecheap.com
-
-### 2. Porkbun
-- **Giá**: ~$8-12/năm  
-- **Ưu điểm**: Rẻ nhất, không hidden fee
-- **Domain tốt**: `.dev`, `.tech`, `.online`
-- **Link**: https://porkbun.com
-
-### 3. Route 53 (AWS)
-- **Giá**: ~$12/năm + $0.50/tháng hosted zone
-- **Ưu điểm**: Tích hợp hoàn toàn với AWS, setup tự động
-- **Nhược điểm**: Đắt hơn một chút
-
-## Setup DNS cho pigtech.me (NameCheap)
-
-Vào NameCheap Dashboard → **pigtech.me** → **"Manage"** → **"Advanced DNS"**
-
-**Xóa records cũ:**
-- Parking page
-- URL Redirect Records (nếu có)
-
-**Thêm records mới:**
-```
-Type: A Record
-Host: @
-Value: [IP từ Amplify Console]
-TTL: Automatic
-
-Type: CNAME Record  
-Host: www
-Value: [CloudFront domain từ Amplify]
-TTL: Automatic
-```
-
-**Ví dụ cụ thể sau khi lấy thông tin từ Amplify:**
-```
-A Record: @ → 76.76.21.21 (ví dụ)
-CNAME: www → d1abc123xyz.cloudfront.net
-```
-
-**Lưu ý Free Tier:**
-- Domain phải tự mua ($8-15/năm)
-- SSL Certificate: **MIỄN PHÍ** 
-- Amplify Hosting: **MIỄN PHÍ** (1000 build minutes/tháng)
-- Route 53: **MIỄN PHÍ** (1 hosted zone đầu tiên)
-

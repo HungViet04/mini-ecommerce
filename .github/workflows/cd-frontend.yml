@@ -2,41 +2,24 @@ name: CD Frontend (Amplify)
 
 on:
   workflow_run:
-    workflows: ['CI']
+    workflows: ['CI Frontend']
     types: [completed]
     branches: ['main']
+  workflow_dispatch:
 
 jobs:
   deploy-frontend:
-    name: Build & Deploy Frontend to Amplify
+    name: Trigger Amplify Release
     runs-on: ubuntu-latest
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main' &&
       github.event.workflow_run.event == 'push'
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-        env:
-          NODE_ENV: production
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -45,34 +28,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to Amplify Hosting
-        working-directory: frontend/dist
+      - name: Trigger Amplify release (app connected to GitHub)
         run: |
           set -e
-          zip -r ../build.zip .
-          cd ..
-
-          # Try zip-based deployment (works when app is NOT connected to a repo)
-          if DEPLOY_RESULT=$(aws amplify create-deployment --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name main 2>&1); then
-            UPLOAD_URL=$(echo "$DEPLOY_RESULT" | jq -r '.zipUploadUrl')
-            JOB_ID=$(echo "$DEPLOY_RESULT" | jq -r '.jobId')
-
-            curl -T build.zip "$UPLOAD_URL" --fail --silent --show-error
-
-            aws amplify start-deployment --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name main --job-id "$JOB_ID"
-
-            echo "✅ Frontend deployed to Amplify (Job ID: $JOB_ID)"
-          else
-            echo "create-deployment failed: $DEPLOY_RESULT"
-            # If the app is connected to a repository, create-deployment is not supported.
-            if echo "$DEPLOY_RESULT" | grep -q "App is already connected a repository"; then
-              echo "App is connected to a repo — triggering Amplify job (build in Amplify)"
-              JOB_RESULT=$(aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name main --job-type RELEASE)
-              JOB_ID=$(echo "$JOB_RESULT" | jq -r '.jobSummary.jobId')
-              echo "✅ Amplify job started (Job ID: $JOB_ID)"
-            else
-              echo "Amplify deployment error (not handled):"
-              echo "$DEPLOY_RESULT"
-              exit 1
-            fi
-          fi
+          JOB_ID=$(aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name main --job-type RELEASE --query 'jobSummary.jobId' --output text)
+          echo "✅ Amplify job started (Job ID: $JOB_ID)"

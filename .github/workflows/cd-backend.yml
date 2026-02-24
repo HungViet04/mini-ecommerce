@@ -2,9 +2,10 @@ name: CD Backend (Docker Hub + EC2)
 
 on:
   workflow_run:
-    workflows: ['CI']
+    workflows: ['CI Backend']
     types: [completed]
     branches: ['main']
+  workflow_dispatch:
 
 env:
   DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/mini-ecommerce-backend
