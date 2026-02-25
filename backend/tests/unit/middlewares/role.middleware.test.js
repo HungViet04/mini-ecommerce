@@ -158,4 +158,3 @@ describe('Role Middleware', () => {
     });
   });
 });
-

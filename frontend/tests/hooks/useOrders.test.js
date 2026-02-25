@@ -57,7 +57,7 @@ describe('useOrders', () => {
       let resolvePromise;
       orderService.getMyOrders.mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolvePromise = resolve;
           })
       );
@@ -123,7 +123,7 @@ describe('useOrders', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      const pendingOrders = result.current.orders.filter(o => o.status === 'pending');
+      const pendingOrders = result.current.orders.filter((o) => o.status === 'pending');
       expect(pendingOrders).toHaveLength(2);
     });
   });

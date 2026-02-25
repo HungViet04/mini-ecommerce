@@ -126,7 +126,7 @@ describe('Logger Utility', () => {
 
       // In test env, debug should not log
       // Check if console.log was called with DEBUG
-      const debugCalls = consoleSpy.log.mock.calls.filter(call => call[0]?.includes?.('DEBUG'));
+      const debugCalls = consoleSpy.log.mock.calls.filter((call) => call[0]?.includes?.('DEBUG'));
       expect(debugCalls.length).toBe(0);
     });
 
@@ -235,7 +235,7 @@ describe('Logger Utility', () => {
       const prodLogger = require('../../../src/utils/logger');
       prodLogger.db('INSERT', { table: 'orders' });
 
-      const dbCalls = consoleSpy.log.mock.calls.filter(call => call[0]?.includes?.('[DB]'));
+      const dbCalls = consoleSpy.log.mock.calls.filter((call) => call[0]?.includes?.('[DB]'));
       expect(dbCalls.length).toBe(0);
     });
   });
@@ -286,13 +286,16 @@ describe('Color Codes', () => {
   };
 
   it('should have valid ANSI color codes', () => {
+    // eslint-disable-next-line no-control-regex
     expect(COLORS.reset).toMatch(/\x1b\[\d+m/);
+    // eslint-disable-next-line no-control-regex
     expect(COLORS.red).toMatch(/\x1b\[\d+m/);
+    // eslint-disable-next-line no-control-regex
     expect(COLORS.green).toMatch(/\x1b\[\d+m/);
   });
 
   it('should use correct colors for status codes', () => {
-    const getStatusColor = status => {
+    const getStatusColor = (status) => {
       if (status >= 500) return COLORS.red;
       if (status >= 400) return COLORS.yellow;
       if (status >= 300) return COLORS.cyan;
@@ -305,4 +308,3 @@ describe('Color Codes', () => {
     expect(getStatusColor(200)).toBe(COLORS.green);
   });
 });
-

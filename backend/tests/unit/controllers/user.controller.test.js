@@ -22,7 +22,7 @@ jest.mock('../../../src/services/user.service', () => ({
 }));
 
 jest.mock('../../../src/helpers', () => ({
-  asyncHandler: fn => fn,
+  asyncHandler: (fn) => fn,
   response: {
     success: jest.fn((res, data) => res.status(200).json({ success: true, ...data })),
     paginated: jest.fn((res, data, pagination) =>
@@ -221,4 +221,3 @@ describe('User Controller', () => {
     });
   });
 });
-

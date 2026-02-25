@@ -121,9 +121,9 @@ describe('OrderService', () => {
     it('should throw error on order creation failure', async () => {
       httpClient.post.mockRejectedValueOnce(new Error('Out of stock'));
 
-      await expect(
-        orderService.create({ items: [{ productId: 1, quantity: 1 }] }),
-      ).rejects.toThrow('Out of stock');
+      await expect(orderService.create({ items: [{ productId: 1, quantity: 1 }] })).rejects.toThrow(
+        'Out of stock'
+      );
     });
   });
 
@@ -238,4 +238,3 @@ describe('OrderService', () => {
     });
   });
 });
-

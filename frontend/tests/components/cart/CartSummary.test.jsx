@@ -5,6 +5,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CartSummary } from '../../../src/components/cart/CartSummary';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock dependencies
 const mockCartContext = {
@@ -35,11 +36,11 @@ vi.mock('../../../src/components/ui', () => ({
 }));
 
 vi.mock('../../../src/utils', () => ({
-  formatPrice: price => `${price.toLocaleString('vi-VN')}đ`,
+  formatPrice: (price) => `${price.toLocaleString('vi-VN')}đ`,
 }));
 
 vi.mock('../../../src/components/cart/CartItem', () => ({
-  CartItem: ({ item, index, onUpdateQuantity, onRemove }) => (
+  CartItem: ({ item, index }) => (
     <div data-testid={`cart-item-${index}`}>
       {item.productName} - {item.quantity}
     </div>
@@ -252,4 +253,3 @@ describe('CartSummary Component', () => {
     });
   });
 });
-

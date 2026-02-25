@@ -55,10 +55,10 @@ const orderRepository = {
 };
 
 const resetAllMocks = () => {
-  Object.values(userRepository).forEach(mock => mock.mockReset());
-  Object.values(productRepository).forEach(mock => mock.mockReset());
-  Object.values(categoryRepository).forEach(mock => mock.mockReset());
-  Object.values(orderRepository).forEach(mock => mock.mockReset());
+  Object.values(userRepository).forEach((mock) => mock.mockReset());
+  Object.values(productRepository).forEach((mock) => mock.mockReset());
+  Object.values(categoryRepository).forEach((mock) => mock.mockReset());
+  Object.values(orderRepository).forEach((mock) => mock.mockReset());
 };
 
 module.exports = {
@@ -68,4 +68,3 @@ module.exports = {
   orderRepository,
   resetAllMocks,
 };
-

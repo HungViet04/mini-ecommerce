@@ -69,7 +69,7 @@ describe('LoginForm', () => {
     submitError: null,
     onChange: vi.fn(),
     onBlur: vi.fn(),
-    onSubmit: vi.fn(e => e.preventDefault()),
+    onSubmit: vi.fn((e) => e.preventDefault()),
     onSwitchMode: vi.fn(),
   };
 
@@ -211,7 +211,7 @@ describe('LoginForm', () => {
 
   describe('form submission', () => {
     it('should call onSubmit when form is submitted', () => {
-      const onSubmit = vi.fn(e => e.preventDefault());
+      const onSubmit = vi.fn((e) => e.preventDefault());
       render(<LoginForm {...defaultProps} onSubmit={onSubmit} />);
 
       const form = document.querySelector('form');
@@ -221,7 +221,7 @@ describe('LoginForm', () => {
     });
 
     it('should call onSubmit when login button is clicked', () => {
-      const onSubmit = vi.fn(e => e.preventDefault());
+      const onSubmit = vi.fn((e) => e.preventDefault());
       render(<LoginForm {...defaultProps} onSubmit={onSubmit} />);
 
       const button = screen.getByRole('button', { name: /Đăng Nhập/i });
@@ -323,4 +323,3 @@ describe('LoginForm', () => {
     });
   });
 });
-

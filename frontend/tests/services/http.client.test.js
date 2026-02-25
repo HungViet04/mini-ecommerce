@@ -144,7 +144,7 @@ describe('HTTP Client', () => {
     });
 
     it('should include Authorization header when token is set', async () => {
-      httpClient.addRequestInterceptor(config => {
+      httpClient.addRequestInterceptor((config) => {
         config.headers = {
           ...config.headers,
           Authorization: 'Bearer test-token',
@@ -276,7 +276,7 @@ describe('HTTP Client', () => {
   describe('401 Unauthorized Handling', () => {
     it('should call unauthorized handler on 401', async () => {
       const mockHandler = vi.fn();
-      httpClient.addResponseInterceptor(response => {
+      httpClient.addResponseInterceptor((response) => {
         if (response.status === 401) {
           mockHandler();
         }
@@ -301,7 +301,7 @@ describe('HTTP Client', () => {
       localStorage.setItem('accessToken', 'old-token');
       localStorage.setItem('refreshToken', 'old-refresh');
 
-      httpClient.addResponseInterceptor(response => {
+      httpClient.addResponseInterceptor((response) => {
         if (response.status === 401) {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
@@ -379,12 +379,12 @@ describe('HTTP Client', () => {
     it('should apply request interceptors in order', async () => {
       const order = [];
 
-      httpClient.addRequestInterceptor(config => {
+      httpClient.addRequestInterceptor((config) => {
         order.push('first');
         return config;
       });
 
-      httpClient.addRequestInterceptor(config => {
+      httpClient.addRequestInterceptor((config) => {
         order.push('second');
         return config;
       });
@@ -404,7 +404,7 @@ describe('HTTP Client', () => {
     it('should apply response interceptors', async () => {
       const intercepted = vi.fn();
 
-      httpClient.addResponseInterceptor(response => {
+      httpClient.addResponseInterceptor((response) => {
         intercepted(response.status);
       });
 

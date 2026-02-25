@@ -186,7 +186,7 @@ describe('Order Validator', () => {
           'abcdefghij', // not numbers
         ];
 
-        invalidPhones.forEach(phone => {
+        invalidPhones.forEach((phone) => {
           const data = {
             items: [{ productId: 1, quantity: 1 }],
             shippingInfo: {
@@ -203,7 +203,7 @@ describe('Order Validator', () => {
       it('should accept valid phone formats', () => {
         const validPhones = ['0901234567', '0351234567', '0701234567', '0812345678', '0912345678'];
 
-        validPhones.forEach(phone => {
+        validPhones.forEach((phone) => {
           const data = {
             items: [{ productId: 1, quantity: 1 }],
             shippingInfo: {
@@ -305,7 +305,7 @@ describe('Order Validator', () => {
       // Actual valid statuses from ORDER_STATUS constant
       const validStatuses = ['pending', 'paid', 'shipped', 'delivered'];
 
-      validStatuses.forEach(status => {
+      validStatuses.forEach((status) => {
         const result = validateStatusUpdate({ status });
         expect(result.status).toBe(status);
       });
@@ -344,4 +344,3 @@ describe('Order Validator', () => {
     });
   });
 });
-

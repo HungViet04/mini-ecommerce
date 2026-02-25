@@ -22,7 +22,7 @@ const database = {
   query: jest.fn(),
   execute: jest.fn(),
   getConnection: jest.fn().mockResolvedValue(mockConnection),
-  transaction: jest.fn(async callback => {
+  transaction: jest.fn(async (callback) => {
     try {
       await mockConnection.beginTransaction();
       const result = await callback(mockConnection);
@@ -53,4 +53,3 @@ module.exports = {
     database.execute.mockReset();
   },
 };
-

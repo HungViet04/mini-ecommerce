@@ -43,11 +43,11 @@ async function runMigrations() {
   `);
 
   const [executed] = await database.query('SELECT name FROM _migrations');
-  const executedNames = new Set(executed.map(m => m.name));
+  const executedNames = new Set(executed.map((m) => m.name));
 
   const files = fs
     .readdirSync(migrationsDir)
-    .filter(f => f.endsWith('.sql') && !f.includes('.down.') && !f.includes('.rollback.'))
+    .filter((f) => f.endsWith('.sql') && !f.includes('.down.') && !f.includes('.rollback.'))
     .sort();
 
   for (const file of files) {
@@ -55,14 +55,14 @@ async function runMigrations() {
     const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
     const statements = sql
       .split(';')
-      .map(s =>
+      .map((s) =>
         s
           .split('\n')
-          .filter(line => !line.trim().startsWith('--'))
+          .filter((line) => !line.trim().startsWith('--'))
           .join('\n')
           .trim()
       )
-      .filter(s => s.length > 0);
+      .filter((s) => s.length > 0);
     for (let stmt of statements) {
       try {
         // MySQL 8.0 doesn't support ALTER TABLE ... ADD COLUMN IF NOT EXISTS (MariaDB-only).
@@ -177,4 +177,3 @@ module.exports = {
   seedTestData,
   TEST_PASSWORD,
 };
-

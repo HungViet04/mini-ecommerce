@@ -100,9 +100,8 @@ describe('AuthContext', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      let loginResponse;
       await act(async () => {
-        loginResponse = await result.current.login({
+        await result.current.login({
           identifier: 'test@example.com',
           password: 'password123',
         });
@@ -264,4 +263,3 @@ describe('AuthContext', () => {
     });
   });
 });
-

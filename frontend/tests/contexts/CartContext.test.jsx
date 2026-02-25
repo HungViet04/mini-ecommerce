@@ -2,7 +2,7 @@
  * CartContext Tests
  * Tests for shopping cart context
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { CartProvider, useCart } from '../../src/contexts/CartContext';
 
@@ -251,4 +251,3 @@ describe('CartContext', () => {
     });
   });
 });
-

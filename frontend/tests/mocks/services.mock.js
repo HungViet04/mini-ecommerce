@@ -72,7 +72,7 @@ export const resetAllMocks = () => {
     mockStatsService,
     mockUserService,
     mockUploadService,
-  ].forEach(service => {
-    Object.values(service).forEach(mock => mock.mockReset());
+  ].forEach((service) => {
+    Object.values(service).forEach((mock) => mock.mockReset());
   });
 };

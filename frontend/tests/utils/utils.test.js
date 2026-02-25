@@ -91,8 +91,8 @@ describe('Validation Utils', () => {
     it('should return isValid true when all rules pass', () => {
       const data = { name: 'Test', email: 'a@b.com' };
       const rules = {
-        name: [v => (!v ? 'Required' : null)],
-        email: [v => (!v ? 'Required' : null)],
+        name: [(v) => (!v ? 'Required' : null)],
+        email: [(v) => (!v ? 'Required' : null)],
       };
 
       const result = validateForm(data, rules);
@@ -103,8 +103,8 @@ describe('Validation Utils', () => {
     it('should return errors for failing rules', () => {
       const data = { name: '', email: 'a@b.com' };
       const rules = {
-        name: [v => (!v ? 'Name is required' : null)],
-        email: [v => (!v ? 'Email required' : null)],
+        name: [(v) => (!v ? 'Name is required' : null)],
+        email: [(v) => (!v ? 'Email required' : null)],
       };
 
       const result = validateForm(data, rules);
@@ -116,7 +116,7 @@ describe('Validation Utils', () => {
     it('should stop at first error per field', () => {
       const data = { name: '' };
       const rules = {
-        name: [v => (!v ? 'Required' : null), v => (v.length < 3 ? 'Too short' : null)],
+        name: [(v) => (!v ? 'Required' : null), (v) => (v.length < 3 ? 'Too short' : null)],
       };
 
       const result = validateForm(data, rules);

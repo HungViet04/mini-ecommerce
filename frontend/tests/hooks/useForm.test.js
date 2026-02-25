@@ -184,7 +184,7 @@ describe('useForm', () => {
       let resolveSubmit;
       mockSubmit.mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolveSubmit = resolve;
           })
       );
@@ -293,4 +293,3 @@ describe('useForm', () => {
     });
   });
 });
-

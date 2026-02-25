@@ -5,6 +5,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { OrderCard } from '../../../src/components/orders/OrderCard';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock dependencies
 vi.mock('../../../src/components/ui', () => ({
@@ -21,8 +22,8 @@ vi.mock('../../../src/components/ui', () => ({
 }));
 
 vi.mock('../../../src/utils', () => ({
-  formatPrice: price => `${price?.toLocaleString('vi-VN')}đ`,
-  formatDate: date => new Date(date).toLocaleDateString('vi-VN'),
+  formatPrice: (price) => `${price?.toLocaleString('vi-VN')}đ`,
+  formatDate: (date) => new Date(date).toLocaleDateString('vi-VN'),
 }));
 
 describe('OrderCard Component', () => {
@@ -217,4 +218,3 @@ describe('OrderCard Component', () => {
     });
   });
 });
-

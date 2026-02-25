@@ -311,4 +311,3 @@ describe('Response Helper', () => {
     });
   });
 });
-

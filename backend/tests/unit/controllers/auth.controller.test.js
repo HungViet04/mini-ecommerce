@@ -9,16 +9,20 @@ jest.mock('../../../src/services', () => ({
     register: jest.fn(),
     login: jest.fn(),
     getProfile: jest.fn(),
-    changePassword: jest.fn()
-  }
+    changePassword: jest.fn(),
+  },
 }));
 
 jest.mock('../../../src/helpers', () => ({
   response: {
     success: jest.fn((res, data) => res.status(200).json(data)),
-    created: jest.fn((res, data, message) => res.status(201).json({ success: true, data, message })),
-    error: jest.fn((res, message, code) => res.status(code || 500).json({ success: false, error: { message } }))
-  }
+    created: jest.fn((res, data, message) =>
+      res.status(201).json({ success: true, data, message })
+    ),
+    error: jest.fn((res, message, code) =>
+      res.status(code || 500).json({ success: false, error: { message } })
+    ),
+  },
 }));
 
 const { authService } = require('../../../src/services');
@@ -34,12 +38,12 @@ describe('Auth Controller', () => {
     req = {
       body: {},
       user: null,
-      params: {}
+      params: {},
     };
 
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
 
     next = jest.fn();
@@ -50,7 +54,7 @@ describe('Auth Controller', () => {
       const userData = {
         name: 'Test User',
         email: 'test@test.com',
-        password: 'password123'
+        password: 'password123',
       };
       const createdUser = { id: 1, name: 'Test User', email: 'test@test.com', role: 'user' };
 
@@ -92,7 +96,7 @@ describe('Auth Controller', () => {
       const loginResult = {
         user: { id: 1, name: 'Test', email: 'test@test.com', role: 'user' },
         accessToken: 'access-token',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
       };
 
       req.body = credentials;
@@ -103,7 +107,7 @@ describe('Auth Controller', () => {
       expect(authService.login).toHaveBeenCalledWith(credentials);
       expect(response.success).toHaveBeenCalledWith(res, {
         data: loginResult,
-        message: 'Đăng nhập thành công'
+        message: 'Đăng nhập thành công',
       });
     });
 
@@ -165,7 +169,7 @@ describe('Auth Controller', () => {
 
       expect(authService.changePassword).toHaveBeenCalledWith(1, 'old123', 'new123');
       expect(response.success).toHaveBeenCalledWith(res, {
-        message: 'Đổi mật khẩu thành công'
+        message: 'Đổi mật khẩu thành công',
       });
     });
 
@@ -192,4 +196,3 @@ describe('Auth Controller', () => {
     });
   });
 });
-

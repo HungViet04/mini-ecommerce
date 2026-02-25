@@ -217,7 +217,7 @@ describe('Input', () => {
 
   describe('form integration', () => {
     it('should work within a form', () => {
-      const onSubmit = vi.fn(e => e.preventDefault());
+      const onSubmit = vi.fn((e) => e.preventDefault());
       render(
         <form onSubmit={onSubmit}>
           <Input name="email" label="Email" />
@@ -245,4 +245,3 @@ describe('Input', () => {
     });
   });
 });
-

@@ -26,9 +26,7 @@ vi.mock('../../../src/components/orders/OrderCard', () => ({
       <span>Order #{order.id}</span>
       <span>{order.status}</span>
       {onCancel && <button onClick={() => onCancel(order.id)}>Cancel</button>}
-      {onConfirmDelivery && (
-        <button onClick={() => onConfirmDelivery(order.id)}>Confirm</button>
-      )}
+      {onConfirmDelivery && <button onClick={() => onConfirmDelivery(order.id)}>Confirm</button>}
       {onViewDetail && <button onClick={() => onViewDetail(order)}>Detail</button>}
     </div>
   ),
@@ -145,9 +143,7 @@ describe('OrderList Component', () => {
 
       render(<OrderList />);
 
-      expect(
-        screen.getByText(/Vui lòng đăng nhập để xem đơn hàng/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Vui lòng đăng nhập để xem đơn hàng/)).toBeInTheDocument();
     });
   });
 
@@ -160,4 +156,3 @@ describe('OrderList Component', () => {
     });
   });
 });
-

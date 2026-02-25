@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock contexts
 const mockCartContext = {
@@ -100,7 +101,7 @@ vi.mock('../../../src/components/ui', () => ({
 }));
 
 vi.mock('../../../src/utils', () => ({
-  formatPrice: price => `${price.toLocaleString('vi-VN')}đ`,
+  formatPrice: (price) => `${price.toLocaleString('vi-VN')}đ`,
 }));
 
 // Dynamic imports to avoid ESM resolution issues
@@ -304,7 +305,11 @@ describe('CheckoutPage Component', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(mockOnSuccess).toHaveBeenCalledWith(createdOrder, expect.any(String), expect.any(Object));
+        expect(mockOnSuccess).toHaveBeenCalledWith(
+          createdOrder,
+          expect.any(String),
+          expect.any(Object)
+        );
       });
     });
 
@@ -324,7 +329,7 @@ describe('CheckoutPage Component', () => {
 
     it('should disable submit button during loading', async () => {
       orderService.create.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({ id: 1 }), 1000))
+        () => new Promise((resolve) => setTimeout(() => resolve({ id: 1 }), 1000))
       );
 
       render(<CheckoutPage onBack={mockOnBack} onSuccess={mockOnSuccess} />);
@@ -377,4 +382,3 @@ describe('CheckoutPage Component', () => {
     });
   });
 });
-

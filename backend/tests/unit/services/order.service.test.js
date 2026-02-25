@@ -8,7 +8,7 @@ jest.mock('../../../src/config/database', () => ({
   query: jest.fn(),
   execute: jest.fn(),
   getConnection: jest.fn(),
-  transaction: jest.fn(async callback => {
+  transaction: jest.fn(async (callback) => {
     const mockConnection = {
       query: jest.fn(),
       execute: jest.fn(),
@@ -327,4 +327,3 @@ describe('OrderService', () => {
     });
   });
 });
-

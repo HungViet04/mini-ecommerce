@@ -173,8 +173,6 @@ describe('CategoryService', () => {
     });
   });
 
-
-
   describe('caching behavior', () => {
     it('should call API each time (no client-side caching)', async () => {
       httpClient.get.mockResolvedValue({ data: [] });
@@ -201,4 +199,3 @@ describe('CategoryService', () => {
     });
   });
 });
-

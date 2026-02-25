@@ -56,7 +56,7 @@ describe('useAdminOrders', () => {
       const { result } = renderHook(() => useAdminOrders({ autoFetch: false }));
 
       // Give it a tick
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 50));
 
       expect(orderService.getAll).not.toHaveBeenCalled();
       expect(result.current.orders).toEqual([]);
@@ -125,7 +125,7 @@ describe('useAdminOrders', () => {
       expect(success).toBe(true);
       expect(orderService.updateStatus).toHaveBeenCalledWith(1, 'shipped');
       // Local state should be updated
-      const order1 = result.current.orders.find(o => o.id === 1);
+      const order1 = result.current.orders.find((o) => o.id === 1);
       expect(order1.status).toBe('shipped');
     });
 
@@ -185,4 +185,3 @@ describe('useAdminOrders', () => {
     });
   });
 });
-

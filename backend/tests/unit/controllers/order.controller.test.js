@@ -5,7 +5,7 @@
 
 // Mock asyncHandler FIRST - must be before requiring controller
 jest.mock('../../../src/helpers/async.helper', () => ({
-  asyncHandler: fn => async (req, res, next) => {
+  asyncHandler: (fn) => async (req, res, next) => {
     try {
       await fn(req, res, next);
     } catch (error) {
@@ -21,14 +21,14 @@ jest.mock('../../../src/helpers', () => ({
     created: jest.fn((res, data, message) =>
       res.status(201).json({ success: true, data, message })
     ),
-    noContent: jest.fn(res => res.status(204).send()),
+    noContent: jest.fn((res) => res.status(204).send()),
     paginated: jest.fn((res, data) => res.status(200).json({ success: true, ...data })),
   },
 }));
 
 // Mock pagination helper
 jest.mock('../../../src/helpers/pagination.helper', () => ({
-  parsePagination: jest.fn(query => ({
+  parsePagination: jest.fn((query) => ({
     page: query.page || 1,
     limit: query.limit || 10,
   })),
@@ -348,4 +348,3 @@ describe('Order Controller', () => {
     });
   });
 });
-

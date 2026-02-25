@@ -5,11 +5,11 @@
 
 // Mock helpers FIRST before requiring controller
 jest.mock('../../../src/helpers/async.helper', () => ({
-  asyncHandler: fn => fn,
+  asyncHandler: (fn) => fn,
 }));
 
 jest.mock('../../../src/helpers/pagination.helper', () => ({
-  parsePagination: jest.fn(query => ({
+  parsePagination: jest.fn((query) => ({
     page: query.page || 1,
     limit: query.limit || 20,
   })),
@@ -35,7 +35,7 @@ jest.mock('../../../src/helpers', () => ({
     created: jest.fn((res, data, message) =>
       res.status(201).json({ success: true, data, message })
     ),
-    noContent: jest.fn(res => res.status(204).send()),
+    noContent: jest.fn((res) => res.status(204).send()),
     paginated: jest.fn((res, data) => res.status(200).json({ success: true, ...data })),
   },
 }));
@@ -300,4 +300,3 @@ describe('Product Controller', () => {
     });
   });
 });
-

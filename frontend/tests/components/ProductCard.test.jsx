@@ -6,7 +6,6 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProductCard } from '../../src/components/products/ProductCard';
-import { AuthContext } from '../../src/contexts';
 
 // Mock http.client to prevent import error from barrel
 vi.mock('../../src/services/http.client', () => ({
@@ -29,7 +28,7 @@ vi.mock('../../src/services/http.client', () => ({
 // Mock uploadService
 vi.mock('../../src/services', () => ({
   uploadService: {
-    getImageUrl: vi.fn(url => (url ? `http://localhost:3000${url}` : null)),
+    getImageUrl: vi.fn((url) => (url ? `http://localhost:3000${url}` : null)),
   },
 }));
 
@@ -271,4 +270,3 @@ describe('ProductCard', () => {
     });
   });
 });
-

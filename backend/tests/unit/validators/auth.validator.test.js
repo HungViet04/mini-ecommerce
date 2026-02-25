@@ -142,7 +142,7 @@ describe('Auth Validator', () => {
           'double@@at.com',
         ];
 
-        invalidEmails.forEach(email => {
+        invalidEmails.forEach((email) => {
           const data = {
             name: 'Test User',
             email,
@@ -160,7 +160,7 @@ describe('Auth Validator', () => {
           'user+tag@subdomain.domain.com',
         ];
 
-        validEmails.forEach(email => {
+        validEmails.forEach((email) => {
           const data = {
             name: 'Test User',
             email,
@@ -349,4 +349,3 @@ describe('Auth Validator', () => {
     });
   });
 });
-

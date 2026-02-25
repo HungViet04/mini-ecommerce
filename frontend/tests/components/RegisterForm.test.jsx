@@ -75,7 +75,7 @@ describe('RegisterForm', () => {
     success: false,
     onChange: vi.fn(),
     onBlur: vi.fn(),
-    onSubmit: vi.fn(e => e.preventDefault()),
+    onSubmit: vi.fn((e) => e.preventDefault()),
     onSwitchMode: vi.fn(),
   };
 
@@ -282,7 +282,7 @@ describe('RegisterForm', () => {
 
   describe('form submission', () => {
     it('should call onSubmit when form is submitted', () => {
-      const onSubmit = vi.fn(e => e.preventDefault());
+      const onSubmit = vi.fn((e) => e.preventDefault());
       render(<RegisterForm {...defaultProps} onSubmit={onSubmit} />);
 
       const form = document.querySelector('form');
@@ -362,4 +362,3 @@ describe('RegisterForm', () => {
     });
   });
 });
-

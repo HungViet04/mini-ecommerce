@@ -189,7 +189,7 @@ describe('useProducts', () => {
       let resolvePromise;
       productService.getAll.mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolvePromise = resolve;
           })
       );
@@ -248,4 +248,3 @@ describe('useProduct', () => {
     expect(result.current.product).toBeNull();
   });
 });
-

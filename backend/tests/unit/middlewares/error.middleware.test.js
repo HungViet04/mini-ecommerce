@@ -5,31 +5,31 @@
 
 // Mock config
 jest.mock('../../../src/config', () => ({
-  env: 'test'
+  env: 'test',
 }));
 
 // Mock logger
 jest.mock('../../../src/utils/logger', () => ({
   error: jest.fn(),
   warn: jest.fn(),
-  info: jest.fn()
+  info: jest.fn(),
 }));
 
 const { errorHandler } = require('../../../src/middlewares/error.middleware');
-const { 
-  AppError, 
-  ValidationError, 
-  NotFoundError, 
-  AuthenticationError, 
+const {
+  AppError,
+  ValidationError,
+  NotFoundError,
+  AuthenticationError,
   AuthorizationError,
-  ConflictError 
+  ConflictError,
 } = require('../../../src/errors');
 
 describe('Error Middleware', () => {
   const mockRequest = () => ({
     method: 'GET',
     path: '/test',
-    headers: {}
+    headers: {},
   });
 
   const mockResponse = () => {
@@ -48,7 +48,7 @@ describe('Error Middleware', () => {
   describe('AppError handling', () => {
     it('should handle ValidationError', () => {
       const error = new ValidationError('Invalid data', [
-        { field: 'email', message: 'Email format invalid' }
+        { field: 'email', message: 'Email format invalid' },
       ]);
       const req = mockRequest();
       const res = mockResponse();
@@ -61,8 +61,8 @@ describe('Error Middleware', () => {
         expect.objectContaining({
           success: false,
           error: expect.objectContaining({
-            message: 'Invalid data'
-          })
+            message: 'Invalid data',
+          }),
         })
       );
     });
@@ -78,7 +78,7 @@ describe('Error Middleware', () => {
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false
+          success: false,
         })
       );
     });
@@ -184,7 +184,7 @@ describe('Error Middleware', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false
+          success: false,
         })
       );
     });
@@ -216,13 +216,9 @@ describe('Error Middleware', () => {
 
   describe('Response structure', () => {
     it('should always return success: false', () => {
-      const errors = [
-        new ValidationError('Test'),
-        new NotFoundError('Test'),
-        new Error('Test')
-      ];
+      const errors = [new ValidationError('Test'), new NotFoundError('Test'), new Error('Test')];
 
-      errors.forEach(error => {
+      errors.forEach((error) => {
         const req = mockRequest();
         const res = mockResponse();
         const next = mockNext();
@@ -231,7 +227,7 @@ describe('Error Middleware', () => {
 
         expect(res.json).toHaveBeenCalledWith(
           expect.objectContaining({
-            success: false
+            success: false,
           })
         );
       });
@@ -247,7 +243,7 @@ describe('Error Middleware', () => {
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: expect.any(Object)
+          error: expect.any(Object),
         })
       );
     });

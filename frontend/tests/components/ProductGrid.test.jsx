@@ -13,7 +13,7 @@ vi.mock('../../src/components/products/ProductCard', () => ({
     <div data-testid={`product-card-${product.id}`} onClick={() => onViewDetail?.(product)}>
       <span>{product.name}</span>
       <button
-        onClick={e => {
+        onClick={(e) => {
           e.stopPropagation();
           onAddToCart?.(product);
         }}
@@ -208,4 +208,3 @@ describe('ProductGrid', () => {
     });
   });
 });
-

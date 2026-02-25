@@ -5,7 +5,7 @@
 
 // Mock helpers FIRST before requiring controller
 jest.mock('../../../src/helpers/async.helper', () => ({
-  asyncHandler: fn => fn,
+  asyncHandler: (fn) => fn,
 }));
 
 // Mock dependencies
@@ -252,4 +252,3 @@ describe('Category Controller', () => {
     });
   });
 });
-

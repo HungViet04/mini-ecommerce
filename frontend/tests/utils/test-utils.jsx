@@ -7,6 +7,7 @@ import { render } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../src/contexts/AuthContext';
 import { CartProvider } from '../src/contexts/CartContext';
+import { vi } from 'vitest';
 
 /**
  * Custom render function that wraps components with providers
@@ -44,7 +45,7 @@ export const renderWithRouter = (ui, { route = '/' } = {}) => {
 /**
  * Wait for async operations
  */
-export const waitForAsync = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+export const waitForAsync = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Mock fetch responses
@@ -78,4 +79,3 @@ export const createApiResponse = (data, success = true) => ({
 // Re-export everything from testing-library
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
-

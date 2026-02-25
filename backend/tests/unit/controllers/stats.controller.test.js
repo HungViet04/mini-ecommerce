@@ -5,7 +5,7 @@
 
 // Mock helpers first
 jest.mock('../../../src/helpers', () => ({
-  asyncHandler: fn => fn,
+  asyncHandler: (fn) => fn,
 }));
 
 // Mock stats service
@@ -65,5 +65,3 @@ describe('Stats Controller', () => {
     });
   });
 });
-
-

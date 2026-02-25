@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /**
  * CartItem Component Tests
  * Tests for cart item display
@@ -6,6 +7,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CartItem } from '../../../src/components/cart/CartItem';
 import { productService } from '../../../src/services';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock dependencies
 vi.mock('../../../src/services', () => ({
@@ -23,7 +25,7 @@ vi.mock('../../../src/components/ui', () => ({
 }));
 
 vi.mock('../../../src/utils', () => ({
-  formatPrice: price => `${price.toLocaleString('vi-VN')}đ`,
+  formatPrice: (price) => `${price.toLocaleString('vi-VN')}đ`,
 }));
 
 describe('CartItem Component', () => {
@@ -312,4 +314,3 @@ describe('CartItem Component', () => {
     });
   });
 });
-

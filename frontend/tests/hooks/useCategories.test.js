@@ -95,7 +95,7 @@ describe('useCategories', () => {
       let resolvePromise;
       categoryService.getAll.mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolvePromise = resolve;
           })
       );
@@ -131,7 +131,7 @@ describe('useCategories', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      const found = result.current.categories.find(c => c.id === 1);
+      const found = result.current.categories.find((c) => c.id === 1);
       expect(found).toEqual({ id: 1, name: 'Điện thoại' });
     });
   });
@@ -160,7 +160,7 @@ describe('useAdminCategories', () => {
     it('should not fetch when autoFetch is false', async () => {
       const { result } = renderHook(() => useAdminCategories({ autoFetch: false }));
 
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 50));
 
       expect(categoryService.getAll).not.toHaveBeenCalled();
       expect(result.current.categories).toEqual([]);
@@ -315,7 +315,7 @@ describe('useAdminCategories', () => {
       let resolveCreate;
       categoryService.create.mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolveCreate = resolve;
           })
       );

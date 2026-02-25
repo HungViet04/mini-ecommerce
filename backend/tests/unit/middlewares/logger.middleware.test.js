@@ -126,7 +126,7 @@ describe('Logger Middleware', () => {
     it('should log different HTTP methods', () => {
       const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
-      methods.forEach(method => {
+      methods.forEach((method) => {
         jest.clearAllMocks();
         req.method = method;
 
@@ -142,7 +142,7 @@ describe('Logger Middleware', () => {
     it('should log different status codes', () => {
       const statusCodes = [200, 201, 400, 401, 403, 404, 500];
 
-      statusCodes.forEach(statusCode => {
+      statusCodes.forEach((statusCode) => {
         jest.clearAllMocks();
         res.statusCode = statusCode;
 
@@ -278,4 +278,3 @@ describe('Request Logging Formats', () => {
     expect(logEntry.url).toContain('%20');
   });
 });
-
