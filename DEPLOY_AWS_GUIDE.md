@@ -1276,26 +1276,44 @@ docker login
 
 Dưới đây là mô tả cập nhật cho CI/CD theo trạng thái hiện tại của repository (`.github/workflows`).
 
-- CI (files: `ci-backend.yml`, `ci-frontend.yml`)
-  - Kích hoạt: `push` / `pull_request` (với bộ lọc `paths`) và `workflow_dispatch` để chạy thủ công.
-  - Path filters:
-    - `ci-backend.yml` chạy khi có thay đổi trong `backend/**` (hoặc khi thay đổi file workflow liên quan).
-    - `ci-frontend.yml` chạy khi có thay đổi trong `frontend/**` (hoặc khi thay đổi file workflow liên quan).
-  - Jobs:
-    - `backend` (CI Backend): chạy unit/integration tests cho backend (MySQL service), lint và `npm test`.
-    - `frontend` (CI Frontend): chạy lint và frontend tests (`vitest`).
+- Workflow (file: `ci-cd.yml`)
+  - Kích hoạt: `push` / `pull_request` (có `paths`) và `workflow_dispatch`.
+  - `paths` chính: `backend/**`, `frontend/**`, `.github/workflows/ci-cd.yml`.
+  - Bên trong workflow có job `changes` (dùng `dorny/paths-filter`) để xác định scope thay đổi:
+    - `backend` thay đổi khi có thay đổi trong `backend/**` (hoặc chính file workflow).
+    - `frontend` thay đổi khi có thay đổi trong `frontend/**` (hoặc chính file workflow).
 
-- CD Backend (file: `cd-backend.yml`)
-  - Kích hoạt: `workflow_run` lắng nghe `CI Backend` khi hoàn tất; có `workflow_dispatch` để chạy thủ công.
+- CI Backend (job: `ci-backend`)
+  - Chạy khi `workflow_dispatch` hoặc khi `changes` báo có thay đổi backend.
   - Hành vi:
-    - Đăng nhập Docker Hub (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
-    - Build backend image (Docker Buildx) và push lên Docker Hub (tags: SHA + `latest`).
-    - SSH vào EC2 (`EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`), cập nhật repo / ghi `.env` từ GitHub Secrets, rồi chạy `docker compose pull` + `docker compose up -d` (hoặc `docker-compose` nếu server không có plugin `docker compose`).
+    - Setup Node + cache npm (`backend/package-lock.json`).
+    - Chạy lint backend.
+    - Chạy test backend với MySQL service (`mysql:8.0`) và `npm test`.
 
-- CD Frontend (file: `cd-frontend.yml`)
-  - Kích hoạt: `workflow_run` lắng nghe `CI Frontend` khi hoàn tất; có `workflow_dispatch` để chạy thủ công.
-  - Hành vi (hiện tại):
-    - workflow trực tiếp gọi `aws amplify start-job --job-type RELEASE` để yêu cầu Amplify build & release từ repository (dùng khi app đã kết nối GitHub).
+- CI Frontend (job: `ci-frontend`)
+  - Chạy khi `workflow_dispatch` hoặc khi `changes` báo có thay đổi frontend.
+  - Hành vi:
+    - Setup Node + cache npm (`frontend/package-lock.json`).
+    - Chạy lint, `test:ci`, và build frontend.
+
+- CD Backend (job: `cd-backend`)
+  - Chỉ chạy khi:
+    - `push` lên `main`,
+    - `ci-backend` thành công,
+    - và scope backend có thay đổi.
+  - Hành vi:
+    - Login Docker Hub (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
+    - Build + push backend image (tags: `${{ github.sha }}` và `latest`).
+    - SSH vào EC2 (`EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`) để pull + restart backend bằng Docker Compose.
+
+- CD Frontend (job: `cd-frontend`)
+  - Chỉ chạy khi:
+    - `push` lên `main`,
+    - `ci-frontend` thành công,
+    - và scope frontend có thay đổi.
+  - Hành vi:
+    - Cấu hình AWS credentials.
+    - Gọi `aws amplify start-job --job-type RELEASE` để trigger Amplify build/release từ repository.
 
 Secrets / Variables cần thiết
 
@@ -1309,11 +1327,13 @@ Secrets / Variables cần thiết
 
 Lưu ý về trigger CD
 
-- Mỗi CD workflow lắng nghe tên workflow CI tương ứng: `CI Backend` hoặc `CI Frontend`.
-  - Thay đổi `backend/**` → chạy `CI Backend` → `CD Backend` chạy.
-  - Thay đổi `frontend/**` → chạy `CI Frontend` → `CD Frontend` chạy (và trigger Amplify release).
-  - Thay đổi cả hai → cả 2 CI + CD chạy.
-- Cả CI và CD đều có `workflow_dispatch` để chạy thủ công từ trang Actions khi cần.
+- Quan hệ phụ thuộc dùng `needs`:
+  - `cd-backend` phụ thuộc `ci-backend`.
+  - `cd-frontend` phụ thuộc `ci-frontend`.
+- Thay đổi `backend/**` → chạy nhánh job backend (CI + CD backend nếu là push main).
+- Thay đổi `frontend/**` → chạy nhánh job frontend (CI + CD frontend nếu là push main).
+- Thay đổi cả hai → cả hai nhánh backend/frontend cùng chạy.
+- `workflow_dispatch` dùng để chạy CI thủ công; các job CD vẫn chỉ deploy khi là `push` trên `main`.
 
 Kiểm tra & debugging nhanh
 
@@ -1325,9 +1345,9 @@ Kiểm tra & debugging nhanh
 
 Tóm tắt ngắn các bước deploy thủ công (nếu cần):
 
-1. Push code lên `main` (hoặc chạy `workflow_dispatch` trên CI) → CI Backend hoặc CI Frontend chạy tuỳ phần thay đổi.
-2. Nếu CI Backend success → `cd-backend.yml` sẽ build/push image rồi SSH deploy lên EC2.
-3. Nếu CI Frontend success → `cd-frontend.yml` sẽ trigger Amplify release (`start-job`) và Amplify sẽ build & deploy từ repository.
+1. Push code lên `main` (hoặc chạy `workflow_dispatch`) → workflow `ci-cd.yml` chạy.
+2. Nếu có thay đổi backend và `ci-backend` success → `cd-backend` build/push image rồi SSH deploy lên EC2.
+3. Nếu có thay đổi frontend và `ci-frontend` success → `cd-frontend` trigger Amplify release (`start-job`).
 
 Nếu bạn muốn tôi thêm mẫu `workflow_dispatch` snippet, ví dụ secrets, hoặc hướng dẫn test trigger bằng `gh workflow run`, tôi sẽ thêm vào mục này.
 
