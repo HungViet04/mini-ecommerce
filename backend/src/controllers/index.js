@@ -10,6 +10,7 @@ const healthController = require('./health.controller');
 const statsController = require('./stats.controller');
 const userController = require('./user.controller');
 const uploadController = require('./upload.controller');
+const chatbotController = require('./chatbot.controller');
 
 module.exports = {
   authController,
@@ -20,4 +21,5 @@ module.exports = {
   statsController,
   userController,
   uploadController,
+  chatbotController,
 };

@@ -31,3 +31,6 @@ export * from './dashboard';
 
 // User Components
 export * from './users';
+
+// Chatbot Components
+export * from './chatbot';

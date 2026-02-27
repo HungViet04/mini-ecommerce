@@ -570,6 +570,10 @@ services:
       S3_BUCKET: "your-s3-bucket-name"  # Thay bằng tên bucket S3 của bạn
       S3_REGION: "ap-southeast-1"  # Thay bằng region của bucket S3 của bạn
 
+      # GEMINI KEY
+      GEMINI_API_KEY: "your-gemini-api-key-here"
+      GEMINI_MODEL: (optional)
+
     volumes:
       - ./uploads:/app/uploads
     networks:

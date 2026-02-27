@@ -14,6 +14,7 @@ import { AdminCategoryList } from './components/categories';
 import { CheckoutPage, OrderSuccess } from './components/checkout';
 import { AdminDashboard } from './components/dashboard';
 import { AdminUserList } from './components/users';
+import { ChatBot } from './components/chatbot';
 
 /**
  * Main App Content
@@ -24,6 +25,7 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [orderData, setOrderData] = useState(null);
+  const [activeFloating, setActiveFloating] = useState(null);
 
   const handleAuthSuccess = (loggedInUser) => {
     if (loggedInUser?.role === 'admin') {
@@ -64,7 +66,12 @@ function AppContent() {
   };
 
   return (
-    <Layout onSearch={handleSearch} onCheckout={handleCheckout}>
+    <Layout
+      onSearch={handleSearch}
+      onCheckout={handleCheckout}
+      activeFloating={activeFloating}
+      onFloatingChange={setActiveFloating}
+    >
       <Routes>
         <Route
           path="/"
@@ -185,6 +192,7 @@ function AppContent() {
           }
         />
       </Routes>
+      <ChatBot activeFloating={activeFloating} onFloatingChange={setActiveFloating} />
     </Layout>
   );
 }
@@ -197,7 +205,12 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <AppContent />
         </Router>
       </CartProvider>

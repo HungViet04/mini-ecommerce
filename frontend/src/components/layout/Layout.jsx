@@ -9,7 +9,7 @@ import FloatingCart from '../cart/FloatingCart';
 import { useAuth } from '../../contexts';
 import { useLocation } from 'react-router-dom';
 
-export function Layout({ children, onSearch, onCheckout }) {
+export function Layout({ children, onSearch, onCheckout, activeFloating, onFloatingChange }) {
   const { isAdmin } = useAuth();
   const location = useLocation();
   const currentView = (() => {
@@ -31,7 +31,13 @@ export function Layout({ children, onSearch, onCheckout }) {
     <div className="app-layout">
       <Navbar onSearch={onSearch} />
       {/* Ẩn FloatingCart khi ở trang đăng nhập/đăng ký/auth hoặc là admin */}
-      {!hideCart && <FloatingCart onCheckout={onCheckout} />}
+      {!hideCart && (
+        <FloatingCart
+          onCheckout={onCheckout}
+          activeFloating={activeFloating}
+          onFloatingChange={onFloatingChange}
+        />
+      )}
       <main className="main-content">
         <div className="container">{children}</div>
       </main>

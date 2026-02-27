@@ -56,6 +56,12 @@ const config = {
     region: process.env.S3_REGION || 'ap-southeast-1',
     bucket: process.env.S3_BUCKET || '',
   },
+
+  // Gemini AI
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  },
 };
 
 // Freeze config to prevent accidental modifications
@@ -66,5 +72,6 @@ Object.freeze(config.bcrypt);
 Object.freeze(config.pagination);
 Object.freeze(config.cors);
 Object.freeze(config.s3);
+Object.freeze(config.gemini);
 
 module.exports = config;

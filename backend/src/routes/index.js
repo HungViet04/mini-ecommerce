@@ -14,6 +14,7 @@ const healthRoutes = require('./health.routes');
 const statsRoutes = require('./stats.routes');
 const userRoutes = require('./user.routes');
 const uploadRoutes = require('./upload.routes');
+const chatbotRoutes = require('./chatbot.routes');
 
 // API v1 routes
 router.use('/auth', authRoutes);
@@ -24,6 +25,7 @@ router.use('/health', healthRoutes);
 router.use('/stats', statsRoutes);
 router.use('/users', userRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/chatbot', chatbotRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {
