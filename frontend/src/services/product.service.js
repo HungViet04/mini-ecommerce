@@ -45,6 +45,24 @@ export const productService = {
     return response.data || response;
   },
 
+  async searchAndFilter(filters = {}) {
+    const query = new URLSearchParams();
+    if (filters.keyword) query.set('keyword', filters.keyword);
+    if (filters.category_id) query.set('category_id', filters.category_id);
+    if (filters.min_price !== undefined && filters.min_price !== '') query.set('min_price', filters.min_price);
+    if (filters.max_price !== undefined && filters.max_price !== '') query.set('max_price', filters.max_price);
+    if (filters.page) query.set('page', filters.page);
+    if (filters.limit) query.set('limit', filters.limit);
+    if (filters.orderBy) query.set('orderBy', filters.orderBy);
+    if (filters.order) query.set('order', filters.order);
+
+    const queryString = query.toString();
+    const path = queryString ? `/products/filter?${queryString}` : '/products/filter';
+
+    const response = await httpClient.get(path, { skipAuth: true });
+    return response;
+  },
+
   /**
    * Get products by category
    * @param {number} categoryId - Category ID

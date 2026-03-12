@@ -41,6 +41,54 @@ class ProductRepository extends BaseRepository {
     return rows;
   }
 
+  async searchAndFilter({ keyword, categoryId, minPrice, maxPrice, page = 1, limit = 20, orderBy = 'id', order = 'DESC' } = {}) {
+    const conditions = [];
+    const params = [];
+
+    if (keyword) {
+      conditions.push('p.name LIKE ?');
+      params.push(`%${keyword}%`);
+    }
+
+    if (categoryId) {
+      conditions.push('p.category_id = ?');
+      params.push(parseInt(categoryId, 10));
+    }
+
+    if (minPrice !== undefined && minPrice !== null) {
+      conditions.push('p.price >= ?');
+      params.push(parseFloat(minPrice));
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null) {
+      conditions.push('p.price <= ?');
+      params.push(parseFloat(maxPrice));
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const offset = (page - 1) * limit;
+
+    const allowedOrderBy = ['id', 'name', 'price', 'created_at', 'stock'];
+    const safeOrderBy = allowedOrderBy.includes(orderBy) ? orderBy : 'id';
+    const safeOrder = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    const countSql = `SELECT COUNT(*) as count FROM ${this.tableName} p ${whereClause}`;
+    const dataSql = `
+      SELECT p.id, p.name, p.description, p.image_url, p.price, p.stock, p.category_id, p.created_at,
+             c.name as category_name
+      FROM ${this.tableName} p
+      LEFT JOIN categories c ON p.category_id = c.id
+      ${whereClause}
+      ORDER BY p.${safeOrderBy} ${safeOrder}
+      LIMIT ? OFFSET ?
+    `;
+
+    const [countRows] = await this.query(countSql, params);
+    const [items] = await this.query(dataSql, [...params, parseInt(limit, 10), parseInt(offset, 10)]);
+
+    return { items, total: countRows[0].count };
+  }
+
   /**
    * Find products by category
    * @param {number} categoryId - Category ID

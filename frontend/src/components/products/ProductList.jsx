@@ -3,17 +3,17 @@
  * Manages product list state and logic
  * Pattern: Container Component
  */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useProducts } from '../../hooks';
 import { useCart, useAuth } from '../../contexts';
 import { ProductSlider } from './ProductSlider';
 import ProductCard from './ProductCard';
 import { ProductDetail } from './ProductDetail';
+import { ProductSearchFilter } from './ProductSearchFilter';
 import { productService } from '../../services';
 import { CategorySidebar } from '../layout';
 import { Pagination } from '../ui';
 import { Toast } from '../ui/Toast';
-// ProductCard imported dynamically in renderProductCard
 
 const PRODUCTS_PER_PAGE = 8;
 const FEATURED_PRODUCTS_COUNT = 4;
@@ -27,13 +27,83 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
 
   // State for filtered/searched products
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filterTotal, setFilterTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Effect to handle search and category filtering
+  // Advanced filter state
+  const [activeFilters, setActiveFilters] = useState({});
+  const hasAdvancedFilters = !!(
+    activeFilters.category_id ||
+    activeFilters.min_price !== undefined ||
+    activeFilters.max_price !== undefined
+  );
+
+  // Handler for advanced search/filter
+  const handleFilter = useCallback(
+    async (filters) => {
+      setActiveFilters(filters);
+      setCurrentPage(1);
+
+      const hasAnyFilter = filters.category_id || filters.min_price !== undefined || filters.max_price !== undefined;
+
+      if (!hasAnyFilter) {
+        setFilteredProducts([]);
+        setFilterTotal(0);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const result = await productService.searchAndFilter({
+          ...filters,
+          page: 1,
+          limit: PRODUCTS_PER_PAGE,
+        });
+        setFilteredProducts(result.data || []);
+        setFilterTotal(result.meta?.pagination?.total || 0);
+      } catch (err) {
+        setError(err.message || 'Không thể tải sản phẩm');
+        setFilteredProducts([]);
+        setFilterTotal(0);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // Re-fetch when page changes and advanced filters are active
+  useEffect(() => {
+    if (!hasAdvancedFilters) return;
+
+    const fetchPage = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await productService.searchAndFilter({
+          ...activeFilters,
+          page: currentPage,
+          limit: PRODUCTS_PER_PAGE,
+        });
+        setFilteredProducts(result.data || []);
+        setFilterTotal(result.meta?.pagination?.total || 0);
+      } catch (err) {
+        setError(err.message || 'Không thể tải sản phẩm');
+        setFilteredProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPage();
+  }, [currentPage, hasAdvancedFilters, activeFilters]);
+
+  // Effect to handle navbar search bar and sidebar category filtering (legacy)
   useEffect(() => {
     const fetchFilteredProducts = async () => {
-      // If no filter, use all products
       if (!searchQuery && !categoryId) {
         setFilteredProducts(allProducts);
         return;
@@ -58,8 +128,10 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       }
     };
 
-    fetchFilteredProducts();
-  }, [searchQuery, categoryId, allProducts]);
+    if (!hasAdvancedFilters) {
+      fetchFilteredProducts();
+    }
+  }, [searchQuery, categoryId, allProducts, hasAdvancedFilters]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -114,27 +186,38 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
   };
 
   // Determine which products and loading state to show
-  const displayProducts = searchQuery || categoryId ? filteredProducts : allProducts;
-  const isLoading = searchQuery || categoryId ? loading : defaultLoading;
+  const isFilterActive = hasAdvancedFilters || searchQuery || categoryId;
+  const displayProducts = isFilterActive ? filteredProducts : allProducts;
+  const isLoading = isFilterActive ? loading : defaultLoading;
 
   // Featured products for slider (only show on main page without filters)
   const featuredProducts = useMemo(() => {
-    if (searchQuery || categoryId) return [];
+    if (isFilterActive) return [];
     return allProducts.slice(0, FEATURED_PRODUCTS_COUNT);
-  }, [allProducts, searchQuery, categoryId]);
+  }, [allProducts, isFilterActive]);
 
   // Paginated products for grid
+  // When using advanced filters, server handles pagination
   const { paginatedProducts, totalPages } = useMemo(() => {
+    if (hasAdvancedFilters) {
+      return {
+        paginatedProducts: filteredProducts,
+        totalPages: Math.ceil(filterTotal / PRODUCTS_PER_PAGE),
+      };
+    }
     const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
     const endIndex = startIndex + PRODUCTS_PER_PAGE;
     return {
       paginatedProducts: displayProducts.slice(startIndex, endIndex),
       totalPages: Math.ceil(displayProducts.length / PRODUCTS_PER_PAGE),
     };
-  }, [displayProducts, currentPage]);
+  }, [displayProducts, currentPage, hasAdvancedFilters, filteredProducts, filterTotal]);
 
   // Get subtitle based on filter
   const getSubtitle = () => {
+    if (hasAdvancedFilters) {
+      return `Tìm thấy ${filterTotal} sản phẩm phù hợp`;
+    }
     if (searchQuery) {
       return `Kết quả tìm kiếm cho "${searchQuery}" (${displayProducts.length} sản phẩm)`;
     }
@@ -198,7 +281,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       {/* Products Area */}
       <div className="products-main">
         {/* Featured Products Slider - only on main page */}
-        {featuredProducts.length > 0 && !searchQuery && !categoryId && (
+        {featuredProducts.length > 0 && !searchQuery && !categoryId && !hasAdvancedFilters && (
           <div className="featured-section">
             <div className="section-header">
               <h2 className="section-title">🔥 Sản Phẩm Nổi Bật</h2>
@@ -215,10 +298,13 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
         {/* Products Grid Section */}
         <div className="products-grid-section">
           <div className="section-header">
-            <h2 className="section-title">
-              {searchQuery || categoryId ? 'Kết Quả' : 'Tất Cả Sản Phẩm'}
-            </h2>
-            <p className="section-subtitle">{getSubtitle()}</p>
+            <div className="section-header-left">
+              <h2 className="section-title">
+                {isFilterActive ? 'Kết Quả' : 'Tất Cả Sản Phẩm'}
+              </h2>
+              <p className="section-subtitle">{getSubtitle()}</p>
+            </div>
+            <ProductSearchFilter onFilter={handleFilter} initialFilters={activeFilters} />
           </div>
 
           {error && <div className="alert alert-error">{error}</div>}

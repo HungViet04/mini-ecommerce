@@ -2983,6 +2983,289 @@ a:hover {
 }
 
 /* ============================================
+   Product Search Filter (icon + dropdown)
+   ============================================ */
+.filter-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.filter-btn-anchor {
+  position: relative;
+}
+
+.filter-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.filter-icon-btn:hover {
+  border-color: var(--primary, #4f46e5);
+  background: var(--primary-light, #eef2ff);
+}
+
+.filter-icon-btn.active {
+  border-color: var(--primary, #4f46e5);
+  background: var(--primary-light, #eef2ff);
+  color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.filter-icon-btn.has-filters {
+  border-color: var(--primary, #4f46e5);
+  color: var(--primary, #4f46e5);
+}
+
+.filter-icon-btn svg {
+  flex-shrink: 0;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--primary, #4f46e5);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Active filter tags inline */
+.filter-active-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--primary-light, #eef2ff);
+  color: var(--primary, #4f46e5);
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-tag button {
+  background: none;
+  border: none;
+  color: var(--primary, #4f46e5);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.filter-tag button:hover {
+  opacity: 1;
+}
+
+/* Dropdown panel */
+.filter-dropdown-panel {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  z-index: 1000;
+  width: 300px;
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 12px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: filterDropdownIn 0.15s ease-out;
+}
+
+@keyframes filterDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.filter-dropdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-dropdown-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+}
+
+.filter-dropdown-select {
+  padding: 9px 12px;
+  border: 2px solid #9ca3af;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.filter-dropdown-select:hover {
+  border-color: var(--primary, #4f46e5);
+  background: var(--primary-light, #eef2ff);
+}
+
+.filter-dropdown-select:focus {
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background: var(--bg-primary, #fff);
+}
+
+.filter-dropdown-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-dropdown-input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 2px solid #9ca3af;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.filter-dropdown-input:hover {
+  border-color: var(--primary, #4f46e5);
+  background: var(--primary-light, #eef2ff);
+}
+
+.filter-dropdown-input:focus {
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background: var(--bg-primary, #fff);
+}
+
+.filter-dropdown-sep {
+  color: var(--text-secondary, #999);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.filter-dropdown-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-color, #eee);
+}
+
+.btn-filter {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-filter:active {
+  transform: scale(0.97);
+}
+
+.btn-filter-apply {
+  flex: 1;
+  background: var(--primary, #4f46e5);
+  color: #fff;
+}
+
+.btn-filter-apply:hover {
+  background: var(--primary-dark, #4338ca);
+}
+
+.btn-filter-clear {
+  background: var(--bg-tertiary, #e5e7eb);
+  color: var(--text-secondary, #666);
+}
+
+.btn-filter-clear:hover {
+  background: #d1d5db;
+}
+
+/* Section header with filter button */
+.products-grid-section .section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-icon-label {
+    display: none;
+  }
+
+  .filter-icon-btn {
+    padding: 8px 10px;
+  }
+
+  .filter-dropdown-panel {
+    width: 260px;
+    top: calc(100% + 8px);
+    left: auto;
+    right: 0;
+  }
+
+  .filter-active-tags {
+    display: none;
+  }
+}
+
+/* ============================================
    Products Grid Section
    ============================================ */
 .products-grid-section {

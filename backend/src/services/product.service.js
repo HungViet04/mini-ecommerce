@@ -77,6 +77,30 @@ class ProductService {
     return productRepository.searchByName(validatedQuery, options);
   }
 
+  async searchAndFilter(filters = {}) {
+    const { keyword, categoryId, minPrice, maxPrice, page = 1, limit = 20, orderBy = 'id', order = 'DESC' } = filters;
+
+    if (categoryId) {
+      const category = await categoryRepository.findById(categoryId);
+      if (!category) {
+        throw new NotFoundError('Category');
+      }
+    }
+
+    const sanitizedKeyword = keyword ? validateSearchQuery(keyword) : undefined;
+
+    return productRepository.searchAndFilter({
+      keyword: sanitizedKeyword || undefined,
+      categoryId: categoryId ? Number(categoryId) : undefined,
+      minPrice: minPrice !== undefined && minPrice !== '' ? Number(minPrice) : undefined,
+      maxPrice: maxPrice !== undefined && maxPrice !== '' ? Number(maxPrice) : undefined,
+      page: Number(page),
+      limit: Number(limit),
+      orderBy,
+      order,
+    });
+  }
+
   /**
    * Update a product
    * @param {number|string} id - Product ID

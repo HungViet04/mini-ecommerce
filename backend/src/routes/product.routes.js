@@ -11,6 +11,7 @@ const { authenticate, adminOnly } = require('../middlewares');
 // Public routes
 router.get('/', productController.findAll);
 router.get('/search', productController.search);
+router.get('/filter', productController.searchAndFilter);
 router.get('/:id', productController.findById);
 router.get('/:id/availability', productController.checkAvailability);
 router.get('/category/:categoryId', productController.findByCategory);

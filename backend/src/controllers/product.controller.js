@@ -53,6 +53,29 @@ const search = asyncHandler(async (req, res) => {
   return response.success(res, { data: products });
 });
 
+const searchAndFilter = asyncHandler(async (req, res) => {
+  const { keyword, category_id, min_price, max_price, orderBy = 'id', order = 'DESC' } = req.query;
+  const { page, limit } = parsePagination(req.query);
+
+  const result = await productService.searchAndFilter({
+    keyword,
+    categoryId: category_id,
+    minPrice: min_price,
+    maxPrice: max_price,
+    page,
+    limit,
+    orderBy,
+    order,
+  });
+
+  return response.paginated(res, {
+    data: result.items,
+    page,
+    limit,
+    total: result.total,
+  });
+});
+
 /**
  * Update a product
  * PUT /api/v1/products/:id
@@ -95,6 +118,7 @@ module.exports = {
   findAll,
   findById,
   search,
+  searchAndFilter,
   update,
   remove,
   findByCategory,
