@@ -11,7 +11,7 @@ import { AuthContainer, ProtectedRoute, AdminRoute, GuestRoute } from './compone
 import { ProductList, AdminProductList } from './components/products';
 import { OrderList, AdminOrderList } from './components/orders';
 import { AdminCategoryList } from './components/categories';
-import { CheckoutPage, OrderSuccess } from './components/checkout';
+import { CheckoutPage, OrderSuccess, VNPayReturn } from './components/checkout';
 import { AdminDashboard } from './components/dashboard';
 import { AdminUserList } from './components/users';
 import { ChatBot } from './components/chatbot';
@@ -114,6 +114,10 @@ function AppContent() {
               />
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/payment/vnpay-return"
+          element={<VNPayReturn />}
         />
         <Route
           path="/orders"

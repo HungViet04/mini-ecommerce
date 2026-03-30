@@ -6,12 +6,13 @@
 import React, { useState } from 'react';
 import { useCart, useAuth } from '../../contexts';
 import { orderService, productService } from '../../services';
+import { vnpayService } from '../../services/vnpay.service';
 import { Card, Button, Input, ErrorAlert } from '../ui';
 import { formatPrice } from '../../utils';
 
 const PAYMENT_METHODS = {
   COD: 'cod',
-  BANK_TRANSFER: 'bank_transfer',
+  VNPAY: 'vnpay',
 };
 
 export function CheckoutPage({ onBack, onSuccess }) {
@@ -106,10 +107,32 @@ export function CheckoutPage({ onBack, onSuccess }) {
           productId: item.productId,
           quantity: item.quantity,
         })),
-        shippingInfo,
+        shippingInfo: {
+          fullName: shippingInfo.fullName,
+          phone: shippingInfo.phone,
+          province: shippingInfo.province,
+          district: shippingInfo.district,
+          ward: shippingInfo.ward,
+          address: shippingInfo.address,
+          note: shippingInfo.note,
+        },
         paymentMethod,
       };
       const result = await orderService.create(orderData);
+      
+      // Nếu thanh toán VNPay, tạo URL thanh toán và redirect
+      if (paymentMethod === PAYMENT_METHODS.VNPAY) {
+        const vnpayResult = await vnpayService.createPaymentUrl(result.id);
+        clearCart();
+        // Redirect to VNPay
+        if (vnpayResult.paymentUrl) {
+          window.location.href = vnpayResult.paymentUrl;
+        } else {
+          setError('Không thể tạo URL thanh toán VNPay');
+        }
+        return;
+      }
+      
       clearCart();
       onSuccess?.(result, paymentMethod, shippingInfo);
     } catch (err) {
@@ -249,30 +272,30 @@ export function CheckoutPage({ onBack, onSuccess }) {
 
                 <label
                   className={`payment-option ${
-                    paymentMethod === PAYMENT_METHODS.BANK_TRANSFER ? 'selected' : ''
+                    paymentMethod === PAYMENT_METHODS.VNPAY ? 'selected' : ''
                   }`}
                 >
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value={PAYMENT_METHODS.BANK_TRANSFER}
-                    checked={paymentMethod === PAYMENT_METHODS.BANK_TRANSFER}
+                    value={PAYMENT_METHODS.VNPAY}
+                    checked={paymentMethod === PAYMENT_METHODS.VNPAY}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
                   <div className="payment-content">
-                    <span className="payment-icon">🏦</span>
+                    <span className="payment-icon">💳</span>
                     <div className="payment-info">
-                      <span className="payment-name">Chuyển khoản ngân hàng</span>
-                      <span className="payment-desc">Chuyển khoản trước khi giao hàng</span>
+                      <span className="payment-name">Thanh toán VNPay</span>
+                      <span className="payment-desc">ATM/Visa/MasterCard/QR Code qua VNPay</span>
                     </div>
                   </div>
                 </label>
               </div>
 
-              {paymentMethod === PAYMENT_METHODS.BANK_TRANSFER && (
+              {paymentMethod === PAYMENT_METHODS.VNPAY && (
                 <div className="bank-info">
                   <p className="bank-note-simple">
-                    💡 Sau khi đặt hàng, bạn sẽ nhận được mã QR để thanh toán
+                    💡 Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất giao dịch
                   </p>
                 </div>
               )}
@@ -328,7 +351,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
               loading={loading}
               onClick={handleSubmit}
             >
-              {paymentMethod === PAYMENT_METHODS.COD ? 'Đặt Hàng' : 'Đặt Hàng & Chuyển Khoản'}
+              {paymentMethod === PAYMENT_METHODS.COD ? 'Đặt Hàng' : 'Đặt Hàng & Thanh Toán VNPay'}
             </Button>
 
             <p className="checkout-note">

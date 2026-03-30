@@ -6108,6 +6108,156 @@ a:hover {
   }
 }
 
+/* ===================== VNPAY RETURN PAGE ===================== */
+.vnpay-return-page {
+  max-width: 600px;
+  margin: 36px auto 0 auto;
+  padding: 0 16px 32px 16px;
+}
+
+.vnpay-result-card {
+  padding: 32px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+  text-align: center;
+}
+
+.vnpay-result-card .loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 0;
+}
+
+.vnpay-result-card .loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vnpay-result-card .result-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.vnpay-result-card .result-icon.success {
+  color: var(--color-success);
+}
+
+.vnpay-result-card .result-icon.failed,
+.vnpay-result-card .result-icon.error {
+  color: var(--color-error);
+}
+
+.vnpay-result-card h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.vnpay-result-card .success-state h1 {
+  color: var(--color-success);
+}
+
+.vnpay-result-card .failed-state h1,
+.vnpay-result-card .error-state h1 {
+  color: var(--color-error);
+}
+
+.vnpay-result-card .result-message {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.vnpay-result-card .payment-details {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.vnpay-result-card .detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vnpay-result-card .detail-row:last-child {
+  border-bottom: none;
+}
+
+.vnpay-result-card .detail-row span {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.vnpay-result-card .detail-row strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.vnpay-result-card .retry-note {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+.vnpay-result-card .result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.vnpay-result-card .result-actions .btn {
+  min-width: 140px;
+}
+
+@media (max-width: 480px) {
+  .vnpay-return-page {
+    padding: 0 12px 24px 12px;
+    margin-top: 24px;
+  }
+
+  .vnpay-result-card {
+    padding: 24px 16px;
+  }
+
+  .vnpay-result-card h1 {
+    font-size: 1.4rem;
+  }
+
+  .vnpay-result-card .result-icon {
+    font-size: 3rem;
+  }
+
+  .vnpay-result-card .result-actions {
+    flex-direction: column;
+  }
+
+  .vnpay-result-card .result-actions .btn {
+    width: 100%;
+  }
+}
+
 /* Print styles (bonus) */
 @media print {
   .navbar,

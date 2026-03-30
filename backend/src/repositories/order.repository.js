@@ -167,6 +167,25 @@ class OrderRepository extends BaseRepository {
   }
 
   /**
+   * Update payment info for VNPay transactions
+   * @param {number} orderId - Order ID
+   * @param {Object} paymentInfo - Payment information from VNPay
+   * @param {Object} connection - Optional connection
+   * @returns {Promise<Object>}
+   */
+  async updatePaymentInfo(orderId, paymentInfo, connection = null) {
+    // Store payment info in shipping_notes for now (can add dedicated columns later)
+    const paymentData = JSON.stringify({
+      vnp_TransactionNo: paymentInfo.vnp_TransactionNo,
+      vnp_BankCode: paymentInfo.vnp_BankCode,
+      vnp_PayDate: paymentInfo.vnp_PayDate,
+    });
+    const sql = `UPDATE ${this.tableName} SET shipping_notes = CONCAT(IFNULL(shipping_notes, ''), ' | VNPay: ', ?) WHERE id = ?`;
+    await this.query(sql, [paymentData, orderId], connection);
+    return this.findById(orderId);
+  }
+
+  /**
    * Get orders by status
    * @param {string} status - Order status
    * @param {Object} options - Query options

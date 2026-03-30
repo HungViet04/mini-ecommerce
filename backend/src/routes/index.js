@@ -15,6 +15,7 @@ const statsRoutes = require('./stats.routes');
 const userRoutes = require('./user.routes');
 const uploadRoutes = require('./upload.routes');
 const chatbotRoutes = require('./chatbot.routes');
+const vnpayRoutes = require('./vnpay.routes');
 
 // API v1 routes
 router.use('/auth', authRoutes);
@@ -26,6 +27,7 @@ router.use('/stats', statsRoutes);
 router.use('/users', userRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/chatbot', chatbotRoutes);
+router.use('/vnpay', vnpayRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {

@@ -6,7 +6,7 @@
 const { ValidationError } = require('../errors');
 const { ORDER_STATUS } = require('../constants');
 const { isPositiveInteger } = require('./common.validator');
-const PAYMENT_METHODS = ['cod', 'bank_transfer'];
+const PAYMENT_METHODS = ['cod', 'vnpay'];
 const SHIPPING_FEE = 30000;
 
 /**
