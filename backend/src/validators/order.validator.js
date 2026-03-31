@@ -6,7 +6,11 @@
 const { ValidationError } = require('../errors');
 const { ORDER_STATUS } = require('../constants');
 const { isPositiveInteger } = require('./common.validator');
-const PAYMENT_METHODS = ['cod', 'vnpay'];
+const PAYMENT_METHOD_MAP = {
+  cod: 'cod',
+  vnpay: 'bank_transfer',
+  bank_transfer: 'bank_transfer',
+};
 const SHIPPING_FEE = 30000;
 
 /**
@@ -122,9 +126,10 @@ const validateCreateOrder = (data) => {
   const shippingValidation = validateShippingInfo(shippingInfo);
   errors.push(...shippingValidation.errors);
 
-  // Validate payment method
-  const validPaymentMethod =
-    paymentMethod && PAYMENT_METHODS.includes(paymentMethod) ? paymentMethod : 'cod';
+  // Normalize payment method to match DB enum values
+  const normalizedPaymentMethod =
+    typeof paymentMethod === 'string' ? paymentMethod.trim().toLowerCase() : '';
+  const validPaymentMethod = PAYMENT_METHOD_MAP[normalizedPaymentMethod] || 'cod';
 
   if (errors.length > 0) {
     throw new ValidationError('Dữ liệu không hợp lệ', errors);

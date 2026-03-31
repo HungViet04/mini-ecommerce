@@ -87,6 +87,7 @@ export function CartProvider({ children }) {
       payload: {
         productId: product.id,
         productName: product.name,
+        imageUrl: product.image_url || '',
         price: product.price,
         quantity,
       },

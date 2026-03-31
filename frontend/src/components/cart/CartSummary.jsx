@@ -4,20 +4,15 @@
  * Pattern: Container Component
  */
 import React from 'react';
-import { useCart, useAuth } from '../../contexts';
+import { useCart } from '../../contexts';
 import { Card, Button } from '../ui';
 import { CartItem } from './CartItem';
 import { formatPrice } from '../../utils';
 
 export function CartSummary({ onCheckout }) {
   const { items, total, itemCount, updateQuantity, removeItem, clearCart } = useCart();
-  const { isAuthenticated } = useAuth();
 
   const handleCheckout = () => {
-    if (!isAuthenticated) {
-      alert('Vui lòng đăng nhập để đặt hàng');
-      return;
-    }
     onCheckout?.();
   };
 

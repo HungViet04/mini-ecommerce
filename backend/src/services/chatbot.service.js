@@ -45,6 +45,7 @@ class ChatbotService {
 Quy tắc:
 - Luôn trả lời bằng tiếng Việt, thân thiện và chuyên nghiệp.
 - Khi được hỏi về sản phẩm, hãy sử dụng thông tin sản phẩm thực tế được cung cấp.
+- Khi nhắc đến sản phẩm cụ thể, luôn gắn link chi tiết theo định dạng markdown: [Xem chi tiết](/products/{id}).
 - Giá hiển thị ở dạng VNĐ (ví dụ: 100.000₫).
 - Nếu không có thông tin, hãy nói rõ và gợi ý khách liên hệ hỗ trợ.
 - Không bịa thông tin sản phẩm nếu không có dữ liệu.
@@ -84,7 +85,7 @@ Quy tắc:
           const category = categoryMap[p.category_id] || 'Chưa phân loại';
           const stock = p.stock > 0 ? `Còn ${p.stock} sản phẩm` : 'Hết hàng';
           const desc = p.description ? ` - ${p.description}` : '';
-          return `- ${p.name}: ${Number(p.price).toLocaleString('vi-VN')}₫ | ${category} | ${stock}${desc}`;
+          return `- ${p.name}: ${Number(p.price).toLocaleString('vi-VN')}₫ | ${category} | ${stock}${desc} | [Xem chi tiết](/products/${p.id})`;
         })
         .join('\n');
 
@@ -319,6 +320,7 @@ Quy tắc:
       lines.push(`Tình trạng: ${stockStr}`);
       lines.push(`Danh mục: ${categoryName}`);
       lines.push(`Mô tả: ${desc}`);
+      lines.push(`Xem chi tiết: [${product.name}](/products/${product.id})`);
       if (product.image_url) {
         lines.push(`Hình ảnh: ${product.image_url}`);
       }
@@ -346,7 +348,7 @@ Quy tắc:
 
       const lines = products.map((item) => {
         const stock = item.stock > 0 ? `Còn ${item.stock}` : 'Hết hàng';
-        return `- ${item.name}: ${Number(item.price).toLocaleString('vi-VN')}₫ (${stock})`;
+        return `- ${item.name}: ${Number(item.price).toLocaleString('vi-VN')}₫ (${stock}) - [Xem chi tiết](/products/${item.id})`;
       });
 
       return `Một số sản phẩm đang có:\n${lines.join('\n')}`;

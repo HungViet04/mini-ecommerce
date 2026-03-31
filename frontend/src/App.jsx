@@ -4,11 +4,11 @@
  * Pattern: Composite + Provider Pattern
  */
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, CartProvider } from './contexts';
 import { Layout } from './components/layout';
 import { AuthContainer, ProtectedRoute, AdminRoute, GuestRoute } from './components/auth';
-import { ProductList, AdminProductList } from './components/products';
+import { ProductList, AdminProductList, ProductDetailPage } from './components/products';
 import { OrderList, AdminOrderList } from './components/orders';
 import { AdminCategoryList } from './components/categories';
 import { CheckoutPage, OrderSuccess, VNPayReturn } from './components/checkout';
@@ -22,17 +22,20 @@ import { ChatBot } from './components/chatbot';
  */
 function AppContent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [orderData, setOrderData] = useState(null);
   const [activeFloating, setActiveFloating] = useState(null);
 
   const handleAuthSuccess = (loggedInUser) => {
-    if (loggedInUser?.role === 'admin') {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/');
+    const returnPath = location.state?.from?.pathname;
+    if (returnPath) {
+      navigate(returnPath, { replace: true });
+      return;
     }
+
+    navigate(loggedInUser?.role === 'admin' ? '/admin/dashboard' : '/', { replace: true });
   };
 
   const handleCheckout = () => navigate('/checkout');
@@ -85,6 +88,7 @@ function AppContent() {
             </div>
           }
         />
+        <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route
           path="/auth"
           element={
@@ -115,10 +119,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/payment/vnpay-return"
-          element={<VNPayReturn />}
-        />
+        <Route path="/payment/vnpay-return" element={<VNPayReturn />} />
         <Route
           path="/orders"
           element={

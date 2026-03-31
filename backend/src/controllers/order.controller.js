@@ -100,7 +100,7 @@ const exportOrders = asyncHandler(async (req, res) => {
     shipped: 'Đang giao',
     delivered: 'Đã nhận',
   };
-  const paymentLabels = { cod: 'COD', bank_transfer: 'Chuyển khoản' };
+  const paymentLabels = { cod: 'COD', bank_transfer: 'VNPay' };
 
   if (outFormat === 'xlsx') {
     const ExcelJS = require('exceljs');

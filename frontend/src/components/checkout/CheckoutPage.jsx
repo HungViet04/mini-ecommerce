@@ -3,9 +3,9 @@
  * Checkout flow with shipping info and payment selection
  * Pattern: Container Component
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart, useAuth } from '../../contexts';
-import { orderService, productService } from '../../services';
+import { orderService, productService, uploadService } from '../../services';
 import { vnpayService } from '../../services/vnpay.service';
 import { Card, Button, Input, ErrorAlert } from '../ui';
 import { formatPrice } from '../../utils';
@@ -21,6 +21,50 @@ export function CheckoutPage({ onBack, onSuccess }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [itemDetails, setItemDetails] = useState({});
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fillMissingItemDetails = async () => {
+      const missingIds = items
+        .filter((item) => {
+          const hasName = Boolean(item.productName || item.name);
+          const hasImage = Boolean(item.imageUrl || item.image_url);
+          return !hasName || !hasImage;
+        })
+        .map((item) => item.productId)
+        .filter(Boolean);
+
+      if (missingIds.length === 0) return;
+
+      const uniqueIds = [...new Set(missingIds)];
+
+      try {
+        const details = await Promise.all(
+          uniqueIds.map(async (id) => {
+            const product = await productService.getById(id);
+            return [id, product];
+          })
+        );
+
+        if (!mounted) return;
+
+        setItemDetails((prev) => ({
+          ...prev,
+          ...Object.fromEntries(details),
+        }));
+      } catch {
+        // Keep checkout usable even if detail prefetch fails
+      }
+    };
+
+    fillMissingItemDetails();
+
+    return () => {
+      mounted = false;
+    };
+  }, [items]);
 
   // Shipping info
   const [shippingInfo, setShippingInfo] = useState({
@@ -313,18 +357,30 @@ export function CheckoutPage({ onBack, onSuccess }) {
             <div className="order-items">
               {items.map((item, index) => (
                 <div key={index} className="order-item">
-                  <div className="item-image">
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.name} />
-                    ) : (
-                      <span className="item-emoji">📦</span>
-                    )}
-                  </div>
-                  <div className="item-details">
-                    <span className="item-name">{item.name}</span>
-                    <span className="item-quantity">x{item.quantity}</span>
-                  </div>
-                  <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
+                  {(() => {
+                    const detail = itemDetails[item.productId] || {};
+                    const displayName =
+                      item.productName || item.name || detail.name || `Sản phẩm #${item.productId}`;
+                    const imagePath = item.imageUrl || item.image_url || detail.image_url || '';
+                    const imageSrc = uploadService.getImageUrl(imagePath);
+
+                    return (
+                      <>
+                        <div className="item-image">
+                          {imageSrc ? (
+                            <img src={imageSrc} alt={displayName} />
+                          ) : (
+                            <span className="item-emoji">📦</span>
+                          )}
+                        </div>
+                        <div className="item-details">
+                          <span className="item-name">{displayName}</span>
+                          <span className="item-quantity">x{item.quantity}</span>
+                        </div>
+                        <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

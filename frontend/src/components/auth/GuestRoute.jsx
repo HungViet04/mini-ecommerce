@@ -4,7 +4,7 @@
  * Redirects to appropriate page if user is already logged in
  */
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts';
 
 /**
@@ -14,6 +14,7 @@ import { useAuth } from '../../contexts';
  */
 export function GuestRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   // Wait for auth state to initialize
   if (loading) {
@@ -26,8 +27,9 @@ export function GuestRoute({ children }) {
 
   // Redirect if already logged in
   if (user) {
-    // Redirect admin to dashboard, regular users to home
-    const redirectPath = user.role === 'admin' ? '/admin/dashboard' : '/';
+    // Prefer returning to the originally requested protected page.
+    const redirectPath =
+      location.state?.from?.pathname || (user.role === 'admin' ? '/admin/dashboard' : '/');
     return <Navigate to={redirectPath} replace />;
   }
 

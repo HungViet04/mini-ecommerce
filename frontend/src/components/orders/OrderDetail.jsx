@@ -1,18 +1,12 @@
 /**
  * OrderDetail Component
- * Modal to show order details with QR payment info
- * Pattern: Presentational Component
+ * Modal to show order details and payment info
+ * Pattern: Container + Presentational Component
  */
 import React, { useState } from 'react';
 import { Button } from '../ui';
 import { formatPrice, formatDate } from '../../utils';
-
-const BANK_INFO = {
-  bankName: 'MoMo',
-  accountNumber: '*******470',
-  accountName: 'NGUYỄN VĂN HÙNG',
-  qrImage: '/images/image.png',
-};
+import { vnpayService } from '../../services/vnpay.service';
 
 const statusConfig = {
   pending: {
@@ -39,11 +33,12 @@ const statusConfig = {
 
 const paymentMethodLabels = {
   cod: 'Thanh toán khi nhận hàng',
-  bank_transfer: 'Chuyển khoản MoMo',
+  bank_transfer: 'Thanh toán VNPay',
 };
 
 export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
-  const [copied, setCopied] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [payError, setPayError] = useState('');
 
   if (!order) return null;
 
@@ -62,7 +57,7 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
   } = order;
 
   const isPending = status === 'pending';
-  const isBankTransfer = paymentMethod === 'bank_transfer';
+  const isVnpay = paymentMethod === 'bank_transfer';
   const canCancel = status === 'pending';
   const canConfirmDelivery = status === 'shipped';
 
@@ -72,15 +67,23 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
 
   const statusInfo = statusConfig[status] || statusConfig.pending;
 
-  const handleCopyContent = () => {
-    navigator.clipboard.writeText(`DH${id}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const handlePayNow = async () => {
+    try {
+      setPayError('');
+      setIsPaying(true);
+      const result = await vnpayService.createPaymentUrl(id);
 
-  const handleCopyAmount = () => {
-    navigator.clipboard.writeText(grandTotal.toString());
-    alert('Đã sao chép số tiền!');
+      if (result?.paymentUrl) {
+        window.location.href = result.paymentUrl;
+        return;
+      }
+
+      setPayError('Không thể tạo URL thanh toán VNPay. Vui lòng thử lại.');
+    } catch (error) {
+      setPayError(error.message || 'Không thể kết nối VNPay. Vui lòng thử lại.');
+    } finally {
+      setIsPaying(false);
+    }
   };
 
   return (
@@ -175,56 +178,50 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
             </div>
           </div>
 
-          {/* QR Payment - Only for pending orders with bank_transfer */}
-          {isPending && isBankTransfer && (
+          {/* VNPay info for pending VNPay orders */}
+          {isPending && isVnpay && (
             <div className="odm-qr-section">
               <div className="odm-qr-header">
-                <span className="odm-qr-title">💳 Thanh toán MoMo</span>
-                <span className="odm-qr-subtitle">Quét mã để thanh toán</span>
+                <span className="odm-qr-title">💳 Thanh toán VNPay</span>
+                <span className="odm-qr-subtitle">Giao dịch sẽ được xác nhận tự động qua cổng VNPay</span>
               </div>
 
               <div className="odm-qr-content">
-                <div className="odm-qr-image-box">
-                  <img src={BANK_INFO.qrImage} alt="QR Code MoMo" className="odm-qr-image" />
-                </div>
-
                 <div className="odm-qr-info">
-                  <div className="odm-qr-amount" onClick={handleCopyAmount}>
+                  <div className="odm-qr-amount">
                     <span className="odm-amount-label">Số tiền</span>
                     <span className="odm-amount-value">{formatPrice(grandTotal)}</span>
                   </div>
 
                   <div className="odm-qr-detail">
-                    <span className="odm-detail-label">Chủ TK</span>
-                    <span className="odm-detail-value">{BANK_INFO.accountName}</span>
+                    <span className="odm-detail-label">Phương thức</span>
+                    <span className="odm-detail-value">VNPay</span>
                   </div>
 
-                  <div className="odm-qr-detail odm-qr-content-ck">
-                    <span className="odm-detail-label">Nội dung CK</span>
-                    <div className="odm-copy-box">
-                      <code className="odm-copy-code">
-                        DH{id} {shippingPhone}
-                      </code>
-                      <button
-                        className={`odm-copy-btn ${copied ? 'copied' : ''}`}
-                        onClick={handleCopyContent}
-                      >
-                        {copied ? '✓ Đã chép' : '📋 Copy'}
-                      </button>
-                    </div>
+                  <div className="odm-qr-detail">
+                    <span className="odm-detail-label">Mã đơn hàng</span>
+                    <span className="odm-detail-value">#{id}</span>
                   </div>
                 </div>
               </div>
 
               <div className="odm-qr-note">
                 <span className="odm-note-icon">💡</span>
-                <span>Nhập đúng nội dung chuyển khoản để đơn được xác nhận tự động</span>
+                <span>Nếu thanh toán thất bại, vui lòng đặt lại đơn và hoàn tất trên cổng VNPay.</span>
               </div>
+
+              <div className="odm-vnpay-actions">
+                <Button variant="primary" loading={isPaying} onClick={handlePayNow}>
+                  Thanh toán VNPay ngay
+                </Button>
+              </div>
+
+              {payError && <p className="odm-vnpay-error">{payError}</p>}
             </div>
           )}
 
           {/* COD notice for pending COD orders */}
-          {isPending && !isBankTransfer && (
+          {isPending && !isVnpay && (
             <div className="odm-cod-notice">
               <span className="odm-cod-icon">💵</span>
               <span>Thanh toán {formatPrice(grandTotal)} khi nhận hàng</span>
