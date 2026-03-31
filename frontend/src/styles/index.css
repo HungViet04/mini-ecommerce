@@ -3892,8 +3892,8 @@ a:hover {
 
 /* QR Section */
 .odm-qr-section {
-  background: linear-gradient(135deg, #fef3f7, #fce7f3);
-  border: 2px solid #f472b6;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 2px solid #60a5fa;
   border-radius: var(--border-radius-lg);
   padding: var(--space-lg);
   margin-top: var(--space-lg);
@@ -3908,13 +3908,13 @@ a:hover {
   display: block;
   font-size: var(--font-size-lg);
   font-weight: 700;
-  color: #be185d;
+  color: #1d4ed8;
   margin-bottom: 4px;
 }
 
 .odm-qr-subtitle {
   font-size: var(--font-size-sm);
-  color: #9d174d;
+  color: #1e40af;
   opacity: 0.8;
 }
 
@@ -3929,7 +3929,7 @@ a:hover {
   background: white;
   padding: 12px;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(190, 24, 93, 0.15);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
 }
 
 .odm-qr-image {
@@ -3947,7 +3947,7 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #ec4899, #be185d);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   padding: var(--space-md);
   border-radius: var(--border-radius);
   margin-bottom: var(--space-md);
@@ -3975,7 +3975,7 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   padding: var(--space-sm) 0;
-  border-bottom: 1px dashed rgba(190, 24, 93, 0.2);
+  border-bottom: 1px dashed rgba(37, 99, 235, 0.2);
 }
 
 .odm-qr-detail:last-child {
@@ -3983,13 +3983,13 @@ a:hover {
 }
 
 .odm-detail-label {
-  color: #9d174d;
+  color: #1e40af;
   font-size: var(--font-size-sm);
 }
 
 .odm-detail-value {
   font-weight: 600;
-  color: #831843;
+  color: #1e3a8a;
 }
 
 .odm-qr-content-ck {
@@ -4006,7 +4006,7 @@ a:hover {
   background: white;
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--border-radius);
-  border: 2px dashed #f472b6;
+  border: 2px dashed #60a5fa;
 }
 
 .odm-copy-code {
@@ -4014,12 +4014,12 @@ a:hover {
   font-family: monospace;
   font-size: var(--font-size-lg);
   font-weight: 700;
-  color: #be185d;
+  color: #1d4ed8;
   letter-spacing: 1px;
 }
 
 .odm-copy-btn {
-  background: linear-gradient(135deg, #ec4899, #be185d);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   border: none;
   color: white;
   padding: 8px 16px;
@@ -4033,7 +4033,7 @@ a:hover {
 
 .odm-copy-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
 .odm-copy-btn.copied {
@@ -4046,14 +4046,32 @@ a:hover {
   gap: var(--space-sm);
   margin-top: var(--space-md);
   padding: var(--space-sm) var(--space-md);
-  background: rgba(190, 24, 93, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   border-radius: var(--border-radius);
   font-size: var(--font-size-xs);
-  color: #9d174d;
+  color: #1e40af;
 }
 
 .odm-note-icon {
   font-size: 1rem;
+}
+
+.odm-vnpay-actions {
+  margin-top: var(--space-md);
+  display: flex;
+  justify-content: center;
+}
+
+.odm-vnpay-actions .btn {
+  min-width: 220px;
+}
+
+.odm-vnpay-error {
+  margin-top: var(--space-sm);
+  text-align: center;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
 }
 
 /* Shipping Info in Order Detail */
@@ -6121,6 +6139,8 @@ a:hover {
   padding: 32px 24px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+  background: #ffffff;
+  color: var(--text-primary);
   text-align: center;
 }
 
@@ -6184,11 +6204,12 @@ a:hover {
 }
 
 .vnpay-result-card .payment-details {
-  background: var(--bg-secondary);
+  background: #ffffff;
   border-radius: 12px;
   padding: 16px 20px;
   margin-bottom: 24px;
   text-align: left;
+  border: 1px solid var(--border-color);
 }
 
 .vnpay-result-card .detail-row {
@@ -6204,12 +6225,12 @@ a:hover {
 }
 
 .vnpay-result-card .detail-row span {
-  color: var(--text-secondary);
+  color: #475569;
   font-size: 0.95rem;
 }
 
 .vnpay-result-card .detail-row strong {
-  color: var(--text-primary);
+  color: #0f172a;
   font-weight: 600;
 }
 
@@ -6474,6 +6495,17 @@ a:hover {
   font-size: 13.5px;
   line-height: 1.5;
   word-break: break-word;
+}
+
+.chat-message__link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chat-message__link:hover {
+  color: #1e40af;
 }
 
 .chat-message--bot .chat-message__bubble {

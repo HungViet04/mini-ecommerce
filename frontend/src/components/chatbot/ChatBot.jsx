@@ -4,6 +4,7 @@
  * Pattern: Controlled Component with local state
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { chatService } from '../../services';
 
 /**
@@ -12,7 +13,22 @@ import { chatService } from '../../services';
 function formatMessage(text) {
   if (!text) return '';
 
-  return text
+  const escapeHtml = (input) =>
+    input
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+  const safeText = escapeHtml(text);
+
+  const withLinks = safeText.replace(
+    /\[([^\]]+)\]\((\/products\/\d+|https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" class="chat-message__link">$1</a>'
+  );
+
+  return withLinks
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .replace(/\n/g, '<br/>');
@@ -21,11 +37,22 @@ function formatMessage(text) {
 /**
  * Single chat message bubble
  */
-function ChatMessage({ message }) {
+function ChatMessage({ message, onLinkClick }) {
   const isBot = message.role === 'bot';
 
+  const handleClick = (e) => {
+    const link = e.target.closest('a.chat-message__link');
+    if (!link || !onLinkClick) return;
+
+    const href = link.getAttribute('href') || '';
+    onLinkClick(e, href);
+  };
+
   return (
-    <div className={`chat-message ${isBot ? 'chat-message--bot' : 'chat-message--user'}`}>
+    <div
+      className={`chat-message ${isBot ? 'chat-message--bot' : 'chat-message--user'}`}
+      onClick={isBot ? handleClick : undefined}
+    >
       {isBot && <div className="chat-message__avatar">🤖</div>}
       <div
         className="chat-message__bubble"
@@ -55,6 +82,7 @@ function TypingIndicator() {
  * Main ChatBot component
  */
 export function ChatBot({ activeFloating, onFloatingChange }) {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -68,6 +96,7 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
   const [sessionId, setSessionId] = useState(null);
   const [, setError] = useState(null);
 
+  const chatbotRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const isCartActive = activeFloating === 'cart';
@@ -83,6 +112,32 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  // When reopening chat, always jump to the latest message.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const rafId = requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [isOpen]);
+
+  // Close chatbot when clicking outside of it.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutsideClick = (event) => {
+      if (!chatbotRef.current?.contains(event.target)) {
+        setIsOpen(false);
+        onFloatingChange?.(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isOpen, onFloatingChange]);
 
   useEffect(() => {
     if (isCartActive && isOpen) {
@@ -170,8 +225,21 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
     }, 50);
   }, []);
 
+  const handleBotLinkClick = useCallback(
+    (e, href) => {
+      if (!href) return;
+
+      // Keep SPA state (including chat history) when opening internal links.
+      if (href.startsWith('/')) {
+        e.preventDefault();
+        navigate(href);
+      }
+    },
+    [navigate]
+  );
+
   return (
-    <div className="chatbot">
+    <div className="chatbot" ref={chatbotRef}>
       {/* Chat toggle button */}
       {!isCartActive && (
         <button
@@ -207,7 +275,7 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
           {/* Messages */}
           <div className="chatbot__messages">
             {messages.map((msg, index) => (
-              <ChatMessage key={index} message={msg} />
+              <ChatMessage key={index} message={msg} onLinkClick={handleBotLinkClick} />
             ))}
             {isLoading && <TypingIndicator />}
             <div ref={messagesEndRef} />

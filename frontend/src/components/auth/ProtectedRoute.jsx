@@ -3,7 +3,7 @@
  * Wrapper for routes that require authentication
  */
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts';
 
 /**
@@ -13,6 +13,7 @@ import { useAuth } from '../../contexts';
  */
 export function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   // Wait for auth state to initialize
   if (loading) {
@@ -25,7 +26,7 @@ export function ProtectedRoute({ children }) {
 
   // Redirect to auth if not logged in
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // Render children if authenticated
