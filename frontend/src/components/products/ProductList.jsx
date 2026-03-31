@@ -5,7 +5,7 @@
  */
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useProducts } from '../../hooks';
-import { useCart, useAuth } from '../../contexts';
+import { useCart, useAuth, useNotification } from '../../contexts';
 import { ProductSlider } from './ProductSlider';
 import ProductCard from './ProductCard';
 import { ProductDetail } from './ProductDetail';
@@ -13,7 +13,6 @@ import { ProductSearchFilter } from './ProductSearchFilter';
 import { productService } from '../../services';
 import { CategorySidebar } from '../layout';
 import { Pagination } from '../ui';
-import { Toast } from '../ui/Toast';
 
 const PRODUCTS_PER_PAGE = 8;
 const FEATURED_PRODUCTS_COUNT = 4;
@@ -22,6 +21,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
   const { products: allProducts, loading: defaultLoading } = useProducts();
   const { addItem } = useCart();
   const { isAdmin } = useAuth();
+  const { notifyToast } = useNotification();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -138,8 +138,6 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     setCurrentPage(1);
   }, [searchQuery, categoryId]);
 
-  const [addCartError, setAddCartError] = useState('');
-  const [addCartErrorProductId, setAddCartErrorProductId] = useState(null);
   const { items } = useCart();
   const handleAddToCart = async (product) => {
     if (isAdmin) return;
@@ -147,16 +145,11 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     const currentQty = cartItem ? cartItem.quantity : 0;
     const latest = await productService.getById(product.id);
     if (currentQty + 1 > latest.stock) {
-      setAddCartError(`Chỉ còn ${latest.stock} sản phẩm trong kho. Không thể thêm vượt quá.`);
-      setAddCartErrorProductId(product.id);
-      setTimeout(() => {
-        setAddCartError('');
-        setAddCartErrorProductId(null);
-      }, 2200);
+      notifyToast(`Chỉ còn ${latest.stock} sản phẩm trong kho. Không thể thêm vượt quá.`, {
+        type: 'error',
+      });
       return;
     }
-    setAddCartError('');
-    setAddCartErrorProductId(null);
     addItem(product, 1);
   };
 
@@ -249,7 +242,6 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     );
   }
 
-  // Custom ProductCard render để truyền Toast đúng vị trí
   const renderProductCard = (product, onAddToCart, onViewDetail) => (
     <div style={{ position: 'relative' }} key={product.id}>
       <ProductCard
@@ -258,18 +250,6 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
         onViewDetail={onViewDetail}
         showActions={true}
       />
-      <div style={{ minHeight: 32, position: 'relative' }}>
-        {addCartErrorProductId === product.id && addCartError && (
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, zIndex: 10 }}>
-            <Toast
-              message={addCartError}
-              type="error"
-              duration={2200}
-              onClose={() => setAddCartError('')}
-            />
-          </div>
-        )}
-      </div>
     </div>
   );
 
@@ -325,16 +305,6 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
           )}
         </div>
       </div>
-
-      {/* Toast notification nổi toàn cục */}
-      {addCartError && (
-        <Toast
-          message={addCartError}
-          type="error"
-          duration={2200}
-          onClose={() => setAddCartError('')}
-        />
-      )}
     </section>
   );
 }

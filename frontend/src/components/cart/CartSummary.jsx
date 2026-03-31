@@ -4,15 +4,26 @@
  * Pattern: Container Component
  */
 import React from 'react';
-import { useCart } from '../../contexts';
+import { useAuth, useCart, useNotification } from '../../contexts';
 import { Card, Button } from '../ui';
 import { CartItem } from './CartItem';
 import { formatPrice } from '../../utils';
 
 export function CartSummary({ onCheckout }) {
   const { items, total, itemCount, updateQuantity, removeItem, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { notifyToast } = useNotification();
 
   const handleCheckout = () => {
+    if (!isAuthenticated) {
+      notifyToast('Vui lòng đăng nhập để đặt hàng. Đang chuyển sang trang đăng nhập...', {
+        type: 'info',
+        duration: 1400,
+      });
+      setTimeout(() => onCheckout?.(), 900);
+      return;
+    }
+
     onCheckout?.();
   };
 

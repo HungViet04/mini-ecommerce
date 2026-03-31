@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import { useAdminOrders } from '../../hooks';
-import { useAuth } from '../../contexts';
+import { useAuth, useNotification } from '../../contexts';
 import { Loading, Button } from '../ui';
 import { AdminOrderCard } from './AdminOrderCard';
 import { httpClient } from '../../services';
@@ -20,6 +20,7 @@ const STATUS_FILTERS = [
 
 export function AdminOrderList() {
   const { isAuthenticated, isAdmin } = useAuth();
+  const { notifyToast } = useNotification();
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -97,8 +98,9 @@ export function AdminOrderList() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      notifyToast('Đang tải xuống file CSV...', { type: 'success' });
     } catch (err) {
-      alert('Xuất file thất bại: ' + err.message);
+      notifyToast('Xuất file thất bại: ' + err.message, { type: 'error' });
     } finally {
       setExporting(false);
     }

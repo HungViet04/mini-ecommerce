@@ -1,3 +1,4 @@
+import { useNotification } from '../../contexts';
 /**
  * CreateProductForm Component
  * Form for creating new products (Admin)
@@ -6,7 +7,7 @@
 import React from 'react';
 import { useForm } from '../../hooks';
 import { productService, uploadService } from '../../services';
-import { Button, Input, ErrorAlert, SuccessAlert } from '../ui';
+import { Button, Input } from '../ui';
 
 /**
  * Validate product form
@@ -34,6 +35,7 @@ function validateProduct(values) {
 }
 
 export function CreateProductForm({ onSuccess, onClose, categories = [], product = null }) {
+  const { notifyToast } = useNotification();
   const [success, setSuccess] = React.useState(false);
   const [imageFile, setImageFile] = React.useState(null);
   const [imagePreview, setImagePreview] = React.useState('');
@@ -143,12 +145,12 @@ export function CreateProductForm({ onSuccess, onClose, categories = [], product
     if (file) {
       // Kiểm tra loại file
       if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file ảnh');
+        notifyToast('Vui lòng chọn file ảnh hợp lệ', { type: 'error' });
         return;
       }
       // Kiểm tra kích thước (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Kích thước file không được vượt quá 5MB');
+        notifyToast('Kích thước file không được vượt quá 5MB', { type: 'error' });
         return;
       }
       setImageFile(file);
@@ -169,6 +171,20 @@ export function CreateProductForm({ onSuccess, onClose, categories = [], product
     form.setFieldValue('image_url', '');
   };
 
+  React.useEffect(() => {
+    if (form.submitError) {
+      notifyToast(form.submitError, { type: 'error' });
+    }
+  }, [form.submitError, notifyToast]);
+
+  React.useEffect(() => {
+    if (success) {
+      notifyToast(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!', {
+        type: 'success',
+      });
+    }
+  }, [success, isEdit, notifyToast]);
+
   return (
     <div className="modal-overlay">
       <div className="modal" style={{ width: 600, maxWidth: '98vw' }}>
@@ -179,12 +195,6 @@ export function CreateProductForm({ onSuccess, onClose, categories = [], product
           </button>
         </div>
         <div className="modal-body">
-          <ErrorAlert message={form.submitError} />
-          {success && (
-            <SuccessAlert
-              message={isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!'}
-            />
-          )}
           <form className="product-form" onSubmit={form.handleSubmit}>
             <div className="form-row">
               <div className="form-group" style={{ flex: 1 }}>

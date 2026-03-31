@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { AuthProvider, CartProvider } from './contexts';
+import { AuthProvider, CartProvider, NotificationProvider } from './contexts';
 import { Layout } from './components/layout';
 import { AuthContainer, ProtectedRoute, AdminRoute, GuestRoute } from './components/auth';
 import { ProductList, AdminProductList, ProductDetailPage } from './components/products';
@@ -208,17 +208,19 @@ function AppContent() {
  */
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <AppContent />
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <AppContent />
+          </Router>
+        </CartProvider>
+      </AuthProvider>
+    </NotificationProvider>
   );
 }

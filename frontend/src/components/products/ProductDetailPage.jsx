@@ -6,13 +6,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ProductDetail } from './ProductDetail';
 import { productService } from '../../services';
-import { useCart, useAuth } from '../../contexts';
+import { useCart, useAuth, useNotification } from '../../contexts';
 
 export function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem, items } = useCart();
   const { isAdmin } = useAuth();
+  const { notifyToast } = useNotification();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,9 @@ export function ProductDetailPage() {
     const latest = await productService.getById(item.id);
 
     if (currentQty + 1 > latest.stock) {
-      alert(`Chỉ còn ${latest.stock} sản phẩm trong kho. Không thể thêm vượt quá.`);
+      notifyToast(`Chỉ còn ${latest.stock} sản phẩm trong kho. Không thể thêm vượt quá.`, {
+        type: 'error',
+      });
       return;
     }
 
