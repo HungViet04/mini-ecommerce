@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts';
 import { userService } from '../../services';
-import { Card, Button, Loading } from '../ui';
+import { Card, Button, Loading, Pagination } from '../ui';
 import { formatPrice, formatDate } from '../../utils';
 
 export function AdminUserList() {
@@ -18,7 +18,7 @@ export function AdminUserList() {
   const [pagination, setPagination] = useState({
     page: 1,
     total: 0,
-    limit: 20,
+    limit: 10,
   });
   const [updating, setUpdating] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -37,8 +37,13 @@ export function AdminUserList() {
         role: undefined,
         search: search || undefined,
       });
-      setUsers(result.items || []);
-      setPagination((prev) => ({ ...prev, total: result.total || 0 }));
+      if (result && result.meta && result.meta.pagination) {
+        setUsers(result.data || []);
+        setPagination((prev) => ({ ...prev, total: result.meta.pagination.total || 0 }));
+      } else {
+        setUsers(result.items || []);
+        setPagination((prev) => ({ ...prev, total: result.total || 0 }));
+      }
     } catch (err) {
       setError(err.message || 'Không thể tải danh sách người dùng');
     } finally {
@@ -53,7 +58,6 @@ export function AdminUserList() {
   const handleSearch = (e) => {
     e.preventDefault();
     setPagination((prev) => ({ ...prev, page: 1 }));
-    fetchUsers();
   };
 
   // role change handled elsewhere (UI for changing role currently disabled)
@@ -247,27 +251,11 @@ export function AdminUserList() {
 
       {/* Pagination */}
       {pagination.total > pagination.limit && (
-        <div className="pagination">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
-            disabled={pagination.page <= 1}
-          >
-            ← Trước
-          </Button>
-          <span className="page-info">
-            Trang {pagination.page} / {Math.ceil(pagination.total / pagination.limit)}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
-            disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
-          >
-            Sau →
-          </Button>
-        </div>
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={Math.ceil(pagination.total / pagination.limit)}
+          onPageChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+        />
       )}
 
       {/* User Orders Modal */}

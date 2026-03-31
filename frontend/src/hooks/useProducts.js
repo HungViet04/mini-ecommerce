@@ -34,6 +34,13 @@ export function useProducts(options = {}) {
         if (Array.isArray(result)) {
           setProducts(result);
           setPagination((prev) => ({ ...prev, total: result.length }));
+        } else if (result && result.meta && result.meta.pagination) {
+          setProducts(result.data || []);
+          setPagination({
+            page: result.meta.pagination.page || pagination.page,
+            limit: result.meta.pagination.limit || pagination.limit,
+            total: result.meta.pagination.total || 0,
+          });
         } else {
           setProducts(result.items || result.data || []);
           setPagination({

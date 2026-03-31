@@ -5,6 +5,7 @@
 const { categoryService } = require('../services');
 const { response } = require('../helpers');
 const { asyncHandler } = require('../helpers/async.helper');
+const { parsePagination } = require('../helpers/pagination.helper');
 
 /**
  * Create a new category
@@ -21,12 +22,36 @@ const create = asyncHandler(async (req, res) => {
  */
 const findAll = asyncHandler(async (req, res) => {
   const { withCount } = req.query;
+  const hasPagination = req.query.page !== undefined || req.query.limit !== undefined;
 
-  const categories =
-    withCount === 'true'
-      ? await categoryService.findWithProductCount()
-      : await categoryService.findAll();
+  if (withCount === 'true') {
+    if (hasPagination) {
+      const { page, limit } = parsePagination(req.query);
+      const result = await categoryService.findWithProductCountPaginated({ page, limit });
+      return response.paginated(res, {
+        data: result.items,
+        page,
+        limit,
+        total: result.total,
+      });
+    }
 
+    const categories = await categoryService.findWithProductCount();
+    return response.success(res, { data: categories });
+  }
+
+  if (hasPagination) {
+    const { page, limit } = parsePagination(req.query);
+    const result = await categoryService.findAllPaginated({ page, limit, orderBy: 'name', order: 'ASC' });
+    return response.paginated(res, {
+      data: result.items,
+      page,
+      limit,
+      total: result.total,
+    });
+  }
+
+  const categories = await categoryService.findAll();
   return response.success(res, { data: categories });
 });
 

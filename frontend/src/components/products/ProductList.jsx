@@ -4,7 +4,6 @@
  * Pattern: Container Component
  */
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useProducts } from '../../hooks';
 import { useCart, useAuth, useNotification } from '../../contexts';
 import { ProductSlider } from './ProductSlider';
 import ProductCard from './ProductCard';
@@ -18,12 +17,17 @@ const PRODUCTS_PER_PAGE = 8;
 const FEATURED_PRODUCTS_COUNT = 4;
 
 export function ProductList({ searchQuery = '', categoryId = null, onCategoryChange }) {
-  const { products: allProducts, loading: defaultLoading } = useProducts();
   const { addItem } = useCart();
   const { isAdmin } = useAuth();
   const { notifyToast } = useNotification();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [products, setProducts] = useState([]);
+  const [productsTotal, setProductsTotal] = useState(0);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [baseLoading, setBaseLoading] = useState(false);
+  const [baseError, setBaseError] = useState(null);
 
   // State for filtered/searched products
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -33,47 +37,66 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
 
   // Advanced filter state
   const [activeFilters, setActiveFilters] = useState({});
-  const hasAdvancedFilters = !!(
-    activeFilters.category_id ||
-    activeFilters.min_price !== undefined ||
-    activeFilters.max_price !== undefined
+  const keyword = searchQuery.trim();
+  const combinedFilters = useMemo(
+    () => ({
+      keyword: keyword || undefined,
+      category_id: activeFilters.category_id || categoryId || undefined,
+      min_price: activeFilters.min_price,
+      max_price: activeFilters.max_price,
+    }),
+    [keyword, activeFilters, categoryId]
   );
+
+  const hasAdvancedFilters = !!(
+    combinedFilters.keyword ||
+    combinedFilters.category_id ||
+    combinedFilters.min_price !== undefined ||
+    combinedFilters.max_price !== undefined
+  );
+
+  const fetchProductsPage = useCallback(async (page) => {
+    setBaseLoading(true);
+    setBaseError(null);
+
+    try {
+      const result = await productService.getAll({ page, limit: PRODUCTS_PER_PAGE });
+      if (result && result.meta && result.meta.pagination) {
+        setProducts(result.data || []);
+        setProductsTotal(result.meta.pagination.total || 0);
+      } else {
+        const items = Array.isArray(result) ? result : result.items || result.data || [];
+        setProducts(items);
+        setProductsTotal(items.length);
+      }
+    } catch (err) {
+      setBaseError(err.message || 'Không thể tải sản phẩm');
+      setProducts([]);
+      setProductsTotal(0);
+    } finally {
+      setBaseLoading(false);
+    }
+  }, []);
+
+  const fetchFeatured = useCallback(async () => {
+    try {
+      const result = await productService.getAll({ page: 1, limit: FEATURED_PRODUCTS_COUNT });
+      if (result && result.meta && result.meta.pagination) {
+        setFeaturedProducts(result.data || []);
+      } else {
+        const items = Array.isArray(result) ? result : result.items || result.data || [];
+        setFeaturedProducts(items.slice(0, FEATURED_PRODUCTS_COUNT));
+      }
+    } catch (err) {
+      setFeaturedProducts([]);
+    }
+  }, []);
 
   // Handler for advanced search/filter
-  const handleFilter = useCallback(
-    async (filters) => {
-      setActiveFilters(filters);
-      setCurrentPage(1);
-
-      const hasAnyFilter = filters.category_id || filters.min_price !== undefined || filters.max_price !== undefined;
-
-      if (!hasAnyFilter) {
-        setFilteredProducts([]);
-        setFilterTotal(0);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const result = await productService.searchAndFilter({
-          ...filters,
-          page: 1,
-          limit: PRODUCTS_PER_PAGE,
-        });
-        setFilteredProducts(result.data || []);
-        setFilterTotal(result.meta?.pagination?.total || 0);
-      } catch (err) {
-        setError(err.message || 'Không thể tải sản phẩm');
-        setFilteredProducts([]);
-        setFilterTotal(0);
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const handleFilter = useCallback((filters) => {
+    setActiveFilters(filters);
+    setCurrentPage(1);
+  }, []);
 
   // Re-fetch when page changes and advanced filters are active
   useEffect(() => {
@@ -84,7 +107,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       setError(null);
       try {
         const result = await productService.searchAndFilter({
-          ...activeFilters,
+          ...combinedFilters,
           page: currentPage,
           limit: PRODUCTS_PER_PAGE,
         });
@@ -93,50 +116,59 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       } catch (err) {
         setError(err.message || 'Không thể tải sản phẩm');
         setFilteredProducts([]);
+        setFilterTotal(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchPage();
-  }, [currentPage, hasAdvancedFilters, activeFilters]);
+  }, [currentPage, hasAdvancedFilters, combinedFilters]);
 
   // Effect to handle navbar search bar and sidebar category filtering (legacy)
   useEffect(() => {
-    const fetchFilteredProducts = async () => {
-      if (!searchQuery && !categoryId) {
-        setFilteredProducts(allProducts);
-        return;
-      }
+    if (hasAdvancedFilters) return;
 
+    if (!keyword && !categoryId) {
+      fetchProductsPage(currentPage);
+      return;
+    }
+
+    const fetchFilteredProducts = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        let result;
-        if (searchQuery) {
-          result = await productService.search(searchQuery);
-        } else if (categoryId) {
-          result = await productService.getByCategory(categoryId);
-        }
-        setFilteredProducts(Array.isArray(result) ? result : result.items || []);
+        const result = await productService.searchAndFilter({
+          keyword: keyword || undefined,
+          category_id: categoryId || undefined,
+          page: currentPage,
+          limit: PRODUCTS_PER_PAGE,
+        });
+        setFilteredProducts(result.data || []);
+        setFilterTotal(result.meta?.pagination?.total || 0);
       } catch (err) {
         setError(err.message || 'Không thể tải sản phẩm');
         setFilteredProducts([]);
+        setFilterTotal(0);
       } finally {
         setLoading(false);
       }
     };
 
-    if (!hasAdvancedFilters) {
-      fetchFilteredProducts();
-    }
-  }, [searchQuery, categoryId, allProducts, hasAdvancedFilters]);
+    fetchFilteredProducts();
+  }, [keyword, categoryId, hasAdvancedFilters, currentPage, fetchProductsPage]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, categoryId]);
+
+  useEffect(() => {
+    if (!hasAdvancedFilters && !keyword && !categoryId) {
+      fetchFeatured();
+    }
+  }, [hasAdvancedFilters, keyword, categoryId, fetchFeatured]);
 
   const { items } = useCart();
   const handleAddToCart = async (product) => {
@@ -179,32 +211,31 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
   };
 
   // Determine which products and loading state to show
-  const isFilterActive = hasAdvancedFilters || searchQuery || categoryId;
-  const displayProducts = isFilterActive ? filteredProducts : allProducts;
-  const isLoading = isFilterActive ? loading : defaultLoading;
+  const isFilterActive = hasAdvancedFilters || keyword || categoryId;
+  const displayProducts = isFilterActive ? filteredProducts : products;
+  const isLoading = isFilterActive ? loading : baseLoading;
+  const displayError = isFilterActive ? error : baseError;
 
   // Featured products for slider (only show on main page without filters)
-  const featuredProducts = useMemo(() => {
+  const featuredItems = useMemo(() => {
     if (isFilterActive) return [];
-    return allProducts.slice(0, FEATURED_PRODUCTS_COUNT);
-  }, [allProducts, isFilterActive]);
+    return featuredProducts;
+  }, [featuredProducts, isFilterActive]);
 
   // Paginated products for grid
   // When using advanced filters, server handles pagination
   const { paginatedProducts, totalPages } = useMemo(() => {
-    if (hasAdvancedFilters) {
+    if (isFilterActive) {
       return {
         paginatedProducts: filteredProducts,
         totalPages: Math.ceil(filterTotal / PRODUCTS_PER_PAGE),
       };
     }
-    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-    const endIndex = startIndex + PRODUCTS_PER_PAGE;
     return {
-      paginatedProducts: displayProducts.slice(startIndex, endIndex),
-      totalPages: Math.ceil(displayProducts.length / PRODUCTS_PER_PAGE),
+      paginatedProducts: products,
+      totalPages: Math.ceil(productsTotal / PRODUCTS_PER_PAGE),
     };
-  }, [displayProducts, currentPage, hasAdvancedFilters, filteredProducts, filterTotal]);
+  }, [filteredProducts, filterTotal, products, productsTotal, isFilterActive]);
 
   // Get subtitle based on filter
   const getSubtitle = () => {
@@ -212,10 +243,10 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       return `Tìm thấy ${filterTotal} sản phẩm phù hợp`;
     }
     if (searchQuery) {
-      return `Kết quả tìm kiếm cho "${searchQuery}" (${displayProducts.length} sản phẩm)`;
+      return `Kết quả tìm kiếm cho "${searchQuery}" (${filterTotal} sản phẩm)`;
     }
     if (categoryId) {
-      return `Hiển thị ${displayProducts.length} sản phẩm trong danh mục`;
+      return `Hiển thị ${filterTotal} sản phẩm trong danh mục`;
     }
     return isAdmin
       ? 'Quản lý danh mục sản phẩm của bạn'
@@ -261,14 +292,14 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       {/* Products Area */}
       <div className="products-main">
         {/* Featured Products Slider - only on main page */}
-        {featuredProducts.length > 0 && !searchQuery && !categoryId && !hasAdvancedFilters && (
+        {featuredItems.length > 0 && !searchQuery && !categoryId && !hasAdvancedFilters && (
           <div className="featured-section">
             <div className="section-header">
               <h2 className="section-title">🔥 Sản Phẩm Nổi Bật</h2>
               <p className="section-subtitle">Những sản phẩm được yêu thích nhất</p>
             </div>
             <ProductSlider
-              products={featuredProducts}
+              products={featuredItems}
               onAddToCart={handleAddToCart}
               onViewDetail={handleViewDetail}
             />
@@ -287,7 +318,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
             <ProductSearchFilter onFilter={handleFilter} initialFilters={activeFilters} />
           </div>
 
-          {error && <div className="alert alert-error">{error}</div>}
+          {displayError && <div className="alert alert-error">{displayError}</div>}
 
           <div className="product-grid">
             {paginatedProducts.map((product) =>

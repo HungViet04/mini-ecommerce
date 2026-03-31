@@ -54,27 +54,38 @@ export function useCategories(options = {}) {
  * @returns {Object}
  */
 export function useAdminCategories(options = {}) {
-  const { autoFetch = true } = options;
+  const { autoFetch = true, page = 1, limit = 10 } = options;
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [currentPage, setCurrentPage] = useState(page);
+  const [pageSize] = useState(limit);
+  const [total, setTotal] = useState(0);
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await categoryService.getAll();
-      setCategories(Array.isArray(result) ? result : result.items || []);
+      const result = await categoryService.getAll({ page: currentPage, limit: pageSize });
+      if (result && result.meta && result.meta.pagination) {
+        setCategories(result.data || []);
+        setTotal(result.meta.pagination.total || 0);
+      } else {
+        const items = Array.isArray(result) ? result : result.items || result.data || [];
+        setCategories(items);
+        setTotal(items.length);
+      }
     } catch (err) {
       setError(err.message || 'Không thể tải danh sách danh mục');
       setCategories([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, pageSize]);
 
   const createCategory = useCallback(async (data) => {
     setSaving(true);
@@ -82,7 +93,7 @@ export function useAdminCategories(options = {}) {
 
     try {
       const newCategory = await categoryService.create(data);
-      setCategories((prev) => [...prev, newCategory]);
+      await fetchCategories();
       return newCategory;
     } catch (err) {
       setError(err.message || 'Không thể tạo danh mục');
@@ -90,7 +101,7 @@ export function useAdminCategories(options = {}) {
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [fetchCategories]);
 
   const updateCategory = useCallback(async (id, data) => {
     setSaving(true);
@@ -98,7 +109,7 @@ export function useAdminCategories(options = {}) {
 
     try {
       const updatedCategory = await categoryService.update(id, data);
-      setCategories((prev) => prev.map((cat) => (cat.id === id ? updatedCategory : cat)));
+      await fetchCategories();
       return updatedCategory;
     } catch (err) {
       setError(err.message || 'Không thể cập nhật danh mục');
@@ -106,7 +117,7 @@ export function useAdminCategories(options = {}) {
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [fetchCategories]);
 
   const deleteCategory = useCallback(async (id) => {
     setSaving(true);
@@ -114,7 +125,7 @@ export function useAdminCategories(options = {}) {
 
     try {
       await categoryService.delete(id);
-      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      await fetchCategories();
       return true;
     } catch (err) {
       setError(err.message || 'Không thể xóa danh mục');
@@ -122,7 +133,7 @@ export function useAdminCategories(options = {}) {
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [fetchCategories]);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -139,6 +150,11 @@ export function useAdminCategories(options = {}) {
     loading,
     error,
     saving,
+    page: currentPage,
+    limit: pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    setPage: setCurrentPage,
     fetchCategories,
     createCategory,
     updateCategory,

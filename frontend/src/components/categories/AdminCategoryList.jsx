@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useAdminCategories } from '../../hooks';
 import { useAuth } from '../../contexts';
-import { Card, Button, Input, Loading, ErrorAlert, SuccessAlert } from '../ui';
+import { Card, Button, Input, Loading, ErrorAlert, SuccessAlert, Pagination } from '../ui';
 
 export function AdminCategoryList() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -15,6 +15,10 @@ export function AdminCategoryList() {
     loading,
     error,
     saving,
+    page,
+    total,
+    totalPages,
+    setPage,
     createCategory,
     updateCategory,
     deleteCategory,
@@ -195,7 +199,7 @@ export function AdminCategoryList() {
         <div className="categories-list">
           <Card className="categories-table-card">
             <div className="categories-stats" style={{ marginBottom: '8px' }}>
-              <span>Tổng cộng: {categories.length} danh mục</span>
+              <span>Tổng cộng: {total} danh mục</span>
             </div>
             <table className="categories-table">
               <thead>
@@ -233,6 +237,10 @@ export function AdminCategoryList() {
               </tbody>
             </table>
           </Card>
+
+          {totalPages > 1 && (
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+          )}
         </div>
       )}
     </section>

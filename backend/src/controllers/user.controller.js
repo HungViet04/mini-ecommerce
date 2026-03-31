@@ -4,22 +4,29 @@
  */
 const userService = require('../services/user.service');
 const { asyncHandler, response } = require('../helpers');
+const { parsePagination } = require('../helpers/pagination.helper');
 
 /**
  * Get all users
  * GET /api/v1/users
  */
 const getAll = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, role, search } = req.query;
+  const { role, search } = req.query;
+  const { page, limit } = parsePagination(req.query);
 
   const result = await userService.findAll({
-    page: parseInt(page, 10),
-    limit: parseInt(limit, 10),
+    page,
+    limit,
     role,
     search,
   });
 
-  response.success(res, { data: result });
+  response.paginated(res, {
+    data: result.items,
+    page,
+    limit,
+    total: result.total,
+  });
 });
 
 /**

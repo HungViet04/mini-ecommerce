@@ -8,10 +8,22 @@ import httpClient from './http.client';
 export const categoryService = {
   /**
    * Get all categories
-   * @returns {Promise<Array>}
+   * @param {Object} params - { page, limit, withCount }
+   * @returns {Promise<Array|Object>}
    */
-  async getAll() {
-    const response = await httpClient.get('/categories', { skipAuth: true });
+  async getAll(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit);
+    if (params.withCount) query.set('withCount', params.withCount);
+
+    const queryString = query.toString();
+    const path = queryString ? `/categories?${queryString}` : '/categories';
+
+    const response = await httpClient.get(path, { skipAuth: true });
+    if (response && response.meta) {
+      return response;
+    }
     return response.data || response;
   },
 

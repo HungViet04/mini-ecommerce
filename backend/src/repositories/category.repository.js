@@ -44,6 +44,53 @@ class CategoryRepository extends BaseRepository {
   }
 
   /**
+   * Get categories with pagination
+   * @param {Object} options
+   * @param {number} options.limit
+   * @param {number} options.offset
+   * @param {string} options.orderBy
+   * @param {string} options.order
+   * @returns {Promise<Object>} { items, total }
+   */
+  async findWithPagination({ limit, offset, orderBy = 'name', order = 'ASC' }) {
+    const items = await this.findAll({ limit, offset, orderBy, order });
+    const total = await this.count();
+    return { items, total };
+  }
+
+  /**
+   * Get categories with product count and pagination
+   * @param {Object} options
+   * @param {number} options.limit
+   * @param {number} options.offset
+   * @returns {Promise<Object>} { items, total }
+   */
+  async findWithProductCountPaginated({ limit, offset }) {
+    let sql = `
+      SELECT c.id, c.name, COUNT(p.id) as product_count
+      FROM ${this.tableName} c
+      LEFT JOIN products p ON p.category_id = c.id
+      GROUP BY c.id, c.name
+      ORDER BY c.name ASC
+    `;
+    const params = [];
+
+    if (limit !== undefined && limit !== null) {
+      sql += ' LIMIT ?';
+      params.push(parseInt(limit, 10));
+    }
+
+    if (offset !== undefined && offset !== null) {
+      sql += ' OFFSET ?';
+      params.push(parseInt(offset, 10));
+    }
+
+    const [rows] = await this.query(sql, params);
+    const total = await this.count();
+    return { items: rows, total };
+  }
+
+  /**
    * Get active categories (with at least one product)
    * @returns {Promise<Array>}
    */

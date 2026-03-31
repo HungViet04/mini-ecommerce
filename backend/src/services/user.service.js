@@ -38,19 +38,19 @@ class UserService {
     if (conditions.length > 0) {
       sql += ' WHERE ' + conditions.join(' AND ');
     }
-    sql += ' GROUP BY u.id ORDER BY u.created_at DESC';
+    sql += ' GROUP BY u.id ORDER BY u.created_at DESC LIMIT ? OFFSET ?';
+    params.push(parseInt(limit, 10), parseInt(offset, 10));
     const [rows] = await database.query(sql, params);
     // Get total count
     let countSql = 'SELECT COUNT(*) as total FROM users u';
     if (conditions.length > 0) {
       countSql += ' WHERE ' + conditions.join(' AND ');
     }
-    const [countRows] = await database.query(countSql, params);
+    const countParams = params.slice(0, params.length - 2);
+    const [countRows] = await database.query(countSql, countParams);
     const total = countRows[0]?.total || 0;
-    // Paginate
-    const paginatedItems = rows.slice(offset, offset + parseInt(limit, 10));
     return {
-      items: paginatedItems.map((row) => ({
+      items: rows.map((row) => ({
         id: row.id,
         name: row.name,
         email: row.email,

@@ -21,6 +21,9 @@ export const userService = {
     const path = queryString ? `/users?${queryString}` : '/users';
 
     const response = await httpClient.get(path);
+    if (response && response.meta) {
+      return response;
+    }
     return response.data || response;
   },
 

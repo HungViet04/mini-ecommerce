@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { AuthProvider, CartProvider, NotificationProvider } from './contexts';
+import { AuthProvider, CartProvider, NotificationProvider, useAuth } from './contexts';
 import { Layout } from './components/layout';
 import { AuthContainer, ProtectedRoute, AdminRoute, GuestRoute } from './components/auth';
 import { ProductList, AdminProductList, ProductDetailPage } from './components/products';
@@ -23,6 +23,7 @@ import { ChatBot } from './components/chatbot';
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const isAuthRoute = location.pathname.startsWith('/auth');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -198,7 +199,7 @@ function AppContent() {
           }
         />
       </Routes>
-      {!isAuthRoute && (
+      {!isAuthRoute && !isAdmin && (
         <ChatBot activeFloating={activeFloating} onFloatingChange={setActiveFloating} />
       )}
     </Layout>

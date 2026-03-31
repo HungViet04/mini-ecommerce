@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useAdminOrders } from '../../hooks';
 import { useAuth, useNotification } from '../../contexts';
-import { Loading, Button } from '../ui';
+import { Loading, Button, Pagination } from '../ui';
 import { AdminOrderCard } from './AdminOrderCard';
 import { httpClient } from '../../services';
 
@@ -25,7 +25,19 @@ export function AdminOrderList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [exporting, setExporting] = useState(false);
 
-  const { orders, loading, error, updateOrderStatus, updating, refetch, setSearch } =
+  const {
+    orders,
+    loading,
+    error,
+    updateOrderStatus,
+    updating,
+    refetch,
+    setSearch,
+    page,
+    total,
+    totalPages,
+    setPage,
+  } =
     useAdminOrders({
       autoFetch: isAuthenticated && isAdmin,
       status: statusFilter || undefined,
@@ -35,10 +47,11 @@ export function AdminOrderList() {
   //  FIXED: Move useEffect to top level (before any conditional returns)
   React.useEffect(() => {
     const t = setTimeout(() => {
+      setPage(1);
       setSearch(searchQuery);
     }, 400);
     return () => clearTimeout(t);
-  }, [searchQuery, setSearch]);
+  }, [searchQuery, setSearch, setPage]);
 
   if (!isAuthenticated) {
     return (
@@ -64,11 +77,13 @@ export function AdminOrderList() {
 
   const handleStatusFilterChange = (e) => {
     setStatusFilter(e.target.value);
+    setPage(1);
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     // Immediate search on form submit (Enter / search button)
+    setPage(1);
     setSearch(searchQuery);
   };
 
@@ -170,7 +185,7 @@ export function AdminOrderList() {
       ) : (
         <>
           <div className="orders-stats">
-            <span>Tổng số đơn hàng: {orders.length}</span>
+            <span>Tổng số đơn hàng: {total}</span>
           </div>
 
           <div className="orders-list admin-orders-list">
@@ -184,7 +199,9 @@ export function AdminOrderList() {
             ))}
           </div>
 
-          {/* Pagination removed */}
+          {!loading && orders.length > 0 && (
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+          )}
         </>
       )}
     </section>

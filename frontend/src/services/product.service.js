@@ -20,6 +20,9 @@ export const productService = {
     const path = queryString ? `/products?${queryString}` : '/products';
 
     const response = await httpClient.get(path, { skipAuth: true });
+    if (response && response.meta) {
+      return response;
+    }
     return response.data || response;
   },
 

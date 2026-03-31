@@ -43,11 +43,37 @@ class CategoryService {
   }
 
   /**
+   * Get categories with pagination
+   * @param {Object} options
+   * @param {number} options.page
+   * @param {number} options.limit
+   * @param {string} options.orderBy
+   * @param {string} options.order
+   * @returns {Promise<Object>} { items, total }
+   */
+  async findAllPaginated({ page = 1, limit = 10, orderBy = 'name', order = 'ASC' } = {}) {
+    const offset = (page - 1) * limit;
+    return categoryRepository.findWithPagination({ limit, offset, orderBy, order });
+  }
+
+  /**
    * Get all categories with product count
    * @returns {Promise<Array>} Categories with product count
    */
   async findWithProductCount() {
     return categoryRepository.findWithProductCount();
+  }
+
+  /**
+   * Get categories with product count and pagination
+   * @param {Object} options
+   * @param {number} options.page
+   * @param {number} options.limit
+   * @returns {Promise<Object>} { items, total }
+   */
+  async findWithProductCountPaginated({ page = 1, limit = 10 } = {}) {
+    const offset = (page - 1) * limit;
+    return categoryRepository.findWithProductCountPaginated({ limit, offset });
   }
 
   /**

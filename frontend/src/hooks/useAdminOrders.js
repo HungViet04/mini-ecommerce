@@ -12,36 +12,44 @@ import { orderService } from '../services';
  * @returns {Object}
  */
 export function useAdminOrders(options = {}) {
-  const { autoFetch = true, status = undefined } = options;
+  const { autoFetch = true, status = undefined, page = 1, limit = 10 } = options;
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(page);
+  const [pageSize] = useState(limit);
+  const [total, setTotal] = useState(0);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = {};
+      params.page = currentPage;
+      params.limit = pageSize;
       if (status) params.status = status;
       if (search) params.search = search;
       const result = await orderService.getAll(params);
       let items = [];
       if (result.meta && result.meta.pagination) {
         items = result.data || [];
+        setTotal(result.meta.pagination.total || 0);
       } else {
         items = Array.isArray(result) ? result : result.items || result.data || [];
+        setTotal(items.length);
       }
       setOrders(items);
     } catch (err) {
       setError(err.message || 'Không thể tải danh sách đơn hàng');
       setOrders([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [status, search]);
+  }, [status, search, currentPage, pageSize]);
 
   const updateOrderStatus = useCallback(async (orderId, newStatus) => {
     setUpdating(true);
@@ -77,6 +85,11 @@ export function useAdminOrders(options = {}) {
     updating,
     search,
     setSearch,
+    page: currentPage,
+    limit: pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    setPage: setCurrentPage,
     fetchOrders,
     updateOrderStatus,
     refetch: fetchOrders,
