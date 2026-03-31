@@ -56,6 +56,24 @@ export function ProductSearchFilter({ onFilter, initialFilters = {} }) {
 
   return (
     <div className="filter-dropdown-wrapper" ref={dropdownRef}>
+      {/* Active filter tags - shown inline to the left of the button */}
+      {hasFilters && (
+        <div className="filter-active-tags">
+          {categoryId && (
+            <span className="filter-tag">
+              {categories.find((c) => String(c.id) === String(categoryId))?.name}
+              <button type="button" onClick={() => { setCategoryId(''); onFilter({ category_id: undefined, min_price: minPrice !== '' ? Number(minPrice) : undefined, max_price: maxPrice !== '' ? Number(maxPrice) : undefined }); }}>×</button>
+            </span>
+          )}
+          {(minPrice !== '' || maxPrice !== '') && (
+            <span className="filter-tag">
+              {minPrice !== '' ? formatPrice(minPrice) : '0'} — {maxPrice !== '' ? formatPrice(maxPrice) : '∞'}
+              <button type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); onFilter({ category_id: categoryId || undefined }); }}>×</button>
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Button + dropdown anchor */}
       <div className="filter-btn-anchor">
         <button
@@ -128,24 +146,6 @@ export function ProductSearchFilter({ onFilter, initialFilters = {} }) {
         </form>
         )}
       </div>
-
-      {/* Active filter tags - shown inline next to the button */}
-      {hasFilters && (
-        <div className="filter-active-tags">
-          {categoryId && (
-            <span className="filter-tag">
-              {categories.find((c) => String(c.id) === String(categoryId))?.name}
-              <button type="button" onClick={() => { setCategoryId(''); onFilter({ category_id: undefined, min_price: minPrice !== '' ? Number(minPrice) : undefined, max_price: maxPrice !== '' ? Number(maxPrice) : undefined }); }}>×</button>
-            </span>
-          )}
-          {(minPrice !== '' || maxPrice !== '') && (
-            <span className="filter-tag">
-              {minPrice !== '' ? formatPrice(minPrice) : '0'} — {maxPrice !== '' ? formatPrice(maxPrice) : '∞'}
-              <button type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); onFilter({ category_id: categoryId || undefined }); }}>×</button>
-            </span>
-          )}
-        </div>
-      )}
     </div>
   );
 }

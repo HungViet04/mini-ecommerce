@@ -2988,12 +2988,14 @@ a:hover {
 .filter-dropdown-wrapper {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
   flex-shrink: 0;
 }
 
 .filter-btn-anchor {
   position: relative;
+  flex-shrink: 0;
 }
 
 .filter-icon-btn {
