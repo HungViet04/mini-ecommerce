@@ -23,6 +23,7 @@ import { ChatBot } from './components/chatbot';
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
+  const isAuthRoute = location.pathname.startsWith('/auth');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [orderData, setOrderData] = useState(null);
@@ -197,7 +198,9 @@ function AppContent() {
           }
         />
       </Routes>
-      <ChatBot activeFloating={activeFloating} onFloatingChange={setActiveFloating} />
+      {!isAuthRoute && (
+        <ChatBot activeFloating={activeFloating} onFloatingChange={setActiveFloating} />
+      )}
     </Layout>
   );
 }

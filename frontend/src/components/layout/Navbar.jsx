@@ -117,15 +117,16 @@ export function Navbar({ onSearch }) {
       <div className="navbar-actions">
         {isAuthenticated ? (
           <>
-            {/* Desktop version - traditional user info + logout button */}
+            {/* Desktop version - user dropdown */}
             <div className="navbar-actions-desktop">
-              <span className="user-info">
-                {user?.email}
-                {isAdmin && <span className="badge">Quản trị</span>}
-              </span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Đăng Xuất
-              </Button>
+              <UserDropdown
+                user={user}
+                isAdmin={isAdmin}
+                onLogout={handleLogout}
+                onViewOrders={() => navigate('/orders')}
+                showOrdersLink={false}
+                showAdminLinks={false}
+              />
             </div>
 
             {/* Mobile version - dropdown menu */}

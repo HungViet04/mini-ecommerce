@@ -6,12 +6,16 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 
 const NotificationContext = createContext(null);
+const DEFAULT_TOAST_DURATION = 4000;
+const MIN_TOAST_DURATION = 3000;
 
 export function NotificationProvider({ children }) {
   const notifyToast = useCallback((message, options = {}) => {
     if (!message) return;
     const type = options.type || 'info';
-    const duration = options.duration || 2200;
+    const requestedDuration =
+      typeof options.duration === 'number' ? options.duration : DEFAULT_TOAST_DURATION;
+    const duration = Math.max(requestedDuration, MIN_TOAST_DURATION);
 
     if (type === 'success') {
       toast.success(message, { duration });
@@ -46,7 +50,7 @@ export function NotificationProvider({ children }) {
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <Toaster position="top-right" toastOptions={{ duration: 2200 }} />
+      <Toaster position="top-right" toastOptions={{ duration: DEFAULT_TOAST_DURATION }} />
     </NotificationContext.Provider>
   );
 }

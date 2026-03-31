@@ -16,7 +16,7 @@ export function CartSummary({ onCheckout }) {
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      notifyToast('Vui lòng đăng nhập để đặt hàng. Đang chuyển sang trang đăng nhập...', {
+      notifyToast('Vui lòng đăng nhập để đặt hàng!', {
         type: 'info',
         duration: 1400,
       });
