@@ -7,7 +7,7 @@ require('dotenv').config();
 const corsOriginEnv = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.trim() : '';
 const parsedCorsOrigin =
   !corsOriginEnv || corsOriginEnv === '*'
-    ? '*'
+    ? true
     : corsOriginEnv
         .split(',')
         .map((origin) => origin.trim())
@@ -51,7 +51,7 @@ const config = {
   // CORS
   cors: {
     // Support wildcard and comma-separated allowlist.
-    // NOTE: "*" must remain a string, not an array entry.
+    // NOTE: Using "true" reflects request origin, which is safer with credentials enabled.
     origin: parsedCorsOrigin,
     credentials: true,
   },
