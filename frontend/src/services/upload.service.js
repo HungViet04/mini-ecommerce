@@ -72,8 +72,10 @@ export const uploadService = {
     }
 
     // Nếu là đường dẫn relative, thêm base URL
-    const baseUrl =
-      import.meta.env.VITE_API_BASE?.replace('/api/v1', '') || 'http://localhost:3000';
+    const baseUrl = (
+      import.meta.env.VITE_API_BASE ||
+      (import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1')
+    ).replace('/api/v1', '');
     return `${baseUrl}${imagePath}`;
   },
 };

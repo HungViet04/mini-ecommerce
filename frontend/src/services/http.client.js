@@ -4,7 +4,9 @@
  * Pattern: Singleton + Adapter
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api/v1';
+const BASE_URL =
+  import.meta.env.VITE_API_BASE ||
+  (import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1');
 
 /**
  * HTTP Error class

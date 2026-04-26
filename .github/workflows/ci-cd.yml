@@ -172,11 +172,15 @@ jobs:
             set -e
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-            docker pull ${{ env.DOCKERHUB_REPO }}:latest
 
             cd mini-ecommerce || exit 1
-            docker compose -f docker-compose.production.yml pull backend
-            docker compose -f docker-compose.production.yml up -d backend
+            if [ ! -f .env ]; then
+              echo "❌ Missing .env on EC2 (mini-ecommerce/.env)."
+              exit 1
+            fi
+
+            BACKEND_IMAGE=${{ env.DOCKERHUB_REPO }}:latest docker compose -f docker-compose.yml pull backend
+            BACKEND_IMAGE=${{ env.DOCKERHUB_REPO }}:latest docker compose -f docker-compose.yml up -d backend
 
             docker image prune -f
 

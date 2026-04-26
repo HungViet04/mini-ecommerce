@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-hungviet/mini-ecommerce-backend:latest}
+    container_name: ecommerce-backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT:-3001}:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge

@@ -289,7 +289,7 @@ Sau khi RDS tạo xong:
 
 1. Click vào DB instance → Tab **"Connectivity & security"**
 2. Lưu lại:
-   - **Endpoint**: `ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com`
+   - **Endpoint**: `ecommerce-database.cliq0q60m2dqap-southeast-1.rds.amazonaws.com`
    - **Port**: `3306`
    - **Master username**: `admin`
    - **Password**: `23062004Hung`
@@ -322,7 +322,7 @@ Sau khi RDS tạo xong:
 ```powershell
 # Windows: Download MySQL Workbench hoặc dùng MySQL từ XAMPP
 # Test connection:
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung
+mysql -h ecommerce-database.cliq0q60m2dqap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung
 ```
 
 ✅ Nếu connect thành công → RDS OK
@@ -335,7 +335,7 @@ mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admi
 cd c:\Users\Lenovo\Downloads\mini-ecommerce
 
 # Import database
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce_db < ecommerce_db_updated.sql
+mysql -h ecommerce-database.cliq0q60m2dqap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce_db < ecommerce_db_updated.sql
 ```
 
 **Option 2: Từ EC2 (sau khi tạo EC2)**
@@ -345,14 +345,14 @@ mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admi
 sudo yum install mariadb105 -y
 
 # Import
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce_db < ecommerce_db_updated.sql
+mysql -h ecommerce-database.cliq0q60m2dqap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce-database < ecommerce_db_updated.sql
 ```
 
 ### 1.6. Verify Database
 
 ```bash
 # Kết nối vào RDS
-mysql -h ecommerce-demo-db.ctuwm0uoadoe.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce_db
+mysql -h ecommerce-database.cliq0q60m2dq.ap-southeast-1.rds.amazonaws.com -u admin -p23062004Hung ecommerce-database
 
 # Kiểm tra tables
 SHOW TABLES;
@@ -528,15 +528,15 @@ docker-compose --version
 
 ## Bước 3: Deploy Backend Application
 
-### 3.1. Tạo thư mục project và docker-compose.production.yml
+### 3.1. Tạo thư mục project và docker-compose.yml
 
 ```bash
 # Tạo thư mục
 mkdir -p ~/mini-ecommerce
 cd ~/mini-ecommerce
 
-# Tạo file docker-compose.production.yml
-cat > docker-compose.production.yml << 'EOF'
+# Tạo file docker-compose.yml
+cat > docker-compose.yml << 'EOF'
 version: '3.8'
 
 services:
@@ -601,7 +601,8 @@ docker-compose pull
 docker-compose up -d
 
 # Xem logs
-docker-compose logs -f backend
+
+
 ```
 
 ### 3.3. Verify Backend đang chạy
@@ -1531,7 +1532,7 @@ chmod -R 755 ~/mini-ecommerce/uploads/
 # .gitignore should include:
 .env
 .env.local
-.env.production
+.env.example
 *.pem
 *.key
 ```

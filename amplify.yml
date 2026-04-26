@@ -4,6 +4,12 @@ frontend:
     preBuild:
       commands:
         - cd frontend
+        - |
+          if [ -z "$VITE_API_BASE" ]; then
+            echo "ERROR: VITE_API_BASE is not set. Please set it in Amplify Environment variables."
+            exit 1
+          fi
+        - echo "Using VITE_API_BASE=$VITE_API_BASE"
         - npm install
     build:
       commands:

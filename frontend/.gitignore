@@ -21,8 +21,8 @@ build/
 
 # Environment files
 .env
-.env.test
-.env.production
+.env.*
+!.env.example
 
 # Caches and editor settings
 .cache/
