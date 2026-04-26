@@ -107,6 +107,7 @@ class HttpClient {
 
     const isFormData = body instanceof FormData || options.isFormData;
     const responseType = options.responseType || 'json';
+    const hasBody = body !== null && body !== undefined;
 
     // Ensure correct Content-Type
     if (isFormData) {
@@ -114,14 +115,14 @@ class HttpClient {
       if (config.headers && config.headers['Content-Type']) {
         delete config.headers['Content-Type'];
       }
-    } else {
+    } else if (hasBody) {
       config.headers = {
         'Content-Type': 'application/json',
         ...config.headers,
       };
     }
 
-    if (body) {
+    if (hasBody) {
       config.body = isFormData ? body : JSON.stringify(body);
     }
 
