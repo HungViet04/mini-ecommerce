@@ -51,9 +51,21 @@ export const uploadService = {
    * Delete by image path (/uploads/xxx)
    */
   async deleteByPath(imagePath) {
-    if (!imagePath || !imagePath.startsWith('/uploads/')) return;
-    const parts = imagePath.split('/');
-    const filename = parts[parts.length - 1];
+    if (!imagePath) return;
+
+    let filename = '';
+
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      try {
+        const { pathname } = new URL(imagePath);
+        filename = pathname.split('/').pop() || '';
+      } catch (_) {
+        filename = '';
+      }
+    } else if (imagePath.startsWith('/uploads/')) {
+      filename = imagePath.split('/').pop() || '';
+    }
+
     if (!filename) return;
     await this.deleteImage(filename);
   },

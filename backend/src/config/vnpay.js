@@ -4,6 +4,13 @@
  */
 require('dotenv').config();
 
+const normalizeBaseUrl = (url = '') => String(url).trim().replace(/\/+$/, '');
+const frontendBaseUrl = normalizeBaseUrl(process.env.FRONTEND_URL || '');
+const returnUrlFromEnv = String(process.env.VNP_RETURN_URL || '').trim();
+const defaultReturnUrl = frontendBaseUrl
+  ? `${frontendBaseUrl}/payment/vnpay-return`
+  : 'http://localhost:5173/payment/vnpay-return';
+
 const vnpayConfig = {
   // VNPay Merchant Code
   vnp_TmnCode: process.env.VNP_TMN_CODE || 'IHTV079Z',
@@ -12,12 +19,10 @@ const vnpayConfig = {
   vnp_HashSecret: process.env.VNP_HASH_SECRET || 'SAX124FFT2YF0PASUK5FO6CWU9945LQX',
 
   // VNPay Payment URL (sandbox for development)
-  vnp_Url:
-    process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
+  vnp_Url: process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
 
   // Frontend URL for return after payment
-  vnp_ReturnUrl:
-    process.env.VNP_RETURN_URL || 'http://localhost:5173/payment/vnpay-return',
+  vnp_ReturnUrl: returnUrlFromEnv || defaultReturnUrl,
 
   // API version
   vnp_Version: '2.1.0',

@@ -12,6 +12,7 @@ const parsedCorsOrigin =
         .split(',')
         .map((origin) => origin.trim())
         .filter(Boolean);
+const openAITemperature = parseFloat(process.env.OPENAI_TEMPERATURE);
 
 const config = {
   // Server
@@ -58,16 +59,26 @@ const config = {
 
   // AWS S3
   s3: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-    region: process.env.S3_REGION || 'ap-southeast-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_ACCESS_KEY || '',
+    region: process.env.S3_REGION || process.env.AWS_REGION || 'ap-southeast-1',
     bucket: process.env.S3_BUCKET || '',
   },
 
-  // Gemini AI
-  gemini: {
-    apiKey: process.env.GEMINI_API_KEY || '',
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  // OpenAI
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    baseURL: process.env.OPENAI_BASE_URL || '',
+    maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS, 10) || 700,
+    temperature: Number.isFinite(openAITemperature) ? openAITemperature : 0.3,
+  },
+
+  // Chatbot controls
+  chatbot: {
+    rateLimitWindowMs: parseInt(process.env.CHATBOT_RATE_LIMIT_WINDOW_MS, 10) || 60000,
+    rateLimitMax: parseInt(process.env.CHATBOT_RATE_LIMIT_MAX, 10) || 30,
+    messageMaxLength: parseInt(process.env.CHATBOT_MESSAGE_MAX_LENGTH, 10) || 1000,
   },
 };
 
@@ -79,6 +90,7 @@ Object.freeze(config.bcrypt);
 Object.freeze(config.pagination);
 Object.freeze(config.cors);
 Object.freeze(config.s3);
-Object.freeze(config.gemini);
+Object.freeze(config.openai);
+Object.freeze(config.chatbot);
 
 module.exports = config;

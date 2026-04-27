@@ -41,11 +41,11 @@ const uploadImage = asyncHandler(async (req, res) => {
  */
 const deleteImage = asyncHandler(async (req, res) => {
   // Support both URL param and query param for S3 key
-  let key = req.params.key || req.query.key;
+  let key = req.params.key || req.params.filename || req.query.key;
 
   // If key from URL, it might be just filename - prepend folder
   if (key && !key.includes('/')) {
-    key = `products/${key}`;
+    key = `images/${key}`;
   }
 
   if (!key) {

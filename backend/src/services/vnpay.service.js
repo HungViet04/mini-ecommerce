@@ -17,11 +17,13 @@ class VNPayService {
    * @param {string} params.orderInfo - Order description
    * @param {string} params.ipAddr - Client IP address
    * @param {string} params.bankCode - Bank code (optional)
+   * @param {string} params.returnUrl - Frontend return URL (optional)
    * @returns {string} VNPay payment URL
    */
-  createPaymentUrl({ orderId, amount, orderInfo, ipAddr, bankCode }) {
+  createPaymentUrl({ orderId, amount, orderInfo, ipAddr, bankCode, returnUrl }) {
     const date = new Date();
     const createDate = this.formatDate(date);
+    const normalizedReturnUrl = this.normalizeReturnUrl(returnUrl) || vnpayConfig.vnp_ReturnUrl;
 
     // Clean IP address
     let cleanIpAddr = ipAddr || '127.0.0.1';
@@ -37,10 +39,10 @@ class VNPayService {
       vnp_Locale: 'vn',
       vnp_CurrCode: 'VND',
       vnp_TxnRef: String(orderId),
-      vnp_OrderInfo: 'Thanhtoandonhang' + orderId,
+      vnp_OrderInfo: String(orderInfo || `Thanhtoandonhang${orderId}`),
       vnp_OrderType: 'other',
       vnp_Amount: Math.floor(Number(amount)) * 100,
-      vnp_ReturnUrl: vnpayConfig.vnp_ReturnUrl,
+      vnp_ReturnUrl: normalizedReturnUrl,
       vnp_IpAddr: cleanIpAddr,
       vnp_CreateDate: createDate,
     };
@@ -51,7 +53,7 @@ class VNPayService {
 
     // Sort params
     const sortedParams = this.sortObject(vnp_Params);
-    
+
     // Build sign data string
     const signData = new URLSearchParams(sortedParams).toString();
 
@@ -189,16 +191,16 @@ class VNPayService {
       '00': 'Giao dịch thành công',
       '07': 'Trừ tiền thành công. Giao dịch bị nghi ngờ (liên quan tới lừa đảo, giao dịch bất thường)',
       '09': 'Giao dịch không thành công do: Thẻ/Tài khoản chưa đăng ký dịch vụ InternetBanking',
-      '10': 'Giao dịch không thành công do: Khách hàng xác thực thông tin thẻ/tài khoản không đúng quá 3 lần',
-      '11': 'Giao dịch không thành công do: Đã hết hạn chờ thanh toán',
-      '12': 'Giao dịch không thành công do: Thẻ/Tài khoản bị khóa',
-      '13': 'Giao dịch không thành công do: Quý khách nhập sai mật khẩu xác thực giao dịch (OTP)',
-      '24': 'Giao dịch không thành công do: Khách hàng hủy giao dịch',
-      '51': 'Giao dịch không thành công do: Tài khoản không đủ số dư',
-      '65': 'Giao dịch không thành công do: Tài khoản đã vượt quá hạn mức giao dịch trong ngày',
-      '75': 'Ngân hàng thanh toán đang bảo trì',
-      '79': 'Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định',
-      '99': 'Các lỗi khác',
+      10: 'Giao dịch không thành công do: Khách hàng xác thực thông tin thẻ/tài khoản không đúng quá 3 lần',
+      11: 'Giao dịch không thành công do: Đã hết hạn chờ thanh toán',
+      12: 'Giao dịch không thành công do: Thẻ/Tài khoản bị khóa',
+      13: 'Giao dịch không thành công do: Quý khách nhập sai mật khẩu xác thực giao dịch (OTP)',
+      24: 'Giao dịch không thành công do: Khách hàng hủy giao dịch',
+      51: 'Giao dịch không thành công do: Tài khoản không đủ số dư',
+      65: 'Giao dịch không thành công do: Tài khoản đã vượt quá hạn mức giao dịch trong ngày',
+      75: 'Ngân hàng thanh toán đang bảo trì',
+      79: 'Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định',
+      99: 'Các lỗi khác',
     };
 
     return messages[responseCode] || 'Lỗi không xác định';
@@ -238,6 +240,27 @@ class VNPayService {
       pad(date.getMinutes()) +
       pad(date.getSeconds())
     );
+  }
+
+  /**
+   * Normalize and validate return URL
+   * @param {string} url
+   * @returns {string}
+   */
+  normalizeReturnUrl(url) {
+    if (!url || typeof url !== 'string') {
+      return '';
+    }
+
+    try {
+      const parsed = new URL(url.trim());
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return '';
+      }
+      return parsed.toString();
+    } catch (error) {
+      return '';
+    }
   }
 }
 

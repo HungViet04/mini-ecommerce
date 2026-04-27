@@ -43,6 +43,12 @@ const createPaymentUrl = asyncHandler(async (req, res) => {
     req.socket?.remoteAddress ||
     '127.0.0.1';
 
+  // Use caller origin as return base URL to support both local and production frontends.
+  const requestOrigin = req.get('origin');
+  const returnUrl = requestOrigin
+    ? `${requestOrigin.replace(/\/+$/, '')}/payment/vnpay-return`
+    : undefined;
+
   // Create payment URL
   const paymentUrl = vnpayService.createPaymentUrl({
     orderId: order.id,
@@ -50,6 +56,7 @@ const createPaymentUrl = asyncHandler(async (req, res) => {
     orderInfo: `Don hang ${order.id}`,
     ipAddr: ipAddr.replace('::ffff:', ''),
     bankCode,
+    returnUrl,
   });
 
   return response.success(res, {
