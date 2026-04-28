@@ -41,7 +41,16 @@ class ProductRepository extends BaseRepository {
     return rows;
   }
 
-  async searchAndFilter({ keyword, categoryId, minPrice, maxPrice, page = 1, limit = 20, orderBy = 'id', order = 'DESC' } = {}) {
+  async searchAndFilter({
+    keyword,
+    categoryId,
+    minPrice,
+    maxPrice,
+    page = 1,
+    limit = 20,
+    orderBy = 'id',
+    order = 'DESC',
+  } = {}) {
     const conditions = [];
     const params = [];
 
@@ -84,7 +93,11 @@ class ProductRepository extends BaseRepository {
     `;
 
     const [countRows] = await this.query(countSql, params);
-    const [items] = await this.query(dataSql, [...params, parseInt(limit, 10), parseInt(offset, 10)]);
+    const [items] = await this.query(dataSql, [
+      ...params,
+      parseInt(limit, 10),
+      parseInt(offset, 10),
+    ]);
 
     return { items, total: countRows[0].count };
   }

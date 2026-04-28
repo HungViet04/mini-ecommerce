@@ -310,9 +310,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
         <div className="products-grid-section">
           <div className="section-header">
             <div className="section-header-left">
-              <h2 className="section-title">
-                {isFilterActive ? 'Kết Quả' : 'Tất Cả Sản Phẩm'}
-              </h2>
+              <h2 className="section-title">{isFilterActive ? 'Kết Quả' : 'Tất Cả Sản Phẩm'}</h2>
               <p className="section-subtitle">{getSubtitle()}</p>
             </div>
             <ProductSearchFilter onFilter={handleFilter} initialFilters={activeFilters} />

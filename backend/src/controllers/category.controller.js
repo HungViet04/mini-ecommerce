@@ -42,7 +42,12 @@ const findAll = asyncHandler(async (req, res) => {
 
   if (hasPagination) {
     const { page, limit } = parsePagination(req.query);
-    const result = await categoryService.findAllPaginated({ page, limit, orderBy: 'name', order: 'ASC' });
+    const result = await categoryService.findAllPaginated({
+      page,
+      limit,
+      orderBy: 'name',
+      order: 'ASC',
+    });
     return response.paginated(res, {
       data: result.items,
       page,

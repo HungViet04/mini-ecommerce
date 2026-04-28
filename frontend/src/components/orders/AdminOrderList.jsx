@@ -37,11 +37,10 @@ export function AdminOrderList() {
     total,
     totalPages,
     setPage,
-  } =
-    useAdminOrders({
-      autoFetch: isAuthenticated && isAdmin,
-      status: statusFilter || undefined,
-    });
+  } = useAdminOrders({
+    autoFetch: isAuthenticated && isAdmin,
+    status: statusFilter || undefined,
+  });
 
   // Debounced live search: update hook search after user stops typing
   //  FIXED: Move useEffect to top level (before any conditional returns)

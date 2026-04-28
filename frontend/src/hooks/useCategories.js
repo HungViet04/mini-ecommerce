@@ -87,53 +87,62 @@ export function useAdminCategories(options = {}) {
     }
   }, [currentPage, pageSize]);
 
-  const createCategory = useCallback(async (data) => {
-    setSaving(true);
-    setError(null);
+  const createCategory = useCallback(
+    async (data) => {
+      setSaving(true);
+      setError(null);
 
-    try {
-      const newCategory = await categoryService.create(data);
-      await fetchCategories();
-      return newCategory;
-    } catch (err) {
-      setError(err.message || 'Không thể tạo danh mục');
-      return null;
-    } finally {
-      setSaving(false);
-    }
-  }, [fetchCategories]);
+      try {
+        const newCategory = await categoryService.create(data);
+        await fetchCategories();
+        return newCategory;
+      } catch (err) {
+        setError(err.message || 'Không thể tạo danh mục');
+        return null;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [fetchCategories]
+  );
 
-  const updateCategory = useCallback(async (id, data) => {
-    setSaving(true);
-    setError(null);
+  const updateCategory = useCallback(
+    async (id, data) => {
+      setSaving(true);
+      setError(null);
 
-    try {
-      const updatedCategory = await categoryService.update(id, data);
-      await fetchCategories();
-      return updatedCategory;
-    } catch (err) {
-      setError(err.message || 'Không thể cập nhật danh mục');
-      return null;
-    } finally {
-      setSaving(false);
-    }
-  }, [fetchCategories]);
+      try {
+        const updatedCategory = await categoryService.update(id, data);
+        await fetchCategories();
+        return updatedCategory;
+      } catch (err) {
+        setError(err.message || 'Không thể cập nhật danh mục');
+        return null;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [fetchCategories]
+  );
 
-  const deleteCategory = useCallback(async (id) => {
-    setSaving(true);
-    setError(null);
+  const deleteCategory = useCallback(
+    async (id) => {
+      setSaving(true);
+      setError(null);
 
-    try {
-      await categoryService.delete(id);
-      await fetchCategories();
-      return true;
-    } catch (err) {
-      setError(err.message || 'Không thể xóa danh mục');
-      return false;
-    } finally {
-      setSaving(false);
-    }
-  }, [fetchCategories]);
+      try {
+        await categoryService.delete(id);
+        await fetchCategories();
+        return true;
+      } catch (err) {
+        setError(err.message || 'Không thể xóa danh mục');
+        return false;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [fetchCategories]
+  );
 
   const clearError = useCallback(() => {
     setError(null);

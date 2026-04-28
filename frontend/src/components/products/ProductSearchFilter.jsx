@@ -62,13 +62,35 @@ export function ProductSearchFilter({ onFilter, initialFilters = {} }) {
           {categoryId && (
             <span className="filter-tag">
               {categories.find((c) => String(c.id) === String(categoryId))?.name}
-              <button type="button" onClick={() => { setCategoryId(''); onFilter({ category_id: undefined, min_price: minPrice !== '' ? Number(minPrice) : undefined, max_price: maxPrice !== '' ? Number(maxPrice) : undefined }); }}>×</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoryId('');
+                  onFilter({
+                    category_id: undefined,
+                    min_price: minPrice !== '' ? Number(minPrice) : undefined,
+                    max_price: maxPrice !== '' ? Number(maxPrice) : undefined,
+                  });
+                }}
+              >
+                ×
+              </button>
             </span>
           )}
           {(minPrice !== '' || maxPrice !== '') && (
             <span className="filter-tag">
-              {minPrice !== '' ? formatPrice(minPrice) : '0'} — {maxPrice !== '' ? formatPrice(maxPrice) : '∞'}
-              <button type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); onFilter({ category_id: categoryId || undefined }); }}>×</button>
+              {minPrice !== '' ? formatPrice(minPrice) : '0'} —{' '}
+              {maxPrice !== '' ? formatPrice(maxPrice) : '∞'}
+              <button
+                type="button"
+                onClick={() => {
+                  setMinPrice('');
+                  setMaxPrice('');
+                  onFilter({ category_id: categoryId || undefined });
+                }}
+              >
+                ×
+              </button>
             </span>
           )}
         </div>
@@ -82,7 +104,16 @@ export function ProductSearchFilter({ onFilter, initialFilters = {} }) {
           onClick={() => setOpen((prev) => !prev)}
           title="Bộ lọc sản phẩm"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="4" y1="6" x2="20" y2="6" />
             <line x1="7" y1="12" x2="17" y2="12" />
             <line x1="10" y1="18" x2="14" y2="18" />
@@ -94,56 +125,60 @@ export function ProductSearchFilter({ onFilter, initialFilters = {} }) {
         {/* Dropdown panel - positioned directly below button */}
         {open && (
           <form className="filter-dropdown-panel" onSubmit={handleApply}>
-          <div className="filter-dropdown-section">
-            <label className="filter-dropdown-label" htmlFor="fd-category">📂 Danh mục</label>
-            <select
-              id="fd-category"
-              className="filter-dropdown-select"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              disabled={categoriesLoading}
-            >
-              <option value="">Tất cả danh mục</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-dropdown-section">
-            <label className="filter-dropdown-label">💰 Khoảng giá</label>
-            <div className="filter-dropdown-price">
-              <input
-                type="number"
-                className="filter-dropdown-input"
-                placeholder="Từ"
-                value={minPrice}
-                min="0"
-                onChange={(e) => setMinPrice(e.target.value)}
-              />
-              <span className="filter-dropdown-sep">—</span>
-              <input
-                type="number"
-                className="filter-dropdown-input"
-                placeholder="Đến"
-                value={maxPrice}
-                min="0"
-                onChange={(e) => setMaxPrice(e.target.value)}
-              />
+            <div className="filter-dropdown-section">
+              <label className="filter-dropdown-label" htmlFor="fd-category">
+                📂 Danh mục
+              </label>
+              <select
+                id="fd-category"
+                className="filter-dropdown-select"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                disabled={categoriesLoading}
+              >
+                <option value="">Tất cả danh mục</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
 
-          <div className="filter-dropdown-actions">
-            <button type="submit" className="btn-filter btn-filter-apply">
-              Áp dụng
-            </button>
-            {hasFilters && (
-              <button type="button" className="btn-filter btn-filter-clear" onClick={handleReset}>
-                Xóa lọc
+            <div className="filter-dropdown-section">
+              <label className="filter-dropdown-label">💰 Khoảng giá</label>
+              <div className="filter-dropdown-price">
+                <input
+                  type="number"
+                  className="filter-dropdown-input"
+                  placeholder="Từ"
+                  value={minPrice}
+                  min="0"
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+                <span className="filter-dropdown-sep">—</span>
+                <input
+                  type="number"
+                  className="filter-dropdown-input"
+                  placeholder="Đến"
+                  value={maxPrice}
+                  min="0"
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="filter-dropdown-actions">
+              <button type="submit" className="btn-filter btn-filter-apply">
+                Áp dụng
               </button>
-            )}
-          </div>
-        </form>
+              {hasFilters && (
+                <button type="button" className="btn-filter btn-filter-clear" onClick={handleReset}>
+                  Xóa lọc
+                </button>
+              )}
+            </div>
+          </form>
         )}
       </div>
     </div>

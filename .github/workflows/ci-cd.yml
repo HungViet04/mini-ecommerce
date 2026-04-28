@@ -173,14 +173,17 @@ jobs:
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            cd mini-ecommerce || exit 1
-            if [ ! -f .env ]; then
-              echo "❌ Missing .env on EC2 (mini-ecommerce/.env)."
-              exit 1
-            fi
+            docker pull ${{ env.DOCKERHUB_REPO }}:latest
 
-            BACKEND_IMAGE=${{ env.DOCKERHUB_REPO }}:latest docker compose -f docker-compose.yml pull backend
-            BACKEND_IMAGE=${{ env.DOCKERHUB_REPO }}:latest docker compose -f docker-compose.yml up -d backend
+            cd mini-ecommerce || exit 1
+
+            docker rm -f ecommerce-backend || true
+
+            docker-compose -f docker-compose.yml down --remove-orphans || true
+
+            docker-compose -f docker-compose.yml pull backend
+
+            docker-compose -f docker-compose.yml up -d --force-recreate backend
 
             docker image prune -f
 
@@ -189,12 +192,18 @@ jobs:
   cd-frontend:
     name: CD Frontend (Amplify)
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: amplify-main
+      cancel-in-progress: false
+
     needs: [changes, ci-frontend]
     if: >-
       needs.changes.outputs.frontend == 'true' &&
       needs.ci-frontend.result == 'success' &&
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -206,8 +215,67 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Trigger Amplify release (app connected to GitHub)
+      - name: Wait for existing Amplify job (safe)
         run: |
           set -e
-          JOB_ID=$(aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name main --job-type RELEASE --query 'jobSummary.jobId' --output text)
-          echo "✅ Amplify job started (Job ID: $JOB_ID)"
+
+          APP_ID=${{ secrets.AMPLIFY_APP_ID }}
+          BRANCH=main
+
+          echo "🔍 Checking running Amplify jobs..."
+
+          while true; do
+            RUNNING=$(aws amplify list-jobs \
+              --app-id $APP_ID \
+              --branch-name $BRANCH \
+              --max-results 5 \
+              --query "jobSummaries[?status=='RUNNING' || status=='PENDING'] | length(@)" \
+              --output text)
+
+            echo "⏳ Running jobs count: $RUNNING"
+
+            if [[ "$RUNNING" == "0" ]]; then
+              echo "✅ Amplify is free"
+              break
+            fi
+
+            echo "⏳ Amplify busy... waiting 30s"
+            sleep 30
+          done
+
+      - name: Trigger Amplify release & wait
+        run: |
+          set -e
+
+          APP_ID=${{ secrets.AMPLIFY_APP_ID }}
+          BRANCH=main
+
+          JOB_ID=$(aws amplify start-job \
+            --app-id $APP_ID \
+            --branch-name $BRANCH \
+            --job-type RELEASE \
+            --query 'jobSummary.jobId' \
+            --output text)
+
+          echo "🚀 Amplify job started: $JOB_ID"
+
+          while true; do
+            STATUS=$(aws amplify get-job \
+              --app-id $APP_ID \
+              --branch-name $BRANCH \
+              --job-id $JOB_ID \
+              --query 'job.summary.status' \
+              --output text)
+
+            echo "⏳ Job status: $STATUS"
+
+            if [[ "$STATUS" == "SUCCEED" ]]; then
+              echo "✅ Success"
+              break
+            elif [[ "$STATUS" == "FAILED" || "$STATUS" == "CANCELLED" ]]; then
+              echo "❌ Failed"
+              exit 1
+            fi
+
+            sleep 20
+          done

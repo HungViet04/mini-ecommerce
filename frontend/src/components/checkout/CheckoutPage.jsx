@@ -163,7 +163,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
         paymentMethod,
       };
       const result = await orderService.create(orderData);
-      
+
       // Nếu thanh toán VNPay, tạo URL thanh toán và redirect
       if (paymentMethod === PAYMENT_METHODS.VNPAY) {
         const vnpayResult = await vnpayService.createPaymentUrl(result.id);
@@ -176,7 +176,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
         }
         return;
       }
-      
+
       clearCart();
       onSuccess?.(result, paymentMethod, shippingInfo);
     } catch (err) {
@@ -377,7 +377,9 @@ export function CheckoutPage({ onBack, onSuccess }) {
                           <span className="item-name">{displayName}</span>
                           <span className="item-quantity">x{item.quantity}</span>
                         </div>
-                        <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
+                        <span className="item-price">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
                       </>
                     );
                   })()}

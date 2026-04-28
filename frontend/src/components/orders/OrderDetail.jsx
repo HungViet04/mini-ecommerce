@@ -183,7 +183,9 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
             <div className="odm-qr-section">
               <div className="odm-qr-header">
                 <span className="odm-qr-title">💳 Thanh toán VNPay</span>
-                <span className="odm-qr-subtitle">Giao dịch sẽ được xác nhận tự động qua cổng VNPay</span>
+                <span className="odm-qr-subtitle">
+                  Giao dịch sẽ được xác nhận tự động qua cổng VNPay
+                </span>
               </div>
 
               <div className="odm-qr-content">
@@ -207,7 +209,9 @@ export function OrderDetail({ order, onClose, onCancel, onConfirmDelivery }) {
 
               <div className="odm-qr-note">
                 <span className="odm-note-icon">💡</span>
-                <span>Nếu thanh toán thất bại, vui lòng đặt lại đơn và hoàn tất trên cổng VNPay.</span>
+                <span>
+                  Nếu thanh toán thất bại, vui lòng đặt lại đơn và hoàn tất trên cổng VNPay.
+                </span>
               </div>
 
               <div className="odm-vnpay-actions">
