@@ -18,6 +18,7 @@ export const orderService = {
         quantity: Number(item.quantity),
       })),
       shippingInfo: data.shippingInfo || null,
+      shippingAddressId: data.shippingAddressId || null,
       paymentMethod: data.paymentMethod || 'cod',
     });
     return response.data || response;

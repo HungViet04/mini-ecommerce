@@ -183,6 +183,16 @@ export function UserDropdown({
               </button>
             )}
 
+            {!isAdmin && (
+              <button
+                className={`dropdown-item ${location.pathname === '/addresses' ? 'active' : ''}`}
+                onClick={() => handleMenuItemClick(() => navigate('/addresses'))}
+              >
+                <span className="dropdown-item-icon">📍</span>
+                <span className="dropdown-item-text">Sổ địa chỉ</span>
+              </button>
+            )}
+
             {showAdminLinks && isAdmin && (
               <>
                 <button

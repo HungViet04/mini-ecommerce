@@ -52,7 +52,7 @@ const validateShippingInfo = (shippingInfo) => {
   if (!shippingInfo) {
     return { shippingInfo: null, errors: [] };
   }
-  const { fullName, phone, province, district, ward, address, note } = shippingInfo;
+  const { fullName, phone, province, district, ward, address, note, type } = shippingInfo;
   if (!fullName || !fullName.trim()) {
     errors.push({ field: 'shippingInfo.fullName', message: 'Vui lòng nhập họ tên người nhận' });
   }
@@ -76,6 +76,11 @@ const validateShippingInfo = (shippingInfo) => {
   // Build address parts
   const fullAddress = [address, ward, district].filter(Boolean).join(', ');
   const city = province?.trim() || '';
+  const addressType = typeof type === 'string' ? type.trim().toLowerCase() : undefined;
+  const normalizedType = ['home', 'office', 'other'].includes(addressType)
+    ? addressType
+    : undefined;
+
   return {
     shippingInfo: {
       name: fullName?.trim() || '',
@@ -83,6 +88,7 @@ const validateShippingInfo = (shippingInfo) => {
       address: fullAddress,
       city: city,
       notes: note?.trim() || '',
+      type: normalizedType,
     },
     errors,
   };
@@ -97,7 +103,8 @@ const validateShippingInfo = (shippingInfo) => {
 const validateCreateOrder = (data) => {
   const errors = [];
 
-  const { items, userId, shippingInfo, paymentMethod } = data;
+  const { items, userId, shippingInfo, paymentMethod, shippingAddressId, saveAddress, setDefault } =
+    data;
 
   // Validate items array
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -122,9 +129,18 @@ const validateCreateOrder = (data) => {
   if (userId !== undefined && userId !== null && !isPositiveInteger(userId)) {
     errors.push({ field: 'userId', message: 'ID người dùng phải là số nguyên dương' });
   }
-  // Validate shipping info
-  const shippingValidation = validateShippingInfo(shippingInfo);
-  errors.push(...shippingValidation.errors);
+  // Validate shipping info or saved address
+  let shippingValidation = { shippingInfo: null, errors: [] };
+  if (shippingInfo) {
+    shippingValidation = validateShippingInfo(shippingInfo);
+    errors.push(...shippingValidation.errors);
+  } else if (shippingAddressId !== undefined && shippingAddressId !== null) {
+    if (!isPositiveInteger(shippingAddressId)) {
+      errors.push({ field: 'shippingAddressId', message: 'ID địa chỉ không hợp lệ' });
+    }
+  } else {
+    errors.push({ field: 'shippingInfo', message: 'Vui lòng nhập hoặc chọn địa chỉ giao hàng' });
+  }
 
   // Normalize payment method to match DB enum values
   const normalizedPaymentMethod =
@@ -144,6 +160,9 @@ const validateCreateOrder = (data) => {
     items: validatedItems,
     userId: userId ? Number(userId) : null,
     shippingInfo: shippingValidation.shippingInfo,
+    shippingAddressId: shippingAddressId ? Number(shippingAddressId) : null,
+    saveAddress: Boolean(saveAddress),
+    setDefault: Boolean(setDefault),
     paymentMethod: validPaymentMethod,
     shippingFee: SHIPPING_FEE,
   };

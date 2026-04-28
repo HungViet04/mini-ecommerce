@@ -3,9 +3,10 @@
  * Checkout flow with shipping info and payment selection
  * Pattern: Container Component
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart, useAuth } from '../../contexts';
-import { orderService, productService, uploadService } from '../../services';
+import { addressService, orderService, productService, uploadService } from '../../services';
 import { vnpayService } from '../../services/vnpay.service';
 import { Card, Button, Input, ErrorAlert } from '../ui';
 import { formatPrice } from '../../utils';
@@ -16,12 +17,20 @@ const PAYMENT_METHODS = {
 };
 
 export function CheckoutPage({ onBack, onSuccess }) {
+  const navigate = useNavigate();
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [itemDetails, setItemDetails] = useState({});
+  const [addresses, setAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [addressError, setAddressError] = useState('');
+  const [addressMode, setAddressMode] = useState('saved');
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [setDefaultAddress, setSetDefaultAddress] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -66,6 +75,54 @@ export function CheckoutPage({ onBack, onSuccess }) {
     };
   }, [items]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAddresses = async () => {
+      if (!user) return;
+      setAddressLoading(true);
+      setAddressError('');
+      try {
+        const result = await addressService.getMyAddresses();
+        if (!mounted) return;
+        const list = result || [];
+        setAddresses(list);
+        const defaultAddress = list.find((item) => item.isDefault) || list[0];
+        if (defaultAddress) {
+          setSelectedAddressId(defaultAddress.id);
+          setAddressMode('saved');
+        } else {
+          setAddressMode('new');
+        }
+      } catch (err) {
+        if (!mounted) return;
+        setAddressError(err.message || 'Không thể tải địa chỉ');
+        setAddressMode('new');
+      } finally {
+        if (mounted) setAddressLoading(false);
+      }
+    };
+
+    loadAddresses();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
+
+  const selectedAddress = useMemo(
+    () => addresses.find((item) => item.id === selectedAddressId),
+    [addresses, selectedAddressId]
+  );
+
+  const showNewAddressForm = addressMode === 'new' || addresses.length === 0;
+
+  useEffect(() => {
+    if (!saveAddress) {
+      setSetDefaultAddress(false);
+    }
+  }, [saveAddress]);
+
   // Shipping info
   const [shippingInfo, setShippingInfo] = useState({
     fullName: user?.name || '',
@@ -75,6 +132,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
     ward: '',
     address: '',
     note: '',
+    type: 'home',
   });
 
   // Payment method
@@ -129,7 +187,11 @@ export function CheckoutPage({ onBack, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
-    if (!validateForm()) {
+    if (showNewAddressForm && !validateForm()) {
+      return;
+    }
+    if (!showNewAddressForm && !selectedAddressId) {
+      setError('Vui lòng chọn địa chỉ giao hàng');
       return;
     }
     setLoading(true);
@@ -146,12 +208,51 @@ export function CheckoutPage({ onBack, onSuccess }) {
           return;
         }
       }
+      let shippingInfoForSuccess = null;
+      let shippingAddressId = null;
+
+      if (showNewAddressForm) {
+        shippingInfoForSuccess = { ...shippingInfo };
+
+        if (saveAddress) {
+          const createdAddress = await addressService.create({
+            fullName: shippingInfo.fullName,
+            phone: shippingInfo.phone,
+            province: shippingInfo.province,
+            district: shippingInfo.district,
+            ward: shippingInfo.ward,
+            address: shippingInfo.address,
+            note: shippingInfo.note,
+            type: shippingInfo.type,
+            isDefault: setDefaultAddress || addresses.length === 0,
+          });
+          shippingAddressId = createdAddress?.id || null;
+        }
+      } else if (selectedAddress) {
+        shippingAddressId = selectedAddress.id;
+        shippingInfoForSuccess = {
+          fullName: selectedAddress.fullName,
+          phone: selectedAddress.phone,
+          province: selectedAddress.province,
+          district: selectedAddress.district,
+          ward: selectedAddress.ward,
+          address: selectedAddress.address,
+          note: selectedAddress.note || '',
+        };
+      }
+
       const orderData = {
         items: items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
         })),
-        shippingInfo: {
+        paymentMethod,
+      };
+
+      if (shippingAddressId) {
+        orderData.shippingAddressId = shippingAddressId;
+      } else {
+        orderData.shippingInfo = {
           fullName: shippingInfo.fullName,
           phone: shippingInfo.phone,
           province: shippingInfo.province,
@@ -159,9 +260,9 @@ export function CheckoutPage({ onBack, onSuccess }) {
           ward: shippingInfo.ward,
           address: shippingInfo.address,
           note: shippingInfo.note,
-        },
-        paymentMethod,
-      };
+          type: shippingInfo.type,
+        };
+      }
       const result = await orderService.create(orderData);
 
       // Nếu thanh toán VNPay, tạo URL thanh toán và redirect
@@ -178,7 +279,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
       }
 
       clearCart();
-      onSuccess?.(result, paymentMethod, shippingInfo);
+      onSuccess?.(result, paymentMethod, shippingInfoForSuccess || shippingInfo);
     } catch (err) {
       setError(err.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
     } finally {
@@ -208,81 +309,205 @@ export function CheckoutPage({ onBack, onSuccess }) {
                 Thông Tin Giao Hàng
               </h2>
 
-              <div className="form-grid">
-                <Input
-                  label="Họ và tên người nhận"
-                  name="fullName"
-                  value={shippingInfo.fullName}
-                  onChange={handleInputChange}
-                  error={formErrors.fullName}
-                  placeholder="Nhập họ và tên"
-                  required
-                  touched={submitted}
-                />
-                <Input
-                  label="Số điện thoại"
-                  name="phone"
-                  value={shippingInfo.phone}
-                  onChange={handleInputChange}
-                  error={formErrors.phone}
-                  placeholder="VD: 0912345678"
-                  required
-                  touched={submitted}
-                />
-                <Input
-                  label="Tỉnh/Thành phố"
-                  name="province"
-                  value={shippingInfo.province}
-                  onChange={handleInputChange}
-                  error={formErrors.province}
-                  placeholder="VD: Hà Nội"
-                  required
-                  touched={submitted}
-                />
-                <Input
-                  label="Quận/Huyện"
-                  name="district"
-                  value={shippingInfo.district}
-                  onChange={handleInputChange}
-                  error={formErrors.district}
-                  placeholder="VD: Cầu Giấy"
-                  required
-                  touched={submitted}
-                />
-                <Input
-                  label="Phường/Xã"
-                  name="ward"
-                  value={shippingInfo.ward}
-                  onChange={handleInputChange}
-                  error={formErrors.ward}
-                  placeholder="VD: Dịch Vọng"
-                  required
-                  touched={submitted}
-                />
-                <Input
-                  label="Địa chỉ cụ thể"
-                  name="address"
-                  value={shippingInfo.address}
-                  onChange={handleInputChange}
-                  error={formErrors.address}
-                  placeholder="Số nhà, tên đường..."
-                  className="full-width"
-                  required
-                  touched={submitted}
-                />
+              {addresses.length > 0 && (
+                <div className="address-picker">
+                  <div className="address-picker-header">
+                    <div>
+                      <div className="address-picker-title">Chọn địa chỉ đã lưu</div>
+                      <div className="address-picker-subtitle">
+                        Hoặc sử dụng địa chỉ mới bên dưới
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate('/addresses')}
+                    >
+                      Quản lý
+                    </Button>
+                  </div>
 
-                <div className="form-group full-width">
-                  <label className="form-label">Ghi chú (tùy chọn)</label>
-                  <textarea
-                    name="note"
-                    value={shippingInfo.note}
-                    onChange={handleInputChange}
-                    placeholder="Ghi chú về đơn hàng, thời gian nhận hàng..."
-                    className="form-textarea"
-                    rows={3}
-                  />
+                  {addressError && <p className="address-error">{addressError}</p>}
+
+                  {addressLoading ? (
+                    <p className="address-loading">Đang tải địa chỉ...</p>
+                  ) : (
+                    <div className="address-picker-list">
+                      {addresses.map((address) => (
+                        <button
+                          key={address.id}
+                          type="button"
+                          className={`address-card ${
+                            selectedAddressId === address.id ? 'selected' : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedAddressId(address.id);
+                            setAddressMode('saved');
+                          }}
+                        >
+                          <div className="address-card-header">
+                            <span className="address-card-name">{address.fullName}</span>
+                            {address.isDefault && <span className="address-badge">Mặc định</span>}
+                          </div>
+                          <div className="address-card-meta">{address.phone}</div>
+                          <div className="address-card-address">
+                            {address.address}, {address.ward}, {address.district},{' '}
+                            {address.province}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="address-picker-actions">
+                    <Button
+                      type="button"
+                      variant={showNewAddressForm ? 'secondary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setAddressMode('new')}
+                    >
+                      Dùng địa chỉ mới
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {!showNewAddressForm && selectedAddress && (
+                <div className="selected-address">
+                  <div className="selected-address-title">Địa chỉ đã chọn</div>
+                  <div className="selected-address-body">
+                    <p className="selected-address-name">
+                      {selectedAddress.fullName} · {selectedAddress.phone}
+                    </p>
+                    <p className="selected-address-detail">
+                      {selectedAddress.address}, {selectedAddress.ward}, {selectedAddress.district},{' '}
+                      {selectedAddress.province}
+                    </p>
+                    {selectedAddress.note && (
+                      <p className="selected-address-note">Ghi chú: {selectedAddress.note}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {showNewAddressForm && (
+                <>
+                  <div className="form-grid">
+                    <Input
+                      label="Họ và tên người nhận"
+                      name="fullName"
+                      value={shippingInfo.fullName}
+                      onChange={handleInputChange}
+                      error={formErrors.fullName}
+                      placeholder="Nhập họ và tên"
+                      required
+                      touched={submitted}
+                    />
+                    <Input
+                      label="Số điện thoại"
+                      name="phone"
+                      value={shippingInfo.phone}
+                      onChange={handleInputChange}
+                      error={formErrors.phone}
+                      placeholder="VD: 0912345678"
+                      required
+                      touched={submitted}
+                    />
+                    <Input
+                      label="Tỉnh/Thành phố"
+                      name="province"
+                      value={shippingInfo.province}
+                      onChange={handleInputChange}
+                      error={formErrors.province}
+                      placeholder="VD: Hà Nội"
+                      required
+                      touched={submitted}
+                    />
+                    <Input
+                      label="Quận/Huyện"
+                      name="district"
+                      value={shippingInfo.district}
+                      onChange={handleInputChange}
+                      error={formErrors.district}
+                      placeholder="VD: Cầu Giấy"
+                      required
+                      touched={submitted}
+                    />
+                    <Input
+                      label="Phường/Xã"
+                      name="ward"
+                      value={shippingInfo.ward}
+                      onChange={handleInputChange}
+                      error={formErrors.ward}
+                      placeholder="VD: Dịch Vọng"
+                      required
+                      touched={submitted}
+                    />
+                    <Input
+                      label="Địa chỉ cụ thể"
+                      name="address"
+                      value={shippingInfo.address}
+                      onChange={handleInputChange}
+                      error={formErrors.address}
+                      placeholder="Số nhà, tên đường..."
+                      className="full-width"
+                      required
+                      touched={submitted}
+                    />
+                  </div>
+
+                  <div className="form-grid form-grid-compact">
+                    <div className="form-group">
+                      <label htmlFor="type" className="form-label">
+                        Loại địa chỉ
+                      </label>
+                      <select
+                        id="type"
+                        name="type"
+                        className="form-input"
+                        value={shippingInfo.type}
+                        onChange={handleInputChange}
+                      >
+                        <option value="home">Nhà riêng</option>
+                        <option value="office">Cơ quan</option>
+                        <option value="other">Khác</option>
+                      </select>
+                    </div>
+                    <div className="form-group full-width">
+                      <label className="form-label">Ghi chú (tùy chọn)</label>
+                      <textarea
+                        name="note"
+                        value={shippingInfo.note}
+                        onChange={handleInputChange}
+                        placeholder="Ghi chú về đơn hàng, thời gian nhận hàng..."
+                        className="form-textarea"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <label className="checkbox-field">
+                    <input
+                      type="checkbox"
+                      checked={saveAddress}
+                      onChange={(e) => setSaveAddress(e.target.checked)}
+                    />
+                    Lưu địa chỉ này để dùng lần sau
+                  </label>
+
+                  {saveAddress && (
+                    <label className="checkbox-field">
+                      <input
+                        type="checkbox"
+                        checked={setDefaultAddress}
+                        onChange={(e) => setSetDefaultAddress(e.target.checked)}
+                      />
+                      Đặt làm địa chỉ mặc định
+                    </label>
+                  )}
+                </>
+              )}
             </Card>
 
             {/* Payment Method */}
