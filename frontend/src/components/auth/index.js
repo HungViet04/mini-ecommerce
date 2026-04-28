@@ -6,4 +6,5 @@ export { RegisterForm } from './RegisterForm';
 export { AuthContainer } from './AuthContainer';
 export { ProtectedRoute } from './ProtectedRoute';
 export { AdminRoute } from './AdminRoute';
+export { UserRoute } from './UserRoute';
 export { GuestRoute } from './GuestRoute';

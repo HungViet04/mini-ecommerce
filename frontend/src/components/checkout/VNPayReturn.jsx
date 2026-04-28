@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { vnpayService } from '../../services/vnpay.service';
-import { Card, Button } from '../ui';
+import { Card, Button, Loading } from '../ui';
 import { formatPrice } from '../../utils';
 
 export function VNPayReturn() {
@@ -50,10 +50,7 @@ export function VNPayReturn() {
     return (
       <div className="vnpay-return-page">
         <Card className="vnpay-result-card">
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Đang xác minh thanh toán...</p>
-          </div>
+          <Loading text="Đang xác minh thanh toán..." variant="mixed" />
         </Card>
       </div>
     );

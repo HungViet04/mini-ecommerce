@@ -1,6 +1,6 @@
 /**
- * ProtectedRoute Component
- * Wrapper for routes that require authentication
+ * UserRoute Component
+ * Wrapper for routes that require non-admin users
  */
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
@@ -8,25 +8,26 @@ import { useAuth, useLoading } from '../../contexts';
 import { LoadingOverlay } from '../ui';
 
 /**
- * ProtectedRoute - Requires user to be logged in
- * @param {React.ReactNode} children - Child components to render if authenticated
- * @returns {React.ReactNode} - Children if authenticated, redirect to /auth otherwise
+ * UserRoute - Requires user to be logged in and NOT admin
+ * @param {React.ReactNode} children - Child components to render if authorized
+ * @returns {React.ReactNode} - Children if user, redirect otherwise
  */
-export function ProtectedRoute({ children }) {
+export function UserRoute({ children }) {
   const { user, loading } = useAuth();
   const { isLoading: isGlobalLoading } = useLoading();
   const location = useLocation();
 
-  // Wait for auth state to initialize
   if (loading) {
     return isGlobalLoading ? null : <LoadingOverlay open text="Đang tải..." />;
   }
 
-  // Redirect to auth if not logged in
   if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Render children if authenticated
+  if (user.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return children;
 }

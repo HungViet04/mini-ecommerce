@@ -6,7 +6,7 @@ const vnpayService = require('../services/vnpay.service');
 const { orderRepository } = require('../repositories');
 const { response } = require('../helpers');
 const { asyncHandler } = require('../helpers/async.helper');
-const { NotFoundError, ValidationError } = require('../errors');
+const { NotFoundError, ValidationError, AuthorizationError } = require('../errors');
 
 /**
  * Create VNPay payment URL
@@ -26,8 +26,12 @@ const createPaymentUrl = asyncHandler(async (req, res) => {
     throw new NotFoundError('Order', 'Đơn hàng không tồn tại');
   }
 
+  if (req.user.role === 'admin') {
+    throw new AuthorizationError('Tài khoản admin không được phép thanh toán');
+  }
+
   // Check if order belongs to current user (unless admin)
-  if (req.user.role !== 'admin' && order.user_id !== req.user.id) {
+  if (order.user_id !== req.user.id) {
     throw new ValidationError('Bạn không có quyền thanh toán đơn hàng này');
   }
 

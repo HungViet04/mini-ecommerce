@@ -5,9 +5,21 @@
  */
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { AuthProvider, CartProvider, NotificationProvider, useAuth } from './contexts';
+import {
+  AuthProvider,
+  CartProvider,
+  LoadingProvider,
+  NotificationProvider,
+  useAuth,
+} from './contexts';
 import { Layout } from './components/layout';
-import { AuthContainer, ProtectedRoute, AdminRoute, GuestRoute } from './components/auth';
+import {
+  AuthContainer,
+  ProtectedRoute,
+  AdminRoute,
+  UserRoute,
+  GuestRoute,
+} from './components/auth';
 import { ProductList, AdminProductList, ProductDetailPage } from './components/products';
 import { OrderList, AdminOrderList } from './components/orders';
 import { AdminCategoryList } from './components/categories';
@@ -102,15 +114,15 @@ function AppContent() {
         <Route
           path="/checkout"
           element={
-            <ProtectedRoute>
+            <UserRoute>
               <CheckoutPage onBack={handleBackToCart} onSuccess={handleCheckoutSuccess} />
-            </ProtectedRoute>
+            </UserRoute>
           }
         />
         <Route
           path="/order-success"
           element={
-            <ProtectedRoute>
+            <UserRoute>
               <OrderSuccess
                 order={orderData?.order}
                 paymentMethod={orderData?.paymentMethod}
@@ -118,21 +130,21 @@ function AppContent() {
                 onContinueShopping={handleContinueShopping}
                 onViewOrders={handleViewOrders}
               />
-            </ProtectedRoute>
+            </UserRoute>
           }
         />
         <Route path="/payment/vnpay-return" element={<VNPayReturn />} />
         <Route
           path="/orders"
           element={
-            <ProtectedRoute>
+            <UserRoute>
               <div className="order-user">
                 <button className="back-button" onClick={() => navigate('/')}>
                   ← Quay về Trang Chủ
                 </button>
                 <OrderList />
               </div>
-            </ProtectedRoute>
+            </UserRoute>
           }
         />
 
@@ -213,18 +225,20 @@ function AppContent() {
 export default function App() {
   return (
     <NotificationProvider>
-      <AuthProvider>
-        <CartProvider>
-          <Router
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
-            <AppContent />
-          </Router>
-        </CartProvider>
-      </AuthProvider>
+      <LoadingProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Router
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
+              <AppContent />
+            </Router>
+          </CartProvider>
+        </AuthProvider>
+      </LoadingProvider>
     </NotificationProvider>
   );
 }

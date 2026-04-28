@@ -11,10 +11,18 @@ import { formatPrice } from '../../utils';
 
 export function CartSummary({ onCheckout }) {
   const { items, total, itemCount, updateQuantity, removeItem, clearCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const { notifyToast } = useNotification();
 
   const handleCheckout = () => {
+    if (isAdmin) {
+      notifyToast('Tài khoản admin không được phép mua hàng', {
+        type: 'warning',
+        duration: 1800,
+      });
+      return;
+    }
+
     if (!isAuthenticated) {
       notifyToast('Vui lòng đăng nhập để đặt hàng!', {
         type: 'info',
@@ -63,7 +71,12 @@ export function CartSummary({ onCheckout }) {
           <Button variant="secondary" onClick={clearCart}>
             Xóa Giỏ Hàng
           </Button>
-          <Button className="btn-checkout" variant="primary" onClick={handleCheckout}>
+          <Button
+            className="btn-checkout"
+            variant="primary"
+            onClick={handleCheckout}
+            disabled={isAdmin}
+          >
             Thanh Toán
           </Button>
         </div>
