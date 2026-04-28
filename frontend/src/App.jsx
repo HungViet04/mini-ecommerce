@@ -18,6 +18,7 @@ import { ProductList, AdminProductList, ProductDetailPage } from './components/p
 import { OrderList, AdminOrderList } from './components/orders';
 import { AdminCategoryList } from './components/categories';
 import { CheckoutPage, OrderSuccess, VNPayReturn } from './components/checkout';
+import { AddressBookPage } from './components/addresses';
 import { AdminDashboard } from './components/dashboard';
 import { AdminUserList } from './components/users';
 import { ChatBot } from './components/chatbot';
@@ -94,6 +95,14 @@ function AppContent() {
                 onCategoryChange={handleSelectCategory}
               />
             </div>
+          }
+        />
+        <Route
+          path="/addresses"
+          element={
+            <UserRoute>
+              <AddressBookPage />
+            </UserRoute>
           }
         />
         <Route path="/products/:id" element={<ProductDetailPage />} />

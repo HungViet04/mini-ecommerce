@@ -176,10 +176,20 @@ export function UserDropdown({
           <div className="dropdown-divider"></div>
 
           <div className="dropdown-items">
-            {showOrdersLink && !isAdmin && (
+            {!isAdmin && (
               <button className="dropdown-item" onClick={() => handleMenuItemClick(onViewOrders)}>
                 <span className="dropdown-item-icon">📦</span>
                 <span className="dropdown-item-text">Đơn hàng của tôi</span>
+              </button>
+            )}
+
+            {!isAdmin && (
+              <button
+                className={`dropdown-item ${location.pathname === '/addresses' ? 'active' : ''}`}
+                onClick={() => handleMenuItemClick(() => navigate('/addresses'))}
+              >
+                <span className="dropdown-item-icon">📍</span>
+                <span className="dropdown-item-text">Sổ địa chỉ</span>
               </button>
             )}
 

@@ -56,16 +56,6 @@ export function Navbar({ onSearch }) {
       )}
 
       <nav className="navbar-nav">
-        {/* My Orders - only for regular users, not admin, hidden on mobile (in dropdown) */}
-        {isAuthenticated && !isAdmin && (
-          <NavLink
-            active={location.pathname === '/orders'}
-            onClick={() => navigate('/orders')}
-            className="nav-link-desktop-only"
-          >
-            Đơn Hàng Của Tôi
-          </NavLink>
-        )}
 
         {/* Admin Navigation */}
         {isAdmin && (

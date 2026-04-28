@@ -12,6 +12,7 @@ const {
   ValidationError,
 } = require('../errors');
 const { USER_ROLES, ORDER_STATUS } = require('../constants');
+const addressService = require('./address.service');
 const {
   validateCreateOrder,
   validateStatusUpdate,
@@ -45,7 +46,12 @@ class OrderService {
     const userId = validatedData.userId || currentUser.id;
     const items = validatedData.items;
     const productIds = items.map((item) => item.productId);
-    const { shippingInfo, paymentMethod, shippingFee } = validatedData;
+    let { shippingInfo } = validatedData;
+    const { paymentMethod, shippingFee, shippingAddressId } = validatedData;
+
+    if (!shippingInfo && shippingAddressId) {
+      shippingInfo = await addressService.buildShippingInfoFromAddress(shippingAddressId, userId);
+    }
 
     // Execute transaction
     const order = await database.transaction(async (connection) => {
