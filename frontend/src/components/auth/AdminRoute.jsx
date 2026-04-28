@@ -4,7 +4,8 @@
  */
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts';
+import { useAuth, useLoading } from '../../contexts';
+import { LoadingOverlay } from '../ui';
 
 /**
  * AdminRoute - Requires user to be logged in AND have admin role
@@ -13,14 +14,11 @@ import { useAuth } from '../../contexts';
  */
 export function AdminRoute({ children }) {
   const { user, loading } = useAuth();
+  const { isLoading: isGlobalLoading } = useLoading();
 
   // Wait for auth state to initialize
   if (loading) {
-    return (
-      <div className="flex-center" style={{ minHeight: '400px' }}>
-        <p>Đang tải...</p>
-      </div>
-    );
+    return isGlobalLoading ? null : <LoadingOverlay open text="Đang tải..." />;
   }
 
   // Redirect to auth if not logged in

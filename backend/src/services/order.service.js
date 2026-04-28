@@ -29,10 +29,16 @@ class OrderService {
     // Validate input
     const validatedData = validateCreateOrder(data);
 
-    // Check authorization for creating orders for other users
-    if (validatedData.userId && validatedData.userId !== currentUser.id) {
-      if (currentUser.role !== USER_ROLES.ADMIN) {
-        throw new AuthorizationError('Chỉ admin mới có thể tạo đơn hàng cho người khác');
+    // Admins are not allowed to create orders for themselves,
+    // but may create orders on behalf of other users.
+    if (currentUser.role === USER_ROLES.ADMIN) {
+      if (!validatedData.userId || validatedData.userId === currentUser.id) {
+        throw new AuthorizationError('Tài khoản admin không được phép mua hàng');
+      }
+    } else {
+      // Disallow creating orders for other users — only create orders for self
+      if (validatedData.userId && validatedData.userId !== currentUser.id) {
+        throw new AuthorizationError('Không thể tạo đơn hàng cho người khác');
       }
     }
 

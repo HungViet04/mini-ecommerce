@@ -173,7 +173,7 @@ export function AdminUserList() {
 
       {/* Users List */}
       {loading ? (
-        <Loading text="Đang tải..." />
+        <Loading text="Đang tải..." variant="skeleton" />
       ) : users.length === 0 ? (
         <div className="empty-container">
           <span className="empty-icon">👤</span>
@@ -271,7 +271,7 @@ export function AdminUserList() {
 
             <div className="modal-body">
               {loadingOrders ? (
-                <Loading text="Đang tải đơn hàng..." />
+                <Loading text="Đang tải đơn hàng..." variant="spinner" />
               ) : userOrders.length === 0 ? (
                 <p className="empty-text">Chưa có đơn hàng nào</p>
               ) : (

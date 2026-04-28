@@ -174,7 +174,7 @@ export function AdminOrderList() {
       )}
 
       {loading ? (
-        <Loading text="Đang tải đơn hàng..." />
+        <Loading text="Đang tải đơn hàng..." variant="skeleton" />
       ) : orders.length === 0 ? (
         <div className="empty-container">
           <span className="empty-icon">📋</span>

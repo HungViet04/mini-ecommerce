@@ -25,7 +25,7 @@ describe('ChatService', () => {
     expect(httpClient.post).toHaveBeenCalledWith(
       '/chatbot/message',
       { message: 'hello' },
-      { skipAuth: true }
+      { skipAuth: true, skipLoading: true }
     );
     expect(result.reply).toBe('hi');
   });
@@ -38,7 +38,7 @@ describe('ChatService', () => {
     expect(httpClient.post).toHaveBeenCalledWith(
       '/chatbot/message',
       { message: 'hello', sessionId: 'session-1' },
-      { skipAuth: true }
+      { skipAuth: true, skipLoading: true }
     );
   });
 
@@ -49,6 +49,7 @@ describe('ChatService', () => {
 
     expect(httpClient.delete).toHaveBeenCalledWith('/chatbot/session/session-1', {
       skipAuth: true,
+      skipLoading: true,
     });
   });
 

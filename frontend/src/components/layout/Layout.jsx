@@ -6,11 +6,13 @@
 import React from 'react';
 import { Navbar } from './Navbar';
 import FloatingCart from '../cart/FloatingCart';
-import { useAuth } from '../../contexts';
+import { useAuth, useLoading } from '../../contexts';
 import { useLocation } from 'react-router-dom';
+import { LoadingOverlay } from '../ui';
 
 export function Layout({ children, onSearch, onCheckout, activeFloating, onFloatingChange }) {
   const { isAdmin } = useAuth();
+  const { isLoading } = useLoading();
   const location = useLocation();
   const currentView = (() => {
     const p = location.pathname;
@@ -30,6 +32,7 @@ export function Layout({ children, onSearch, onCheckout, activeFloating, onFloat
   return (
     <div className="app-layout">
       <Navbar onSearch={onSearch} />
+      <LoadingOverlay open={isLoading} />
       {/* Ẩn FloatingCart khi ở trang đăng nhập/đăng ký/auth hoặc là admin */}
       {!hideCart && (
         <FloatingCart

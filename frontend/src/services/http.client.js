@@ -4,6 +4,8 @@
  * Pattern: Singleton + Adapter
  */
 
+import { startGlobalLoading, stopGlobalLoading } from '../utils/loadingStore';
+
 const BASE_URL =
   import.meta.env.VITE_API_BASE ||
   (import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1');
@@ -104,6 +106,10 @@ class HttpClient {
    */
   async request(method, path, body = null, options = {}) {
     const config = await this.buildConfig(method, options);
+    const shouldTrackLoading = !options.skipLoading;
+    if (shouldTrackLoading) {
+      startGlobalLoading();
+    }
 
     const isFormData = body instanceof FormData || options.isFormData;
     const responseType = options.responseType || 'json';
@@ -126,42 +132,48 @@ class HttpClient {
       config.body = isFormData ? body : JSON.stringify(body);
     }
 
-    const response = await fetch(`${this.baseURL}${path}`, config);
-    let data = null;
-
     try {
-      if (responseType === 'blob') {
-        data = await response.blob();
-      } else if (responseType === 'text') {
-        data = await response.text();
-      } else {
-        // default json
-        data = await response.json();
-      }
-    } catch (err) {
-      // ignore parse errors; data stays null
-      data = null;
-    }
+      const response = await fetch(`${this.baseURL}${path}`, config);
+      let data = null;
 
-    // Apply response interceptors
-    for (const interceptor of this.interceptors.response) {
-      await interceptor(response, data);
-    }
-
-    if (!response.ok) {
-      // Với blob/text, thử chuyển lỗi về text để dễ đọc
-      if (responseType === 'blob' && data instanceof Blob) {
-        try {
-          const text = await data.text();
-          throw new HttpError(response.status, text ? { message: text } : null);
-        } catch (e) {
-          throw new HttpError(response.status, null);
+      try {
+        if (responseType === 'blob') {
+          data = await response.blob();
+        } else if (responseType === 'text') {
+          data = await response.text();
+        } else {
+          // default json
+          data = await response.json();
         }
+      } catch (err) {
+        // ignore parse errors; data stays null
+        data = null;
       }
-      throw new HttpError(response.status, data);
-    }
 
-    return data;
+      // Apply response interceptors
+      for (const interceptor of this.interceptors.response) {
+        await interceptor(response, data);
+      }
+
+      if (!response.ok) {
+        // Với blob/text, thử chuyển lỗi về text để dễ đọc
+        if (responseType === 'blob' && data instanceof Blob) {
+          try {
+            const text = await data.text();
+            throw new HttpError(response.status, text ? { message: text } : null);
+          } catch (e) {
+            throw new HttpError(response.status, null);
+          }
+        }
+        throw new HttpError(response.status, data);
+      }
+
+      return data;
+    } finally {
+      if (shouldTrackLoading) {
+        stopGlobalLoading();
+      }
+    }
   }
 
   // Convenience methods

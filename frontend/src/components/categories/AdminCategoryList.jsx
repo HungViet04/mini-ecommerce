@@ -188,7 +188,7 @@ export function AdminCategoryList() {
 
       {/* Category List */}
       {loading ? (
-        <Loading text="Đang tải danh mục..." />
+        <Loading text="Đang tải danh mục..." variant="skeleton" />
       ) : categories.length === 0 ? (
         <div className="empty-container">
           <span className="empty-icon">📂</span>

@@ -5,7 +5,8 @@
  */
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts';
+import { useAuth, useLoading } from '../../contexts';
+import { LoadingOverlay } from '../ui';
 
 /**
  * GuestRoute - Only accessible when NOT logged in
@@ -14,15 +15,12 @@ import { useAuth } from '../../contexts';
  */
 export function GuestRoute({ children }) {
   const { user, loading } = useAuth();
+  const { isLoading: isGlobalLoading } = useLoading();
   const location = useLocation();
 
   // Wait for auth state to initialize
   if (loading) {
-    return (
-      <div className="flex-center" style={{ minHeight: '400px' }}>
-        <p>Đang tải...</p>
-      </div>
-    );
+    return isGlobalLoading ? null : <LoadingOverlay open text="Đang tải..." />;
   }
 
   // Redirect if already logged in

@@ -31,7 +31,7 @@ export function OrderList() {
   if (loading) {
     return (
       <div className="orders-container">
-        <Loading text="Đang tải đơn hàng..." />
+        <Loading text="Đang tải đơn hàng..." variant="skeleton" />
       </div>
     );
   }

@@ -17,7 +17,10 @@ export const chatService = {
     if (sessionId) {
       body.sessionId = sessionId;
     }
-    const response = await httpClient.post('/chatbot/message', body, { skipAuth: true });
+    const response = await httpClient.post('/chatbot/message', body, {
+      skipAuth: true,
+      skipLoading: true,
+    });
     return response.data || response;
   },
 
@@ -28,6 +31,9 @@ export const chatService = {
    */
   async clearSession(sessionId) {
     if (!sessionId) return;
-    await httpClient.delete(`/chatbot/session/${sessionId}`, { skipAuth: true });
+    await httpClient.delete(`/chatbot/session/${sessionId}`, {
+      skipAuth: true,
+      skipLoading: true,
+    });
   },
 };
