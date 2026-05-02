@@ -44,7 +44,7 @@ function cartReducer(state, action) {
           stock:
             incomingStock !== null && incomingStock !== undefined
               ? incomingStock
-              : currentItem.stock ?? null,
+              : (currentItem.stock ?? null),
         };
         return { ...state, items: newItems };
       }
@@ -79,9 +79,7 @@ function cartReducer(state, action) {
         : null;
       const minQuantity = Math.max(1, action.payload.quantity);
       const cappedQuantity =
-        stockValue !== null && stockValue > 0
-          ? Math.min(minQuantity, stockValue)
-          : minQuantity;
+        stockValue !== null && stockValue > 0 ? Math.min(minQuantity, stockValue) : minQuantity;
 
       newItems[action.payload.index] = {
         ...currentItem,
@@ -109,9 +107,7 @@ export function CartProvider({ children }) {
 
   // Add item to cart
   const addItem = useCallback((product, quantity = 1) => {
-    const normalizedStock = Number.isFinite(Number(product.stock))
-      ? Number(product.stock)
-      : null;
+    const normalizedStock = Number.isFinite(Number(product.stock)) ? Number(product.stock) : null;
     dispatch({
       type: CART_ACTIONS.ADD_ITEM,
       payload: {

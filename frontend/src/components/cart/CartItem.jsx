@@ -3,19 +3,45 @@
  * Single cart item display
  * Pattern: Presentational Component
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui';
 import { formatPrice } from '../../utils';
 
 export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
+
   const { productId, productName, price, quantity } = item;
   const subtotal = price * quantity;
   const [error, setError] = useState('');
-  const maxStock = Number.isFinite(Number(item.stock)) ? Number(item.stock) : null;
+  const [stock, setStock] = useState(Number.isFinite(Number(item.stock)) ? Number(item.stock) : null);
+  const [loadingStock, setLoadingStock] = useState(stock === null);
+
+  useEffect(() => {
+    let mounted = true;
+    if (stock === null && productId) {
+      setLoadingStock(true);
+      import('../../services').then(({ productService }) => {
+        productService.getById(productId).then((res) => {
+          if (mounted && res && typeof res.stock !== 'undefined') {
+            setStock(Number(res.stock));
+          }
+        }).finally(() => {
+          if (mounted) setLoadingStock(false);
+        });
+      });
+    } else {
+      setLoadingStock(false);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [productId]);
+
+
 
   const handleIncrease = () => {
-    if (maxStock !== null && quantity >= maxStock) {
-      setError(`Chỉ còn ${maxStock} sản phẩm trong kho.`);
+    if (loadingStock) return;
+    if (stock !== null && quantity >= stock) {
+      setError(`Chỉ còn ${stock} sản phẩm trong kho.`);
       return;
     }
     setError('');
@@ -35,16 +61,16 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
       </div>
 
       <div className="cart-item-quantity">
-        <button className="qty-btn" onClick={handleDecrease} disabled={quantity <= 1}>
+        <button className="qty-btn" onClick={handleDecrease} disabled={quantity <= 1 || loadingStock}>
           -
         </button>
         <span className="qty-value">{quantity}</span>
         <button
           className="qty-btn"
           onClick={handleIncrease}
-          disabled={maxStock !== null && quantity >= maxStock}
+          disabled={loadingStock || (stock !== null && quantity >= stock)}
         >
-          +
+          {loadingStock ? <span style={{fontSize:10}}>...</span> : '+'}
         </button>
       </div>
 

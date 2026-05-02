@@ -48,8 +48,8 @@ export function Navbar({ onSearch }) {
         </div>
       )}
 
-      {/* Search Bar - ẩn ở trang đăng nhập/đăng ký */}
-      {location.pathname !== '/auth' && (
+      {/* Search Bar - ẩn ở trang đăng nhập/đăng ký và khi là admin */}
+      {location.pathname !== '/auth' && !isAdmin && (
         <div className="navbar-search">
           <SearchBar onSearch={onSearch} />
         </div>

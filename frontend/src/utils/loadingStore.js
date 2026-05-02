@@ -14,8 +14,7 @@ const notify = () => {
 };
 
 export const startGlobalLoading = (options = {}) => {
-  const delayMs =
-    typeof options.delayMs === 'number' ? options.delayMs : DEFAULT_DELAY_MS;
+  const delayMs = typeof options.delayMs === 'number' ? options.delayMs : DEFAULT_DELAY_MS;
 
   activeCount += 1;
 

@@ -77,9 +77,7 @@ export const orderService = {
     const queryString = query.toString();
     const path = queryString ? `/orders?${queryString}` : '/orders';
 
-    const response = options
-      ? await httpClient.get(path, options)
-      : await httpClient.get(path);
+    const response = options ? await httpClient.get(path, options) : await httpClient.get(path);
     return response.data || response;
   },
 
