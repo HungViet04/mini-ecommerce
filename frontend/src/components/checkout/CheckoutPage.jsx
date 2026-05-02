@@ -43,7 +43,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
       try {
         const details = await Promise.all(
           uniqueIds.map(async (id) => {
-            const product = await productService.getById(id);
+            const product = await productService.getById(id, { skipLoading: true });
             return [id, product];
           })
         );
@@ -136,15 +136,26 @@ export function CheckoutPage({ onBack, onSuccess }) {
     setError(null);
     try {
       // Kiểm tra tồn kho từng sản phẩm
-      for (const item of items) {
-        const product = await productService.getById(item.productId);
-        if (item.quantity > product.stock) {
-          setError(
-            `Sản phẩm "${product.name}" chỉ còn ${product.stock} sản phẩm trong kho. Vui lòng giảm số lượng.`
-          );
-          setLoading(false);
-          return;
-        }
+      const stockChecks = await Promise.all(
+        items.map(async (item) => {
+          const product = await productService.getById(item.productId, { skipLoading: true });
+          return { item, product };
+        })
+      );
+
+      const insufficientStock = stockChecks.find(({ item, product }) => {
+        const stockValue = Number(product?.stock);
+        return Number.isFinite(stockValue) && item.quantity > stockValue;
+      });
+
+      if (insufficientStock) {
+        const { item, product } = insufficientStock;
+        const stockValue = Number(product?.stock);
+        const displayName = product?.name || `Sản phẩm #${item.productId}`;
+        setError(
+          `Sản phẩm "${displayName}" chỉ còn ${stockValue} sản phẩm trong kho. Vui lòng giảm số lượng.`
+        );
+        return;
       }
       const orderData = {
         items: items.map((item) => ({
@@ -162,7 +173,7 @@ export function CheckoutPage({ onBack, onSuccess }) {
         },
         paymentMethod,
       };
-      const result = await orderService.create(orderData);
+      const result = await orderService.create(orderData, { skipLoading: true });
 
       // Nếu thanh toán VNPay, tạo URL thanh toán và redirect
       if (paymentMethod === PAYMENT_METHODS.VNPAY) {

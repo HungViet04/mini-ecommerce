@@ -32,7 +32,7 @@ export function useAdminOrders(options = {}) {
       params.limit = pageSize;
       if (status) params.status = status;
       if (search) params.search = search;
-      const result = await orderService.getAll(params);
+      const result = await orderService.getAll(params, { skipLoading: true });
       let items = [];
       if (result.meta && result.meta.pagination) {
         items = result.data || [];
@@ -56,7 +56,7 @@ export function useAdminOrders(options = {}) {
     setError(null);
 
     try {
-      await orderService.updateStatus(orderId, newStatus);
+      await orderService.updateStatus(orderId, newStatus, { skipLoading: true });
       // Update local state
       setOrders((prev) =>
         prev.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order))

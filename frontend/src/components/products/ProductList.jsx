@@ -17,7 +17,7 @@ const PRODUCTS_PER_PAGE = 8;
 const FEATURED_PRODUCTS_COUNT = 4;
 
 export function ProductList({ searchQuery = '', categoryId = null, onCategoryChange }) {
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
   const { isAdmin } = useAuth();
   const { notifyToast } = useNotification();
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -60,7 +60,10 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     setBaseError(null);
 
     try {
-      const result = await productService.getAll({ page, limit: PRODUCTS_PER_PAGE });
+      const result = await productService.getAll(
+        { page, limit: PRODUCTS_PER_PAGE },
+        { skipLoading: true }
+      );
       if (result && result.meta && result.meta.pagination) {
         setProducts(result.data || []);
         setProductsTotal(result.meta.pagination.total || 0);
@@ -80,7 +83,10 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
 
   const fetchFeatured = useCallback(async () => {
     try {
-      const result = await productService.getAll({ page: 1, limit: FEATURED_PRODUCTS_COUNT });
+      const result = await productService.getAll(
+        { page: 1, limit: FEATURED_PRODUCTS_COUNT },
+        { skipLoading: true }
+      );
       if (result && result.meta && result.meta.pagination) {
         setFeaturedProducts(result.data || []);
       } else {
@@ -106,11 +112,14 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       setLoading(true);
       setError(null);
       try {
-        const result = await productService.searchAndFilter({
-          ...combinedFilters,
-          page: currentPage,
-          limit: PRODUCTS_PER_PAGE,
-        });
+        const result = await productService.searchAndFilter(
+          {
+            ...combinedFilters,
+            page: currentPage,
+            limit: PRODUCTS_PER_PAGE,
+          },
+          { skipLoading: true }
+        );
         setFilteredProducts(result.data || []);
         setFilterTotal(result.meta?.pagination?.total || 0);
       } catch (err) {
@@ -139,12 +148,15 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
       setError(null);
 
       try {
-        const result = await productService.searchAndFilter({
-          keyword: keyword || undefined,
-          category_id: categoryId || undefined,
-          page: currentPage,
-          limit: PRODUCTS_PER_PAGE,
-        });
+        const result = await productService.searchAndFilter(
+          {
+            keyword: keyword || undefined,
+            category_id: categoryId || undefined,
+            page: currentPage,
+            limit: PRODUCTS_PER_PAGE,
+          },
+          { skipLoading: true }
+        );
         setFilteredProducts(result.data || []);
         setFilterTotal(result.meta?.pagination?.total || 0);
       } catch (err) {
@@ -170,14 +182,13 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
     }
   }, [hasAdvancedFilters, keyword, categoryId, fetchFeatured]);
 
-  const { items } = useCart();
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = (product) => {
     if (isAdmin) return;
     const cartItem = items.find((i) => i.productId === product.id);
     const currentQty = cartItem ? cartItem.quantity : 0;
-    const latest = await productService.getById(product.id);
-    if (currentQty + 1 > latest.stock) {
-      notifyToast(`Chỉ còn ${latest.stock} sản phẩm trong kho. Không thể thêm vượt quá.`, {
+    const maxStock = Number.isFinite(Number(product.stock)) ? Number(product.stock) : null;
+    if (maxStock !== null && currentQty + 1 > maxStock) {
+      notifyToast(`Chỉ còn ${maxStock} sản phẩm trong kho. Không thể thêm vượt quá.`, {
         type: 'error',
       });
       return;

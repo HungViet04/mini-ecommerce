@@ -27,6 +27,9 @@ const initialState = {
 function cartReducer(state, action) {
   switch (action.type) {
     case CART_ACTIONS.ADD_ITEM: {
+      const incomingStock = Number.isFinite(Number(action.payload.stock))
+        ? Number(action.payload.stock)
+        : null;
       const existingIndex = state.items.findIndex(
         (item) => item.productId === action.payload.productId
       );
@@ -34,9 +37,14 @@ function cartReducer(state, action) {
       if (existingIndex >= 0) {
         // Update quantity if item exists
         const newItems = [...state.items];
+        const currentItem = newItems[existingIndex];
         newItems[existingIndex] = {
-          ...newItems[existingIndex],
-          quantity: newItems[existingIndex].quantity + action.payload.quantity,
+          ...currentItem,
+          quantity: currentItem.quantity + action.payload.quantity,
+          stock:
+            incomingStock !== null && incomingStock !== undefined
+              ? incomingStock
+              : currentItem.stock ?? null,
         };
         return { ...state, items: newItems };
       }
@@ -44,7 +52,13 @@ function cartReducer(state, action) {
       // Add new item
       return {
         ...state,
-        items: [...state.items, action.payload],
+        items: [
+          ...state.items,
+          {
+            ...action.payload,
+            stock: incomingStock,
+          },
+        ],
       };
     }
 
@@ -56,9 +70,22 @@ function cartReducer(state, action) {
 
     case CART_ACTIONS.UPDATE_QUANTITY: {
       const newItems = [...state.items];
+      const currentItem = newItems[action.payload.index];
+      if (!currentItem) {
+        return state;
+      }
+      const stockValue = Number.isFinite(Number(currentItem.stock))
+        ? Number(currentItem.stock)
+        : null;
+      const minQuantity = Math.max(1, action.payload.quantity);
+      const cappedQuantity =
+        stockValue !== null && stockValue > 0
+          ? Math.min(minQuantity, stockValue)
+          : minQuantity;
+
       newItems[action.payload.index] = {
-        ...newItems[action.payload.index],
-        quantity: action.payload.quantity,
+        ...currentItem,
+        quantity: cappedQuantity,
       };
       return { ...state, items: newItems };
     }
@@ -82,6 +109,9 @@ export function CartProvider({ children }) {
 
   // Add item to cart
   const addItem = useCallback((product, quantity = 1) => {
+    const normalizedStock = Number.isFinite(Number(product.stock))
+      ? Number(product.stock)
+      : null;
     dispatch({
       type: CART_ACTIONS.ADD_ITEM,
       payload: {
@@ -90,6 +120,7 @@ export function CartProvider({ children }) {
         imageUrl: product.image_url || '',
         price: product.price,
         quantity,
+        stock: normalizedStock,
       },
     });
   }, []);

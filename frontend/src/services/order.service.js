@@ -11,15 +11,19 @@ export const orderService = {
    * @param {Object} data - { items, shippingInfo, paymentMethod }
    * @returns {Promise<Object>}
    */
-  async create(data) {
-    const response = await httpClient.post('/orders', {
+  async create(data, options) {
+    const payload = {
       items: data.items.map((item) => ({
         productId: item.productId,
         quantity: Number(item.quantity),
       })),
       shippingInfo: data.shippingInfo || null,
       paymentMethod: data.paymentMethod || 'cod',
-    });
+    };
+
+    const response = options
+      ? await httpClient.post('/orders', payload, options)
+      : await httpClient.post('/orders', payload);
     return response.data || response;
   },
 
@@ -27,8 +31,10 @@ export const orderService = {
    * Get current user's orders
    * @returns {Promise<Array>}
    */
-  async getMyOrders() {
-    const response = await httpClient.get('/orders/my');
+  async getMyOrders(options) {
+    const response = options
+      ? await httpClient.get('/orders/my', options)
+      : await httpClient.get('/orders/my');
     return response.data || response;
   },
 
@@ -37,8 +43,10 @@ export const orderService = {
    * @param {number} id - Order ID
    * @returns {Promise<Object>}
    */
-  async getById(id) {
-    const response = await httpClient.get(`/orders/${id}`);
+  async getById(id, options) {
+    const response = options
+      ? await httpClient.get(`/orders/${id}`, options)
+      : await httpClient.get(`/orders/${id}`);
     return response.data || response;
   },
 
@@ -47,8 +55,10 @@ export const orderService = {
    * @param {number} id - Order ID
    * @returns {Promise<Object>}
    */
-  async cancel(id) {
-    const response = await httpClient.post(`/orders/${id}/cancel`);
+  async cancel(id, options) {
+    const response = options
+      ? await httpClient.post(`/orders/${id}/cancel`, null, options)
+      : await httpClient.post(`/orders/${id}/cancel`);
     return response.data || response;
   },
 
@@ -57,7 +67,7 @@ export const orderService = {
    * @param {Object} params - { page, limit, status, search }
    * @returns {Promise<Object>}
    */
-  async getAll(params = {}) {
+  async getAll(params = {}, options) {
     const query = new URLSearchParams();
     if (params.page) query.set('page', params.page);
     if (params.limit) query.set('limit', params.limit);
@@ -67,7 +77,9 @@ export const orderService = {
     const queryString = query.toString();
     const path = queryString ? `/orders?${queryString}` : '/orders';
 
-    const response = await httpClient.get(path);
+    const response = options
+      ? await httpClient.get(path, options)
+      : await httpClient.get(path);
     return response.data || response;
   },
 
@@ -77,8 +89,10 @@ export const orderService = {
    * @param {string} status - New status
    * @returns {Promise<Object>}
    */
-  async updateStatus(id, status) {
-    const response = await httpClient.patch(`/orders/${id}/status`, { status });
+  async updateStatus(id, status, options) {
+    const response = options
+      ? await httpClient.patch(`/orders/${id}/status`, { status }, options)
+      : await httpClient.patch(`/orders/${id}/status`, { status });
     return response.data || response;
   },
 
@@ -87,8 +101,10 @@ export const orderService = {
    * @param {number} id - Order ID
    * @returns {Promise<Object>}
    */
-  async confirmDelivery(id) {
-    const response = await httpClient.post(`/orders/${id}/confirm-delivery`);
+  async confirmDelivery(id, options) {
+    const response = options
+      ? await httpClient.post(`/orders/${id}/confirm-delivery`, null, options)
+      : await httpClient.post(`/orders/${id}/confirm-delivery`);
     return response.data || response;
   },
 };

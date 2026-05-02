@@ -108,7 +108,7 @@ class HttpClient {
     const config = await this.buildConfig(method, options);
     const shouldTrackLoading = !options.skipLoading;
     if (shouldTrackLoading) {
-      startGlobalLoading();
+      startGlobalLoading({ delayMs: options.loadingDelayMs });
     }
 
     const isFormData = body instanceof FormData || options.isFormData;

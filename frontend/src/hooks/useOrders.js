@@ -23,7 +23,7 @@ export function useOrders(options = {}) {
     setError(null);
 
     try {
-      const result = await orderService.getMyOrders();
+      const result = await orderService.getMyOrders({ skipLoading: true });
       setOrders(Array.isArray(result) ? result : result.items || []);
     } catch (err) {
       setError(err.message || 'Không thể tải danh sách đơn hàng');
@@ -36,7 +36,7 @@ export function useOrders(options = {}) {
   const cancelOrder = useCallback(
     async (orderId) => {
       try {
-        await orderService.cancel(orderId);
+        await orderService.cancel(orderId, { skipLoading: true });
         await fetchOrders(); // Refetch after cancel
         return true;
       } catch (err) {
@@ -50,7 +50,7 @@ export function useOrders(options = {}) {
   const confirmDelivery = useCallback(
     async (orderId) => {
       try {
-        await orderService.confirmDelivery(orderId);
+        await orderService.confirmDelivery(orderId, { skipLoading: true });
         await fetchOrders(); // Refetch after confirm
         return true;
       } catch (err) {
@@ -93,7 +93,7 @@ export function useCreateOrder() {
     setSuccess(false);
 
     try {
-      const result = await orderService.create({ items });
+      const result = await orderService.create({ items }, { skipLoading: true });
       setSuccess(true);
       return result;
     } catch (err) {

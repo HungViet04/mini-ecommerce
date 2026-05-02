@@ -45,14 +45,17 @@ export function AdminProductList() {
     lastSearchRef.current = requestKey;
 
     try {
-      const result = await productService.searchAndFilter({
-        keyword,
-        category_id: filters.category_id,
-        min_price: filters.min_price,
-        max_price: filters.max_price,
-        page,
-        limit: PAGE_SIZE,
-      });
+      const result = await productService.searchAndFilter(
+        {
+          keyword,
+          category_id: filters.category_id,
+          min_price: filters.min_price,
+          max_price: filters.max_price,
+          page,
+          limit: PAGE_SIZE,
+        },
+        { skipLoading: true }
+      );
       const items = result?.data || result?.items || [];
       const total = result?.meta?.pagination?.total ?? items.length;
       const totalPageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));

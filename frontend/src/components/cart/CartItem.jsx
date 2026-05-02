@@ -3,30 +3,19 @@
  * Single cart item display
  * Pattern: Presentational Component
  */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '../ui';
 import { formatPrice } from '../../utils';
-import { productService } from '../../services';
 
 export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
   const { productId, productName, price, quantity } = item;
   const subtotal = price * quantity;
-  const [stock, setStock] = useState(null);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    let mounted = true;
-    productService.getById(productId).then((product) => {
-      if (mounted) setStock(product.stock);
-    });
-    return () => {
-      mounted = false;
-    };
-  }, [productId]);
+  const maxStock = Number.isFinite(Number(item.stock)) ? Number(item.stock) : null;
 
   const handleIncrease = () => {
-    if (stock !== null && quantity >= stock) {
-      setError(`Chỉ còn ${stock} sản phẩm trong kho.`);
+    if (maxStock !== null && quantity >= maxStock) {
+      setError(`Chỉ còn ${maxStock} sản phẩm trong kho.`);
       return;
     }
     setError('');
@@ -53,7 +42,7 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
         <button
           className="qty-btn"
           onClick={handleIncrease}
-          disabled={stock !== null && quantity >= stock}
+          disabled={maxStock !== null && quantity >= maxStock}
         >
           +
         </button>

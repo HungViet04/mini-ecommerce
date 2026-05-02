@@ -145,7 +145,7 @@ describe('useOrders', () => {
       });
 
       expect(success).toBe(true);
-      expect(orderService.cancel).toHaveBeenCalledWith(1);
+      expect(orderService.cancel).toHaveBeenCalledWith(1, { skipLoading: true });
       // Should refetch after cancel
       expect(orderService.getMyOrders).toHaveBeenCalledTimes(2);
     });
@@ -187,7 +187,7 @@ describe('useOrders', () => {
       });
 
       expect(success).toBe(true);
-      expect(orderService.confirmDelivery).toHaveBeenCalledWith(1);
+      expect(orderService.confirmDelivery).toHaveBeenCalledWith(1, { skipLoading: true });
       expect(orderService.getMyOrders).toHaveBeenCalledTimes(2);
     });
 

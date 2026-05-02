@@ -27,7 +27,7 @@ export function ProductDetailPage() {
       setError('');
 
       try {
-        const data = await productService.getById(id);
+        const data = await productService.getById(id, { skipLoading: true });
         if (!mounted) return;
         setProduct(data);
       } catch (err) {
@@ -47,15 +47,15 @@ export function ProductDetailPage() {
     };
   }, [id]);
 
-  const handleAddToCart = async (item) => {
+  const handleAddToCart = (item) => {
     if (isAdmin) return;
 
     const cartItem = items.find((i) => i.productId === item.id);
     const currentQty = cartItem ? cartItem.quantity : 0;
-    const latest = await productService.getById(item.id);
+    const maxStock = Number.isFinite(Number(item.stock)) ? Number(item.stock) : null;
 
-    if (currentQty + 1 > latest.stock) {
-      notifyToast(`Chỉ còn ${latest.stock} sản phẩm trong kho. Không thể thêm vượt quá.`, {
+    if (maxStock !== null && currentQty + 1 > maxStock) {
+      notifyToast(`Chỉ còn ${maxStock} sản phẩm trong kho. Không thể thêm vượt quá.`, {
         type: 'error',
       });
       return;

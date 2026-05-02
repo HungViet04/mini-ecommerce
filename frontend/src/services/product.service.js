@@ -11,7 +11,7 @@ export const productService = {
    * @param {Object} params - { page, limit }
    * @returns {Promise<Object>} { items, total, page, limit }
    */
-  async getAll(params = {}) {
+  async getAll(params = {}, options = {}) {
     const query = new URLSearchParams();
     if (params.page) query.set('page', params.page);
     if (params.limit) query.set('limit', params.limit);
@@ -19,7 +19,7 @@ export const productService = {
     const queryString = query.toString();
     const path = queryString ? `/products?${queryString}` : '/products';
 
-    const response = await httpClient.get(path, { skipAuth: true });
+    const response = await httpClient.get(path, { skipAuth: true, ...options });
     if (response && response.meta) {
       return response;
     }
@@ -31,8 +31,8 @@ export const productService = {
    * @param {number} id - Product ID
    * @returns {Promise<Object>}
    */
-  async getById(id) {
-    const response = await httpClient.get(`/products/${id}`, { skipAuth: true });
+  async getById(id, options = {}) {
+    const response = await httpClient.get(`/products/${id}`, { skipAuth: true, ...options });
     return response.data || response;
   },
 
@@ -41,14 +41,15 @@ export const productService = {
    * @param {string} query - Search query
    * @returns {Promise<Array>}
    */
-  async search(query) {
+  async search(query, options = {}) {
     const response = await httpClient.get(`/products/search?q=${encodeURIComponent(query)}`, {
       skipAuth: true,
+      ...options,
     });
     return response.data || response;
   },
 
-  async searchAndFilter(filters = {}) {
+  async searchAndFilter(filters = {}, options = {}) {
     const query = new URLSearchParams();
     if (filters.keyword) query.set('keyword', filters.keyword);
     if (filters.category_id) query.set('category_id', filters.category_id);
@@ -64,7 +65,7 @@ export const productService = {
     const queryString = query.toString();
     const path = queryString ? `/products/filter?${queryString}` : '/products/filter';
 
-    const response = await httpClient.get(path, { skipAuth: true });
+    const response = await httpClient.get(path, { skipAuth: true, ...options });
     return response;
   },
 
@@ -73,9 +74,10 @@ export const productService = {
    * @param {number} categoryId - Category ID
    * @returns {Promise<Array>}
    */
-  async getByCategory(categoryId) {
+  async getByCategory(categoryId, options = {}) {
     const response = await httpClient.get(`/products/category/${categoryId}`, {
       skipAuth: true,
+      ...options,
     });
     return response.data || response;
   },
@@ -122,9 +124,10 @@ export const productService = {
    * @param {number} id - Product ID
    * @returns {Promise<Object>}
    */
-  async checkAvailability(id) {
+  async checkAvailability(id, options = {}) {
     const response = await httpClient.get(`/products/${id}/availability`, {
       skipAuth: true,
+      ...options,
     });
     return response.data || response;
   },

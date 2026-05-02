@@ -69,7 +69,8 @@ describe('useAdminOrders', () => {
 
       await waitFor(() => {
         expect(orderService.getAll).toHaveBeenCalledWith(
-          expect.objectContaining({ status: 'pending' })
+          expect.objectContaining({ status: 'pending' }),
+          { skipLoading: true }
         );
       });
     });
@@ -123,7 +124,9 @@ describe('useAdminOrders', () => {
       });
 
       expect(success).toBe(true);
-      expect(orderService.updateStatus).toHaveBeenCalledWith(1, 'shipped');
+      expect(orderService.updateStatus).toHaveBeenCalledWith(1, 'shipped', {
+        skipLoading: true,
+      });
       // Local state should be updated
       const order1 = result.current.orders.find((o) => o.id === 1);
       expect(order1.status).toBe('shipped');
