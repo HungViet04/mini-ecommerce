@@ -145,7 +145,11 @@ describe('CartItem Component', () => {
         />
       );
 
-      const decreaseBtn = screen.getByText('-');
+      // Wait for loadingStock to be false (button enabled)
+      const decreaseBtn = await screen.findByText('-');
+      await waitFor(() => {
+        expect(decreaseBtn).not.toBeDisabled();
+      });
       fireEvent.click(decreaseBtn);
 
       expect(mockOnUpdateQuantity).toHaveBeenCalledWith(0, 1);

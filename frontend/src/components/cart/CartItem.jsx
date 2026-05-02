@@ -8,11 +8,12 @@ import { Button } from '../ui';
 import { formatPrice } from '../../utils';
 
 export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
-
   const { productId, productName, price, quantity } = item;
   const subtotal = price * quantity;
   const [error, setError] = useState('');
-  const [stock, setStock] = useState(Number.isFinite(Number(item.stock)) ? Number(item.stock) : null);
+  const [stock, setStock] = useState(
+    Number.isFinite(Number(item.stock)) ? Number(item.stock) : null
+  );
   const [loadingStock, setLoadingStock] = useState(stock === null);
 
   useEffect(() => {
@@ -20,13 +21,16 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
     if (stock === null && productId) {
       setLoadingStock(true);
       import('../../services').then(({ productService }) => {
-        productService.getById(productId).then((res) => {
-          if (mounted && res && typeof res.stock !== 'undefined') {
-            setStock(Number(res.stock));
-          }
-        }).finally(() => {
-          if (mounted) setLoadingStock(false);
-        });
+        productService
+          .getById(productId)
+          .then((res) => {
+            if (mounted && res && typeof res.stock !== 'undefined') {
+              setStock(Number(res.stock));
+            }
+          })
+          .finally(() => {
+            if (mounted) setLoadingStock(false);
+          });
       });
     } else {
       setLoadingStock(false);
@@ -35,8 +39,6 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
       mounted = false;
     };
   }, [productId]);
-
-
 
   const handleIncrease = () => {
     if (loadingStock) return;
@@ -50,7 +52,9 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
 
   const handleDecrease = () => {
     setError('');
-    onUpdateQuantity(index, quantity - 1);
+    if (quantity > 0) {
+      onUpdateQuantity(index, quantity - 1);
+    }
   };
 
   return (
@@ -61,7 +65,11 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
       </div>
 
       <div className="cart-item-quantity">
-        <button className="qty-btn" onClick={handleDecrease} disabled={quantity <= 1 || loadingStock}>
+        <button
+          className="qty-btn"
+          onClick={handleDecrease}
+          disabled={quantity <= 0 || loadingStock}
+        >
           -
         </button>
         <span className="qty-value">{quantity}</span>
@@ -70,7 +78,7 @@ export function CartItem({ item, index, onUpdateQuantity, onRemove }) {
           onClick={handleIncrease}
           disabled={loadingStock || (stock !== null && quantity >= stock)}
         >
-          {loadingStock ? <span style={{fontSize:10}}>...</span> : '+'}
+          {loadingStock ? <span style={{ fontSize: 10 }}>...</span> : '+'}
         </button>
       </div>
 
