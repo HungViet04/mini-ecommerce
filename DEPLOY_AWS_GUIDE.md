@@ -570,9 +570,12 @@ services:
       S3_BUCKET: "your-s3-bucket-name"  # Thay bằng tên bucket S3 của bạn
       S3_REGION: "ap-southeast-1"  # Thay bằng region của bucket S3 của bạn
 
-      # GEMINI KEY
-      GEMINI_API_KEY: "your-gemini-api-key-here"
-      GEMINI_MODEL: (optional)
+      # OPENAI
+      OPENAI_API_KEY: "your-openai-api-key-here"
+      OPENAI_MODEL: "gpt-4o-mini"
+      OPENAI_BASE_URL: ""  # optional (dùng khi cần proxy/OpenAI-compatible endpoint)
+      OPENAI_MAX_TOKENS: "700"
+      OPENAI_TEMPERATURE: "0.3"
 
     volumes:
       - ./uploads:/app/uploads
