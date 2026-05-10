@@ -26,10 +26,10 @@ app.use(
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
-        "default-src": ["'none'"],
-        "base-uri": ["'none'"],
-        "frame-ancestors": ["'none'"],
-        "form-action": ["'none'"],
+        'default-src': ["'none'"],
+        'base-uri': ["'none'"],
+        'frame-ancestors': ["'none'"],
+        'form-action': ["'none'"],
       },
     },
     frameguard: { action: 'deny' },
