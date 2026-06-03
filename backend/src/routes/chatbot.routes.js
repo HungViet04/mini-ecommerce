@@ -1,6 +1,6 @@
 /**
  * Chatbot Routes
- * Routes for AI chatbot endpoints
+ * Trợ lý cửa hàng — tra cứu database
  */
 const express = require('express');
 const router = express.Router();
@@ -89,7 +89,9 @@ const validateChatMessageLength = (req, res, next) => {
   return next();
 };
 
+router.get('/config', chatbotController.getConfig);
 router.post('/message', chatbotRateLimit, validateChatMessageLength, chatbotController.sendMessage);
+router.post('/analysis', chatbotRateLimit, validateChatMessageLength, chatbotController.analyzeMessage);
 router.delete('/session/:sessionId', chatbotRateLimit, chatbotController.clearSession);
 
 module.exports = router;

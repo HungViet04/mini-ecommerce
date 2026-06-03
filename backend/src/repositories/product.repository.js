@@ -41,6 +41,76 @@ class ProductRepository extends BaseRepository {
     return rows;
   }
 
+  /**
+   * Find products by exact name
+   * @param {string} name - Exact product name
+   * @param {Object} options - Query options
+   * @returns {Promise<Array>}
+   */
+  async findByExactName(name, options = {}) {
+    const trimmed = String(name || '').trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    const { limit = 10, offset = 0 } = options;
+    const sql = `
+      SELECT p.id, p.name, p.description, p.image_url, p.price, p.stock, p.category_id, p.created_at,
+             c.name AS category_name
+      FROM ${this.tableName} p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.name = ?
+      ORDER BY p.name ASC
+      LIMIT ? OFFSET ?
+    `;
+    const [rows] = await this.query(sql, [trimmed, parseInt(limit, 10), parseInt(offset, 10)]);
+    return rows;
+  }
+
+  /**
+   * Search products by keyword in name, description, or category name
+   * @param {string} keyword
+   * @param {Object} options
+   * @returns {Promise<Array>}
+   */
+  async searchByText(keyword, options = {}) {
+    const trimmed = String(keyword || '').trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    const { limit = 20, offset = 0 } = options;
+    const pattern = `%${trimmed}%`;
+    const sql = `
+      SELECT p.id, p.name, p.description, p.image_url, p.price, p.stock, p.category_id, p.created_at,
+             c.name AS category_name
+      FROM ${this.tableName} p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.name LIKE ?
+         OR p.description LIKE ?
+         OR c.name LIKE ?
+      ORDER BY
+        CASE
+          WHEN p.name LIKE ? THEN 0
+          WHEN c.name LIKE ? THEN 1
+          ELSE 2
+        END,
+        p.name ASC
+      LIMIT ? OFFSET ?
+    `;
+
+    const [rows] = await this.query(sql, [
+      pattern,
+      pattern,
+      pattern,
+      pattern,
+      pattern,
+      parseInt(limit, 10),
+      parseInt(offset, 10),
+    ]);
+    return rows;
+  }
+
   async searchAndFilter({
     keyword,
     categoryId,

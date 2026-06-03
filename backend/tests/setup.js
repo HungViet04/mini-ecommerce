@@ -20,17 +20,6 @@ global.console = {
   error: jest.fn(),
 };
 
-// ── Mock optional external SDKs used by services ──────────
-jest.mock(
-  'openai',
-  () => {
-    return function OpenAI() {
-      return {};
-    };
-  },
-  { virtual: true }
-);
-
 // ── Global test utilities (used by unit tests) ─────────────
 global.testUtils = {
   createMockUser: (overrides = {}) => ({

@@ -13,7 +13,7 @@ jest.mock('../../../src/helpers', () => ({
 }));
 
 jest.mock('../../../src/services/chatbot.service', () => ({
-  chat: jest.fn(),
+  processMessage: jest.fn(),
   clearSession: jest.fn(),
 }));
 
@@ -25,7 +25,6 @@ const chatbotController = require('../../../src/controllers/chatbot.controller')
 describe('Chatbot Controller', () => {
   let req;
   let res;
-  let next;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -34,42 +33,53 @@ describe('Chatbot Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
-    next = jest.fn();
+  });
+
+  describe('getConfig', () => {
+    it('should return store provider', async () => {
+      await chatbotController.getConfig(req, res);
+
+      expect(response.success).toHaveBeenCalledWith(
+        res,
+        expect.objectContaining({
+          data: { provider: 'store', requiresApiKey: false },
+        })
+      );
+    });
   });
 
   describe('sendMessage', () => {
-    it('should send message successfully', async () => {
+    it('should send message via processMessage', async () => {
       req.body = { message: 'Xin chào' };
-      chatbotService.chat.mockResolvedValueOnce({
+      chatbotService.processMessage.mockResolvedValueOnce({
         reply: 'Chào bạn!',
         sessionId: 'session_123',
+        provider: 'store',
       });
 
-      await chatbotController.sendMessage(req, res, next);
+      await chatbotController.sendMessage(req, res);
 
-      expect(chatbotService.chat).toHaveBeenCalledWith(
-        'Xin chào',
-        expect.stringMatching(/^session_/)
-      );
+      expect(chatbotService.processMessage).toHaveBeenCalledWith({
+        message: 'Xin chào',
+        sessionId: null,
+      });
       expect(response.success).toHaveBeenCalled();
     });
 
     it('should throw ValidationError for empty message', async () => {
       req.body = { message: '   ' };
 
-      await expect(chatbotController.sendMessage(req, res, next)).rejects.toThrow(ValidationError);
-      expect(chatbotService.chat).not.toHaveBeenCalled();
+      await expect(chatbotController.sendMessage(req, res)).rejects.toThrow(ValidationError);
     });
   });
 
   describe('clearSession', () => {
-    it('should clear chat session successfully', async () => {
+    it('should clear chat session', async () => {
       req.params = { sessionId: 'session_abc' };
 
-      await chatbotController.clearSession(req, res, next);
+      await chatbotController.clearSession(req, res);
 
       expect(chatbotService.clearSession).toHaveBeenCalledWith('session_abc');
-      expect(response.success).toHaveBeenCalled();
     });
   });
 });

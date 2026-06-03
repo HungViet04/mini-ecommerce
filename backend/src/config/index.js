@@ -2,7 +2,17 @@
  * Central configuration module
  * Loads all environment variables and exports config object
  */
-require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
+
+const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: envPath });
+
+const localEnvPath = path.resolve(__dirname, '../../.env.local');
+if (fs.existsSync(localEnvPath)) {
+  dotenv.config({ path: localEnvPath, override: true });
+}
 
 const corsOriginEnv = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.trim() : '';
 const parsedCorsOrigin =
@@ -12,8 +22,6 @@ const parsedCorsOrigin =
         .split(',')
         .map((origin) => origin.trim())
         .filter(Boolean);
-const openAITemperature = parseFloat(process.env.OPENAI_TEMPERATURE);
-
 const config = {
   // Server
   env: process.env.NODE_ENV || 'development',
@@ -65,16 +73,7 @@ const config = {
     bucket: process.env.S3_BUCKET || '',
   },
 
-  // OpenAI
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY || '',
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    baseURL: process.env.OPENAI_BASE_URL || '',
-    maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS, 10) || 700,
-    temperature: Number.isFinite(openAITemperature) ? openAITemperature : 0.3,
-  },
-
-  // Chatbot controls
+  // Chatbot — trợ lý cửa hàng tra cứu database
   chatbot: {
     rateLimitWindowMs: parseInt(process.env.CHATBOT_RATE_LIMIT_WINDOW_MS, 10) || 60000,
     rateLimitMax: parseInt(process.env.CHATBOT_RATE_LIMIT_MAX, 10) || 30,
@@ -90,7 +89,6 @@ Object.freeze(config.bcrypt);
 Object.freeze(config.pagination);
 Object.freeze(config.cors);
 Object.freeze(config.s3);
-Object.freeze(config.openai);
 Object.freeze(config.chatbot);
 
 module.exports = config;

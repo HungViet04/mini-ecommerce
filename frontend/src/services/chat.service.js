@@ -1,34 +1,42 @@
 /**
  * Chat Service
- * Handles all chatbot-related API calls
- * Pattern: Service Layer
+ * Trợ lý cửa hàng — tra cứu sản phẩm từ database
  */
 import httpClient from './http.client';
 
+const unwrap = (response) => response?.data ?? response;
+
 export const chatService = {
   /**
-   * Send message to chatbot
-   * @param {string} message - User message
-   * @param {string|null} sessionId - Chat session ID
-   * @returns {Promise<Object>} { reply, sessionId }
+   * @returns {Promise<{ provider: string }>}
+   */
+  async getConfig() {
+    const response = await httpClient.get('/chatbot/config', {
+      skipAuth: true,
+      skipLoading: true,
+    });
+    return unwrap(response);
+  },
+
+  /**
+   * @param {string} message
+   * @param {string|null} sessionId
+   * @returns {Promise<{ reply: string, sessionId: string }>}
    */
   async sendMessage(message, sessionId = null) {
     const body = { message };
     if (sessionId) {
       body.sessionId = sessionId;
     }
+
     const response = await httpClient.post('/chatbot/message', body, {
       skipAuth: true,
       skipLoading: true,
     });
-    return response.data || response;
+
+    return unwrap(response);
   },
 
-  /**
-   * Clear chat session
-   * @param {string} sessionId - Session ID to clear
-   * @returns {Promise<void>}
-   */
   async clearSession(sessionId) {
     if (!sessionId) return;
     await httpClient.delete(`/chatbot/session/${sessionId}`, {

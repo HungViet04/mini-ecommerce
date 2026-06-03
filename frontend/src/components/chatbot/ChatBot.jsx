@@ -1,15 +1,14 @@
 /**
  * ChatBot Component
- * Floating AI chatbot widget for product consultation
- * Pattern: Controlled Component with local state
+ * Trợ lý cửa hàng — tra cứu sản phẩm từ database
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { chatService } from '../../services';
 
-/**
- * Format message text with basic markdown-like styling
- */
+const WELCOME_MESSAGE =
+  'Xin chào! 👋 Mình là trợ lý cửa hàng — tra cứu sản phẩm trực tiếp từ kho hàng. Bạn có thể hỏi tên sản phẩm, giá, hoặc "cách đặt hàng".';
+
 function formatMessage(text) {
   if (!text) return '';
 
@@ -34,18 +33,13 @@ function formatMessage(text) {
     .replace(/\n/g, '<br/>');
 }
 
-/**
- * Single chat message bubble
- */
 function ChatMessage({ message, onLinkClick }) {
   const isBot = message.role === 'bot';
 
   const handleClick = (e) => {
     const link = e.target.closest('a.chat-message__link');
     if (!link || !onLinkClick) return;
-
-    const href = link.getAttribute('href') || '';
-    onLinkClick(e, href);
+    onLinkClick(e, link.getAttribute('href') || '');
   };
 
   return (
@@ -53,7 +47,7 @@ function ChatMessage({ message, onLinkClick }) {
       className={`chat-message ${isBot ? 'chat-message--bot' : 'chat-message--user'}`}
       onClick={isBot ? handleClick : undefined}
     >
-      {isBot && <div className="chat-message__avatar">🤖</div>}
+      {isBot && <div className="chat-message__avatar">🛒</div>}
       <div
         className="chat-message__bubble"
         dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
@@ -62,13 +56,10 @@ function ChatMessage({ message, onLinkClick }) {
   );
 }
 
-/**
- * Typing indicator when bot is responding
- */
 function TypingIndicator() {
   return (
     <div className="chat-message chat-message--bot">
-      <div className="chat-message__avatar">🤖</div>
+      <div className="chat-message__avatar">🛒</div>
       <div className="chat-message__bubble chat-typing">
         <span className="chat-typing__dot" />
         <span className="chat-typing__dot" />
@@ -78,19 +69,10 @@ function TypingIndicator() {
   );
 }
 
-/**
- * Main ChatBot component
- */
 export function ChatBot({ activeFloating, onFloatingChange }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: 'bot',
-      content:
-        'Xin chào! 👋 Tôi là trợ lý AI của cửa hàng. Tôi có thể giúp bạn tìm sản phẩm, tư vấn mua hàng hoặc trả lời câu hỏi. Bạn cần hỗ trợ gì?',
-    },
-  ]);
+  const [messages, setMessages] = useState([{ role: 'bot', content: WELCOME_MESSAGE }]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
@@ -101,30 +83,24 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
   const inputRef = useRef(null);
   const isCartActive = activeFloating === 'cart';
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Focus input when chat opens
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
-  // When reopening chat, always jump to the latest message.
   useEffect(() => {
     if (!isOpen) return;
-
     const rafId = requestAnimationFrame(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     });
-
     return () => cancelAnimationFrame(rafId);
   }, [isOpen]);
 
-  // Close chatbot when clicking outside of it.
   useEffect(() => {
     if (!isOpen) return;
 
@@ -149,8 +125,7 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
     const trimmedInput = input.trim();
     if (!trimmedInput || isLoading) return;
 
-    const userMessage = { role: 'user', content: trimmedInput };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, { role: 'user', content: trimmedInput }]);
     setInput('');
     setIsLoading(true);
     setError(null);
@@ -158,7 +133,7 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
     try {
       const result = await chatService.sendMessage(trimmedInput, sessionId);
 
-      if (result.sessionId && !sessionId) {
+      if (result.sessionId) {
         setSessionId(result.sessionId);
       }
 
@@ -166,13 +141,7 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
     } catch (err) {
       const errorMessage = err?.message || 'Xin lỗi, tôi đang gặp sự cố. Vui lòng thử lại sau.';
       setError(errorMessage);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'bot',
-          content: '⚠️ ' + errorMessage,
-        },
-      ]);
+      setMessages((prev) => [...prev, { role: 'bot', content: '⚠️ ' + errorMessage }]);
     } finally {
       setIsLoading(false);
     }
@@ -193,17 +162,11 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
       try {
         await chatService.clearSession(sessionId);
       } catch {
-        // Ignore cleanup errors
+        // ignore
       }
     }
     setSessionId(null);
-    setMessages([
-      {
-        role: 'bot',
-        content:
-          'Xin chào! 👋 Tôi là trợ lý AI của cửa hàng. Tôi có thể giúp bạn tìm sản phẩm, tư vấn mua hàng hoặc trả lời câu hỏi. Bạn cần hỗ trợ gì?',
-      },
-    ]);
+    setMessages([{ role: 'bot', content: WELCOME_MESSAGE }]);
     setError(null);
   }, [sessionId]);
 
@@ -215,21 +178,16 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
     });
   }, [onFloatingChange]);
 
-  // Quick suggestion buttons
-  const suggestions = ['Có sản phẩm gì đang bán?', 'Tư vấn sản phẩm giá rẻ', 'Cách đặt hàng?'];
+  const suggestions = ['Có sản phẩm gì đang bán?', 'điện thoại dưới 50 triệu', 'Cách đặt hàng?'];
 
   const handleSuggestion = useCallback((text) => {
     setInput(text);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 50);
+    setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
 
   const handleBotLinkClick = useCallback(
     (e, href) => {
       if (!href) return;
-
-      // Keep SPA state (including chat history) when opening internal links.
       if (href.startsWith('/')) {
         e.preventDefault();
         navigate(href);
@@ -240,7 +198,6 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
 
   return (
     <div className="chatbot" ref={chatbotRef}>
-      {/* Chat toggle button */}
       {!isCartActive && (
         <button
           className={`chatbot__toggle ${isOpen ? 'chatbot__toggle--open' : ''}`}
@@ -251,16 +208,14 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
         </button>
       )}
 
-      {/* Chat window */}
       {isOpen && (
         <div className="chatbot__window">
-          {/* Header */}
           <div className="chatbot__header">
             <div className="chatbot__header-info">
-              <span className="chatbot__header-icon">🤖</span>
+              <span className="chatbot__header-icon">🛒</span>
               <div>
-                <h3 className="chatbot__title">Trợ lý AI</h3>
-                <span className="chatbot__status">Trực tuyến</span>
+                <h3 className="chatbot__title">Trợ lý cửa hàng</h3>
+                <span className="chatbot__status">Tra cứu từ kho hàng</span>
               </div>
             </div>
             <button
@@ -272,7 +227,6 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
             </button>
           </div>
 
-          {/* Messages */}
           <div className="chatbot__messages">
             {messages.map((msg, index) => (
               <ChatMessage key={index} message={msg} onLinkClick={handleBotLinkClick} />
@@ -281,7 +235,6 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggestions (only show when few messages) */}
           {messages.length <= 1 && (
             <div className="chatbot__suggestions">
               {suggestions.map((text, index) => (
@@ -296,7 +249,6 @@ export function ChatBot({ activeFloating, onFloatingChange }) {
             </div>
           )}
 
-          {/* Input */}
           <div className="chatbot__input-area">
             <input
               ref={inputRef}
