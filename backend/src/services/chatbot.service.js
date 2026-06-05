@@ -177,11 +177,30 @@ class ChatbotService {
   static ANALYSIS_DETAIL_TERMS = ['chi tiet', 'thong tin', 'spec', 'cau hinh'];
 
   static ANALYSIS_USAGE_TERMS = {
-    gaming: ['gaming', 'choi game', 'chien game', 'esport', 'fps', 'valorant', 'lol', 'csgo', 'pubg'],
+    gaming: [
+      'gaming',
+      'choi game',
+      'chien game',
+      'esport',
+      'fps',
+      'valorant',
+      'lol',
+      'csgo',
+      'pubg',
+    ],
     office: ['van phong', 'office', 'word', 'excel', 'powerpoint', 'pp'],
     study: ['hoc', 'hoc tap', 'sinh vien', 'on thi'],
     programming: ['lap trinh', 'code', 'coding', 'developer', 'dev'],
-    designer: ['thiet ke', 'designer', 'photoshop', 'illustrator', 'premiere', 'after effect', '3d', 'render'],
+    designer: [
+      'thiet ke',
+      'designer',
+      'photoshop',
+      'illustrator',
+      'premiere',
+      'after effect',
+      '3d',
+      'render',
+    ],
     streaming: ['stream', 'livestream', 'streaming', 'obs', 'twitch', 'youtube live'],
   };
 
@@ -198,7 +217,14 @@ class ChatbotService {
 
   static ANALYSIS_CATEGORY_QUERY_TERMS = ['danh muc', 'loai', 'category', 'phan loai'];
 
-  static ANALYSIS_INCLUDE_CUES = ['chi thich', 'chi muon', 'uu tien', 'prefer', 'only', 'yeu thich'];
+  static ANALYSIS_INCLUDE_CUES = [
+    'chi thich',
+    'chi muon',
+    'uu tien',
+    'prefer',
+    'only',
+    'yeu thich',
+  ];
 
   static ANALYSIS_EXCLUDE_CUES = [
     'khong thich',
@@ -308,7 +334,10 @@ class ChatbotService {
       const normalizedMessage = this._normalizeText(message);
       const explicitCategory = this._findExactCategoryMatch(normalizedMessage, categories);
       const explicitCategoryQuery = explicitCategory
-        ? this._isExplicitCategoryQuery(normalizedMessage, this._normalizeText(explicitCategory.name))
+        ? this._isExplicitCategoryQuery(
+            normalizedMessage,
+            this._normalizeText(explicitCategory.name)
+          )
         : false;
 
       let explicitProductName = this._extractExplicitProductName(message);
@@ -386,7 +415,9 @@ class ChatbotService {
       const searchedTerms = new Set();
 
       const runTextSearch = async (term, limit = 12) => {
-        const key = String(term || '').trim().toLowerCase();
+        const key = String(term || '')
+          .trim()
+          .toLowerCase();
         if (!key || key.length < 3 || searchedTerms.has(key)) {
           return;
         }
@@ -737,7 +768,9 @@ class ChatbotService {
       }
     });
 
-    return Array.from(phrases).filter((p) => p.length >= 3 && !this._isPricePhrase(p)).slice(0, 8);
+    return Array.from(phrases)
+      .filter((p) => p.length >= 3 && !this._isPricePhrase(p))
+      .slice(0, 8);
   }
 
   _isPricePhrase(phrase) {
@@ -902,9 +935,7 @@ class ChatbotService {
         return true;
       }
 
-      const categoryWords = normalizedCategoryName
-        .split(/\s+/)
-        .filter((word) => word.length >= 3);
+      const categoryWords = normalizedCategoryName.split(/\s+/).filter((word) => word.length >= 3);
 
       if (categoryWords.some((word) => normalizedMessage.includes(word))) {
         return true;
@@ -1084,9 +1115,7 @@ class ChatbotService {
           if (signals.productIntent.searchTerms.some((term) => haystack.includes(term))) {
             score += 6;
           }
-          if (
-            signals.productIntent.excludePatterns.some((pattern) => haystack.includes(pattern))
-          ) {
+          if (signals.productIntent.excludePatterns.some((pattern) => haystack.includes(pattern))) {
             score -= 20;
           }
         }
@@ -1169,13 +1198,14 @@ class ChatbotService {
     const compareResult = this._extractCompareTargets(message, categoryCandidates);
     const primaryCategory = categoryMatch?.label || preferences.includeCategories[0] || '';
     const primaryBrand = brandMatch?.label || preferences.includeBrands[0] || '';
-    const productName = compareResult.products.length > 0
-      ? ''
-      : this._extractProductName(message, normalized, {
-          category: primaryCategory,
-          brand: primaryBrand,
-          priceRange,
-        });
+    const productName =
+      compareResult.products.length > 0
+        ? ''
+        : this._extractProductName(message, normalized, {
+            category: primaryCategory,
+            brand: primaryBrand,
+            priceRange,
+          });
 
     const intent = this._detectAnalysisIntent({
       normalized,
@@ -1302,11 +1332,15 @@ class ChatbotService {
     const leftName = this._extractCompareProductName(leftRaw, categoryCandidates);
     const rightName = this._extractCompareProductName(rightRaw, categoryCandidates);
 
-    const leftCategory = this._matchCategory(this._normalizeText(leftRaw), categoryCandidates)?.label || '';
-    const rightCategory = this._matchCategory(this._normalizeText(rightRaw), categoryCandidates)?.label || '';
+    const leftCategory =
+      this._matchCategory(this._normalizeText(leftRaw), categoryCandidates)?.label || '';
+    const rightCategory =
+      this._matchCategory(this._normalizeText(rightRaw), categoryCandidates)?.label || '';
 
     const sameCategory =
-      leftCategory && rightCategory ? leftCategory === rightCategory : leftCategory === rightCategory;
+      leftCategory && rightCategory
+        ? leftCategory === rightCategory
+        : leftCategory === rightCategory;
 
     return {
       products: [leftName, rightName].filter(Boolean),
@@ -1373,11 +1407,23 @@ class ChatbotService {
         return;
       }
 
-      if (this._matchesPreferenceCue(normalizedMessage, candidate.key, ChatbotService.ANALYSIS_EXCLUDE_CUES)) {
+      if (
+        this._matchesPreferenceCue(
+          normalizedMessage,
+          candidate.key,
+          ChatbotService.ANALYSIS_EXCLUDE_CUES
+        )
+      ) {
         excludeBrands.add(candidate.label);
       }
 
-      if (this._matchesPreferenceCue(normalizedMessage, candidate.key, ChatbotService.ANALYSIS_INCLUDE_CUES)) {
+      if (
+        this._matchesPreferenceCue(
+          normalizedMessage,
+          candidate.key,
+          ChatbotService.ANALYSIS_INCLUDE_CUES
+        )
+      ) {
         includeBrands.add(candidate.label);
       }
     });
@@ -1387,11 +1433,23 @@ class ChatbotService {
         return;
       }
 
-      if (this._matchesPreferenceCue(normalizedMessage, candidate.key, ChatbotService.ANALYSIS_EXCLUDE_CUES)) {
+      if (
+        this._matchesPreferenceCue(
+          normalizedMessage,
+          candidate.key,
+          ChatbotService.ANALYSIS_EXCLUDE_CUES
+        )
+      ) {
         excludeCategories.add(candidate.label);
       }
 
-      if (this._matchesPreferenceCue(normalizedMessage, candidate.key, ChatbotService.ANALYSIS_INCLUDE_CUES)) {
+      if (
+        this._matchesPreferenceCue(
+          normalizedMessage,
+          candidate.key,
+          ChatbotService.ANALYSIS_INCLUDE_CUES
+        )
+      ) {
         includeCategories.add(candidate.label);
       }
     });
@@ -1554,13 +1612,14 @@ class ChatbotService {
       return singleQuoteMatch[1].trim();
     }
 
-    const modelMatch = message.match(
-      /([A-Za-z]{2,}[A-Za-z0-9\s-]{0,20}\d{2,}[A-Za-z0-9\s-]*)/
-    );
+    const modelMatch = message.match(/([A-Za-z]{2,}[A-Za-z0-9\s-]{0,20}\d{2,}[A-Za-z0-9\s-]*)/);
     if (modelMatch?.[1]) {
       const candidate = modelMatch[1].trim();
       const normalizedCandidate = this._normalizeText(candidate);
-      if (!this._looksLikePriceReference(normalizedCandidate) && !this._looksLikeCategoryOrBrand(candidate, context)) {
+      if (
+        !this._looksLikePriceReference(normalizedCandidate) &&
+        !this._looksLikeCategoryOrBrand(candidate, context)
+      ) {
         return candidate;
       }
     }
@@ -1590,7 +1649,16 @@ class ChatbotService {
       return true;
     }
 
-    return this._containsAny(normalizedText, ['trieu', 'tr', 'nghin', 'ngan', 'k', 'vnd', 'dong', 'gia']);
+    return this._containsAny(normalizedText, [
+      'trieu',
+      'tr',
+      'nghin',
+      'ngan',
+      'k',
+      'vnd',
+      'dong',
+      'gia',
+    ]);
   }
 
   _looksLikeCategoryOrBrand(candidate, context) {
@@ -1679,26 +1747,10 @@ class ChatbotService {
     if (this._containsAny(text, ['danh muc', 'loai san pham', 'category', 'phan loai'])) {
       return 'categories';
     }
-    if (
-      this._containsAny(text, [
-        'gia re',
-        're nhat',
-        'tiet kiem',
-        'khuyen mai',
-        'giam gia',
-      ])
-    ) {
+    if (this._containsAny(text, ['gia re', 're nhat', 'tiet kiem', 'khuyen mai', 'giam gia'])) {
       return 'cheap';
     }
-    if (
-      this._containsAny(text, [
-        'dang ban',
-        'co gi',
-        'san pham nao',
-        'ban gi',
-        'tat ca',
-      ])
-    ) {
+    if (this._containsAny(text, ['dang ban', 'co gi', 'san pham nao', 'ban gi', 'tat ca'])) {
       return 'catalog';
     }
     if (this._containsAny(text, ['cam on', 'thanks', 'thank'])) {
@@ -1760,9 +1812,13 @@ class ChatbotService {
             return 'Hiện chưa có danh mục trong hệ thống.';
           }
           const lines = categories.map((c) => `- **${c.name}** (id: ${c.id})`);
-          return ['**Danh mục đang có:**', '', ...lines, '', 'Gõ tên danh mục để xem sản phẩm.'].join(
-            '\n'
-          );
+          return [
+            '**Danh mục đang có:**',
+            '',
+            ...lines,
+            '',
+            'Gõ tên danh mục để xem sản phẩm.',
+          ].join('\n');
         } catch {
           return 'Không tải được danh mục lúc này. Bạn thử hỏi tên sản phẩm cụ thể nhé.';
         }
@@ -1779,9 +1835,7 @@ class ChatbotService {
     }
 
     if (displayProducts.length === 0) {
-      const keywordHint = matchedLabel
-        ? ` cho từ khóa **"${matchedLabel}"**`
-        : '';
+      const keywordHint = matchedLabel ? ` cho từ khóa **"${matchedLabel}"**` : '';
       return [
         `Không tìm thấy sản phẩm hoặc danh mục phù hợp${keywordHint} trong cơ sở dữ liệu.`,
         'Bạn thử:',

@@ -91,7 +91,12 @@ const validateChatMessageLength = (req, res, next) => {
 
 router.get('/config', chatbotController.getConfig);
 router.post('/message', chatbotRateLimit, validateChatMessageLength, chatbotController.sendMessage);
-router.post('/analysis', chatbotRateLimit, validateChatMessageLength, chatbotController.analyzeMessage);
+router.post(
+  '/analysis',
+  chatbotRateLimit,
+  validateChatMessageLength,
+  chatbotController.analyzeMessage
+);
 router.delete('/session/:sessionId', chatbotRateLimit, chatbotController.clearSession);
 
 module.exports = router;
