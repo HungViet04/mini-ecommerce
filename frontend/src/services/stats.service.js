@@ -9,8 +9,10 @@ export const statsService = {
    * Get dashboard statistics (admin only)
    * @returns {Promise<Object>}
    */
-  async getDashboard() {
-    const response = await httpClient.get('/stats/dashboard');
+  async getDashboard(range = null) {
+    const hasRange = range && range.from && range.to;
+    const query = hasRange ? `?from=${range.from}&to=${range.to}` : '';
+    const response = await httpClient.get(`/stats/dashboard${query}`);
     return response.data || response;
   },
 };

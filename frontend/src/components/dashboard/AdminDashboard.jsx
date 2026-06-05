@@ -33,11 +33,65 @@ const statusColors = {
   delivered: '#059669',
 };
 
+const DEFAULT_RANGE_DAYS = 30;
+
+const toInputDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseInputDate = (value) => {
+  if (!value) return null;
+  const [year, month, day] = value.split('-').map((part) => Number(part));
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return null;
+  }
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const addMonthsLocal = (date, months) => {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const base = new Date(year, month + months, 1);
+  const lastDay = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+  base.setDate(Math.min(day, lastDay));
+  base.setHours(0, 0, 0, 0);
+  return base;
+};
+
+const formatDateLabel = (value) => {
+  const date = parseInputDate(value);
+  if (!date) return value || '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}`;
+};
+
+const buildDefaultRange = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const fromDate = new Date(today);
+  fromDate.setDate(today.getDate() - (DEFAULT_RANGE_DAYS - 1));
+  return { from: toInputDate(fromDate), to: toInputDate(today) };
+};
+
 export function AdminDashboard() {
   const { isAuthenticated, isAdmin } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rangeError, setRangeError] = useState(null);
+
+  const defaultRange = buildDefaultRange();
+  const [rangeFrom, setRangeFrom] = useState(defaultRange.from);
+  const [rangeTo, setRangeTo] = useState(defaultRange.to);
+  const [appliedRange, setAppliedRange] = useState(defaultRange);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -45,7 +99,7 @@ export function AdminDashboard() {
 
       try {
         setLoading(true);
-        const data = await statsService.getDashboard();
+        const data = await statsService.getDashboard(appliedRange);
         setStats(data);
       } catch (err) {
         setError(err.message || 'Không thể tải thống kê');
@@ -55,7 +109,43 @@ export function AdminDashboard() {
     };
 
     fetchStats();
-  }, [isAuthenticated, isAdmin]);
+  }, [isAuthenticated, isAdmin, appliedRange]);
+
+  const validateRange = (fromValue, toValue) => {
+    const fromDate = parseInputDate(fromValue);
+    const toDate = parseInputDate(toValue);
+
+    if (!fromDate || !toDate) {
+      return 'Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc';
+    }
+
+    if (fromDate.getTime() > toDate.getTime()) {
+      return 'Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc';
+    }
+
+    const maxEnd = addMonthsLocal(fromDate, 2);
+    if (toDate.getTime() > maxEnd.getTime()) {
+      return 'Khoảng thời gian tối đa là 2 tháng';
+    }
+
+    return null;
+  };
+
+  const handleApplyRange = () => {
+    const errorMessage = validateRange(rangeFrom, rangeTo);
+    setRangeError(errorMessage);
+    if (errorMessage) return;
+
+    setAppliedRange({ from: rangeFrom, to: rangeTo });
+  };
+
+  const handleResetRange = () => {
+    const nextRange = buildDefaultRange();
+    setRangeFrom(nextRange.from);
+    setRangeTo(nextRange.to);
+    setRangeError(null);
+    setAppliedRange(nextRange);
+  };
 
   if (!isAuthenticated || !isAdmin) {
     return (
@@ -83,6 +173,16 @@ export function AdminDashboard() {
   if (!stats) return null;
 
   const { orders, revenue, products, users, recentOrders, topProducts, monthlyRevenue } = stats;
+  const rangeActive = appliedRange?.from && appliedRange?.to;
+  const getTotalDays = () => {
+    if (!appliedRange?.from || !appliedRange?.to) return 0;
+
+    const fromDate = parseInputDate(appliedRange.from);
+    const toDate = parseInputDate(appliedRange.to);
+
+    return Math.floor((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  };
+  const dailyAverage = revenue.totalRevenue > 0 ? revenue.totalRevenue / getTotalDays() : 0;
 
   return (
     <div className="admin-dashboard">
@@ -91,18 +191,60 @@ export function AdminDashboard() {
         <p className="dashboard-subtitle">Tổng quan hoạt động cửa hàng</p>
       </div>
 
+      <div className="dashboard-filter">
+        <div className="filter-group">
+          <label className="filter-label" htmlFor="range-from">
+            Từ ngày
+          </label>
+          <input
+            id="range-from"
+            type="date"
+            value={rangeFrom}
+            min={toInputDate(addMonthsLocal(parseInputDate(rangeTo), -2))}
+            onChange={(event) => setRangeFrom(event.target.value)}
+            className="filter-input"
+          />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label" htmlFor="range-to">
+            Đến ngày
+          </label>
+          <input
+            id="range-to"
+            type="date"
+            value={rangeTo}
+            max={toInputDate(addMonthsLocal(parseInputDate(rangeFrom), 2)) || new Date()}
+            onChange={(event) => setRangeTo(event.target.value)}
+            className="filter-input"
+          />
+        </div>
+        <div className="filter-actions">
+          <button type="button" className="btn btn-primary" onClick={handleApplyRange}>
+            Áp dụng
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={handleResetRange}>
+            Đặt lại
+          </button>
+        </div>
+        {rangeError && <span className="filter-error">{rangeError}</span>}
+      </div>
+
       {/* Stats Grid */}
       <div className="stats-grid">
         <StatCard
           icon="💰"
-          label="Doanh thu tháng này"
-          value={formatPrice(revenue.monthRevenue)}
-          subValue={`Hôm nay: ${formatPrice(revenue.todayRevenue)}`}
+          label={rangeActive ? 'Doanh thu trong khoảng' : 'Doanh thu tháng này'}
+          value={formatPrice(revenue.totalRevenue)}
+          subValue={
+            rangeActive
+              ? `Từ ${formatDateLabel(appliedRange.from)} đến ${formatDateLabel(appliedRange.to)}`
+              : ``
+          }
           color="primary"
         />
         <StatCard
           icon="📦"
-          label="Tổng đơn hàng"
+          label={rangeActive ? 'Tổng đơn hàng trong khoảng' : 'Tổng đơn hàng'}
           value={orders.total}
           subValue={`${orders.pending} đơn chờ xử lý`}
           color="info"
@@ -143,8 +285,8 @@ export function AdminDashboard() {
               <span className="revenue-value pending">{formatPrice(revenue.pendingRevenue)}</span>
             </div>
             <div className="revenue-item">
-              <span className="revenue-label">Tuần này</span>
-              <span className="revenue-value">{formatPrice(revenue.weekRevenue)}</span>
+              <span className="revenue-label">Trung bình/ngày</span>
+              <span className="revenue-value">{formatPrice(dailyAverage)}</span>
             </div>
           </div>
         </Card>

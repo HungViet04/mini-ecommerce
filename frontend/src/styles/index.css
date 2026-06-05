@@ -743,6 +743,78 @@
   gap: 8px;
   align-items: center;
 }
+/* ===================== DASHBOARD FILTER ===================== */
+.dashboard-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin: 12px 0 20px 0;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filter-label {
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 600;
+}
+.filter-input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 0.95rem;
+  min-width: 160px;
+}
+.filter-actions {
+  display: flex;
+  gap: 8px;
+}
+.filter-summary {
+  font-size: 0.9rem;
+  color: #334155;
+  font-weight: 600;
+}
+.filter-error {
+  font-size: 0.9rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+/* ===================== DAILY REVENUE TABLE ===================== */
+.daily-revenue-card {
+  padding: 12px;
+}
+.daily-revenue-table {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+.daily-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 15px;
+}
+.daily-table th,
+.daily-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.daily-table th {
+  background: #f7f7f7;
+  font-weight: 600;
+  color: #333;
+}
+.daily-table tr:hover td {
+  background: #f9fafb;
+}
 /* ===================== ORDER SUCCESS PAGE ===================== */
 .order-success-page {
   max-width: 600px;

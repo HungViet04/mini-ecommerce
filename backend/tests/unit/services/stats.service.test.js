@@ -28,14 +28,11 @@ describe('StatsService', () => {
               totalRevenue: 50000000,
               confirmedRevenue: 40000000,
               pendingRevenue: 10000000,
-              todayRevenue: 1000000,
-              weekRevenue: 5000000,
-              monthRevenue: 15000000,
             },
           ],
         ]) // revenueStats
-        .mockResolvedValueOnce([[{ total: 50, inStock: 40, outOfStock: 5, lowStock: 5 }]]) // productStats
-        .mockResolvedValueOnce([[{ total: 200, customers: 195, admins: 5, newToday: 3 }]]) // userStats
+        .mockResolvedValueOnce([[{ total: 50, lowStock: 5 }]]) // productStats
+        .mockResolvedValueOnce([[{ total: 200, customers: 195, newCustomers: 3 }]]) // userStats
         .mockResolvedValueOnce([
           [
             {
@@ -84,14 +81,11 @@ describe('StatsService', () => {
               totalRevenue: 1000000,
               confirmedRevenue: 500000,
               pendingRevenue: 500000,
-              todayRevenue: 0,
-              weekRevenue: 100000,
-              monthRevenue: 300000,
             },
           ],
         ])
-        .mockResolvedValueOnce([[{ total: 10, inStock: 8, outOfStock: 2, lowStock: 1 }]])
-        .mockResolvedValueOnce([[{ total: 5, customers: 4, admins: 1, newToday: 0 }]])
+        .mockResolvedValueOnce([[{ total: 10, lowStock: 1 }]])
+        .mockResolvedValueOnce([[{ total: 5, customers: 4, newCustomers: 0 }]])
         .mockResolvedValueOnce([[]])
         .mockResolvedValueOnce([[]])
         .mockResolvedValueOnce([[]]);
@@ -153,9 +147,6 @@ describe('StatsService', () => {
             totalRevenue: 50000000,
             confirmedRevenue: 40000000,
             pendingRevenue: 10000000,
-            todayRevenue: 1000000,
-            weekRevenue: 5000000,
-            monthRevenue: 15000000,
           },
         ],
       ]);
@@ -165,9 +156,6 @@ describe('StatsService', () => {
       expect(result.totalRevenue).toBe(50000000);
       expect(result.confirmedRevenue).toBe(40000000);
       expect(result.pendingRevenue).toBe(10000000);
-      expect(result.todayRevenue).toBe(1000000);
-      expect(result.weekRevenue).toBe(5000000);
-      expect(result.monthRevenue).toBe(15000000);
     });
 
     it('should handle no revenue', async () => {
@@ -188,9 +176,6 @@ describe('StatsService', () => {
         totalRevenue: 0,
         confirmedRevenue: 0,
         pendingRevenue: 0,
-        todayRevenue: 0,
-        weekRevenue: 0,
-        monthRevenue: 0,
       });
     });
   });
@@ -201,8 +186,6 @@ describe('StatsService', () => {
         [
           {
             total: 100,
-            inStock: 80,
-            outOfStock: 10,
             lowStock: 10,
           },
         ],
@@ -211,8 +194,6 @@ describe('StatsService', () => {
       const result = await statsService.getProductStats();
 
       expect(result.total).toBe(100);
-      expect(result.inStock).toBe(80);
-      expect(result.outOfStock).toBe(10);
       expect(result.lowStock).toBe(10);
     });
 
@@ -221,8 +202,6 @@ describe('StatsService', () => {
         [
           {
             total: 50,
-            inStock: 40,
-            outOfStock: 5,
             lowStock: 5,
           },
         ],
@@ -238,7 +217,7 @@ describe('StatsService', () => {
 
       const result = await statsService.getProductStats();
 
-      expect(result).toEqual({ total: 0, inStock: 0, outOfStock: 0, lowStock: 0 });
+      expect(result).toEqual({ total: 0, lowStock: 0 });
     });
   });
 
@@ -249,8 +228,7 @@ describe('StatsService', () => {
           {
             total: 200,
             customers: 195,
-            admins: 5,
-            newToday: 3,
+            newCustomers: 3,
           },
         ],
       ]);
@@ -259,8 +237,7 @@ describe('StatsService', () => {
 
       expect(result.total).toBe(200);
       expect(result.customers).toBe(195);
-      expect(result.admins).toBe(5);
-      expect(result.newToday).toBe(3);
+      expect(result.newCustomers).toBe(3);
     });
 
     it('should count new users registered today', async () => {
@@ -269,15 +246,14 @@ describe('StatsService', () => {
           {
             total: 100,
             customers: 99,
-            admins: 1,
-            newToday: 10,
+            newCustomers: 10,
           },
         ],
       ]);
 
       const result = await statsService.getUserStats();
 
-      expect(result.newToday).toBe(10);
+      expect(result.newCustomers).toBe(10);
     });
 
     it('should handle no users', async () => {
@@ -285,7 +261,7 @@ describe('StatsService', () => {
 
       const result = await statsService.getUserStats();
 
-      expect(result).toEqual({ total: 0, customers: 0, admins: 0, newToday: 0 });
+      expect(result).toEqual({ total: 0, customers: 0, newCustomers: 0 });
     });
   });
 
@@ -296,19 +272,13 @@ describe('StatsService', () => {
           id: 1,
           total: 500000,
           status: 'pending',
-          payment_method: 'cod',
-          created_at: new Date(),
           userName: 'User 1',
-          userEmail: 'user1@test.com',
         },
         {
           id: 2,
           total: 300000,
           status: 'paid',
-          payment_method: 'bank',
-          created_at: new Date(),
           userName: 'User 2',
-          userEmail: 'user2@test.com',
         },
       ];
 
@@ -319,7 +289,6 @@ describe('StatsService', () => {
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe(1);
       expect(result[0].userName).toBe('User 1');
-      expect(result[0].paymentMethod).toBe('cod');
     });
 
     it('should respect limit parameter', async () => {
@@ -327,7 +296,10 @@ describe('StatsService', () => {
 
       await statsService.getRecentOrders(10);
 
-      expect(database.query).toHaveBeenCalledWith(expect.stringContaining('LIMIT ?'), [10]);
+      expect(database.query).toHaveBeenCalledWith(
+        expect.stringContaining('LIMIT ?'),
+        expect.arrayContaining([10])
+      );
     });
 
     it('should use default limit of 5', async () => {
@@ -335,7 +307,11 @@ describe('StatsService', () => {
 
       await statsService.getRecentOrders();
 
-      expect(database.query).toHaveBeenCalledWith(expect.any(String), [5]);
+      expect(database.query).toHaveBeenCalledWith(expect.any(String), [
+        expect.any(Date),
+        expect.any(Date),
+        6,
+      ]);
     });
 
     it('should map fields correctly', async () => {
@@ -343,10 +319,7 @@ describe('StatsService', () => {
         id: 1,
         total: 500000,
         status: 'shipped',
-        payment_method: 'momo',
-        created_at: new Date('2024-01-15'),
         userName: 'Test User',
-        userEmail: 'test@test.com',
       };
 
       database.query.mockResolvedValueOnce([[mockOrder]]);
@@ -357,10 +330,7 @@ describe('StatsService', () => {
         id: 1,
         total: 500000,
         status: 'shipped',
-        paymentMethod: 'momo',
-        createdAt: mockOrder.created_at,
         userName: 'Test User',
-        userEmail: 'test@test.com',
       });
     });
 
@@ -410,7 +380,10 @@ describe('StatsService', () => {
 
       await statsService.getTopSellingProducts(10);
 
-      expect(database.query).toHaveBeenCalledWith(expect.stringContaining('LIMIT ?'), [10]);
+      expect(database.query).toHaveBeenCalledWith(
+        expect.stringContaining('LIMIT ?'),
+        expect.arrayContaining([10])
+      );
     });
 
     it('should only count confirmed orders', async () => {
@@ -461,22 +434,6 @@ describe('StatsService', () => {
       expect(result).toHaveLength(3);
       expect(result[0].revenue).toBe(10000000);
       expect(result[0].orderCount).toBe(20);
-    });
-
-    it('should respect months parameter', async () => {
-      database.query.mockResolvedValueOnce([[]]);
-
-      await statsService.getMonthlyRevenue(12);
-
-      expect(database.query).toHaveBeenCalledWith(expect.any(String), [12]);
-    });
-
-    it('should use default of 6 months', async () => {
-      database.query.mockResolvedValueOnce([[]]);
-
-      await statsService.getMonthlyRevenue();
-
-      expect(database.query).toHaveBeenCalledWith(expect.any(String), [6]);
     });
 
     it('should format month as YYYY-MM', async () => {
