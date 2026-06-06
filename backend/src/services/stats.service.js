@@ -10,6 +10,10 @@ class StatsService {
    * @returns {Promise<Object>} Stats data
    */
   async getDashboardStats(range) {
+    if (range) {
+      range.to = new Date(range.to);
+      range.to.setHours(23, 59, 59, 999);
+    }
     const [
       orderStats,
       revenueStats,
@@ -54,7 +58,7 @@ class StatsService {
       WHERE created_at >= ? AND created_at <= ?
     `;
     const [rows] = await database.query(sql, [
-      range ? range.from : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Default to last 30 days
+      range ? range.from : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       range ? range.to : new Date(),
     ]);
     return rows[0] || { total: 0, pending: 0, paid: 0, shipped: 0, delivered: 0 };
@@ -127,7 +131,7 @@ class StatsService {
         o.id, o.total, o.status, u.name as userName
       FROM orders o
       LEFT JOIN users u ON u.id = o.user_id
-      WHERE o.created_at BETWEEN ? AND ?
+      WHERE o.created_at >= ? AND o.created_at <= ?
       ORDER BY o.created_at DESC
       LIMIT ?
     `;
@@ -157,7 +161,7 @@ class StatsService {
       FROM products p
       LEFT JOIN order_items oi ON oi.product_id = p.id
       LEFT JOIN orders o ON o.id = oi.order_id AND o.status IN ('paid', 'shipped', 'delivered')
-      WHERE p.created_at >= ? AND p.created_at <= ?
+      WHERE o.created_at >= ? AND o.created_at <= ?
       GROUP BY p.id
       ORDER BY totalSold DESC
       LIMIT ?

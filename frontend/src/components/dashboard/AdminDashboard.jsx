@@ -184,6 +184,18 @@ export function AdminDashboard() {
   };
   const dailyAverage = revenue.totalRevenue > 0 ? revenue.totalRevenue / getTotalDays() : 0;
 
+  const today = toInputDate(new Date());
+
+  const minFrom = rangeTo ? toInputDate(addMonthsLocal(parseInputDate(rangeTo), -2)) : undefined;
+
+  const maxTo = rangeFrom
+    ? (() => {
+        const twoMonthsLater = toInputDate(addMonthsLocal(parseInputDate(rangeFrom), 2));
+
+        return twoMonthsLater > today ? today : twoMonthsLater;
+      })()
+    : today;
+
   return (
     <div className="admin-dashboard">
       <div className="dashboard-header">
@@ -200,7 +212,8 @@ export function AdminDashboard() {
             id="range-from"
             type="date"
             value={rangeFrom}
-            min={toInputDate(addMonthsLocal(parseInputDate(rangeTo), -2))}
+            min={minFrom}
+            max={rangeTo || today}
             onChange={(event) => setRangeFrom(event.target.value)}
             className="filter-input"
           />
@@ -213,7 +226,8 @@ export function AdminDashboard() {
             id="range-to"
             type="date"
             value={rangeTo}
-            max={toInputDate(addMonthsLocal(parseInputDate(rangeFrom), 2)) || new Date()}
+            min={rangeFrom || undefined}
+            max={maxTo}
             onChange={(event) => setRangeTo(event.target.value)}
             className="filter-input"
           />
@@ -260,7 +274,7 @@ export function AdminDashboard() {
           icon="👥"
           label="Khách hàng"
           value={users.customers}
-          subValue={`+${users.newToday} hôm nay`}
+          subValue={`+${users.newCustomers} hôm nay`}
           color="success"
         />
       </div>

@@ -13,13 +13,7 @@ import {
   useAuth,
 } from './contexts';
 import { Layout } from './components/layout';
-import {
-  AuthContainer,
-  ProtectedRoute,
-  AdminRoute,
-  UserRoute,
-  GuestRoute,
-} from './components/auth';
+import { AuthContainer, AdminRoute, UserRoute, GuestRoute } from './components/auth';
 import { ProductList, AdminProductList, ProductDetailPage } from './components/products';
 import { OrderList, AdminOrderList } from './components/orders';
 import { AdminCategoryList } from './components/categories';
