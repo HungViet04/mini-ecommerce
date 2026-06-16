@@ -350,9 +350,8 @@ export function CheckoutPage({ onBack, onSuccess }) {
                         <button
                           key={address.id}
                           type="button"
-                          className={`address-card ${
-                            selectedAddressId === address.id ? 'selected' : ''
-                          }`}
+                          className={`address-card ${selectedAddressId === address.id ? 'selected' : ''
+                            }`}
                           onClick={() => {
                             setSelectedAddressId(address.id);
                             setAddressMode('saved');
@@ -531,9 +530,8 @@ export function CheckoutPage({ onBack, onSuccess }) {
 
               <div className="payment-methods">
                 <label
-                  className={`payment-option ${
-                    paymentMethod === PAYMENT_METHODS.COD ? 'selected' : ''
-                  }`}
+                  className={`payment-option ${paymentMethod === PAYMENT_METHODS.COD ? 'selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -552,9 +550,8 @@ export function CheckoutPage({ onBack, onSuccess }) {
                 </label>
 
                 <label
-                  className={`payment-option ${
-                    paymentMethod === PAYMENT_METHODS.VNPAY ? 'selected' : ''
-                  }`}
+                  className={`payment-option ${paymentMethod === PAYMENT_METHODS.VNPAY ? 'selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
