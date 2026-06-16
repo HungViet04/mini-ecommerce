@@ -10,14 +10,7 @@ import { Button, Card, Input, ErrorAlert, SuccessAlert } from '../ui';
 
 const PASSWORD_MIN_LENGTH = 6;
 
-export function UserDropdown({
-  user,
-  isAdmin,
-  onLogout,
-  onViewOrders,
-  showOrdersLink = true,
-  showAdminLinks = true,
-}) {
+export function UserDropdown({ user, isAdmin, onLogout, onViewOrders, showAdminLinks = true }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
