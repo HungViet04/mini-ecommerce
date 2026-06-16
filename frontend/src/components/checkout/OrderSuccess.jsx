@@ -8,13 +8,7 @@ import React from 'react';
 import { Card, Button } from '../ui';
 import { formatPrice } from '../../utils';
 
-export function OrderSuccess({
-  order,
-  paymentMethod,
-  shippingInfo,
-  onContinueShopping,
-  onViewOrders,
-}) {
+export function OrderSuccess({ order, shippingInfo, onContinueShopping, onViewOrders }) {
   return (
     <div className="order-success-page">
       <Card className="success-card">

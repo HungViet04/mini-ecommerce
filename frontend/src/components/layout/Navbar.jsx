@@ -56,7 +56,6 @@ export function Navbar({ onSearch }) {
       )}
 
       <nav className="navbar-nav">
-
         {/* Admin Navigation */}
         {isAdmin && (
           <NavLink
