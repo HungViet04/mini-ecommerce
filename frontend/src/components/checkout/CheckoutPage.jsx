@@ -373,7 +373,8 @@ export function CheckoutPage({ onBack, onSuccess }) {
                             </div>
                             <div className="option-phone">{address.phone}</div>
                             <div className="option-address">
-                              {address.address}, {address.ward}, {address.district}, {address.province}
+                              {address.address}, {address.ward}, {address.district},{' '}
+                              {address.province}
                             </div>
                           </div>
                           <div className="option-check-icon">✓</div>
@@ -539,8 +540,9 @@ export function CheckoutPage({ onBack, onSuccess }) {
 
               <div className="payment-methods">
                 <label
-                  className={`payment-option ${paymentMethod === PAYMENT_METHODS.COD ? 'selected' : ''
-                    }`}
+                  className={`payment-option ${
+                    paymentMethod === PAYMENT_METHODS.COD ? 'selected' : ''
+                  }`}
                 >
                   <input
                     type="radio"
@@ -559,8 +561,9 @@ export function CheckoutPage({ onBack, onSuccess }) {
                 </label>
 
                 <label
-                  className={`payment-option ${paymentMethod === PAYMENT_METHODS.VNPAY ? 'selected' : ''
-                    }`}
+                  className={`payment-option ${
+                    paymentMethod === PAYMENT_METHODS.VNPAY ? 'selected' : ''
+                  }`}
                 >
                   <input
                     type="radio"

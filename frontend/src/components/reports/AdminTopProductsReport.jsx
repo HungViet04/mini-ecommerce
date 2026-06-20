@@ -92,7 +92,8 @@ export function AdminTopProductsReport() {
     if (!fromDate || !toDate) return 'Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc';
 
     // From date must be <= to date
-    if (fromDate.getTime() > toDate.getTime()) return 'Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc';
+    if (fromDate.getTime() > toDate.getTime())
+      return 'Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc';
 
     // Max range is 2 months when both dates are provided
     const maxEnd = addMonthsLocal(fromDate, 2);
@@ -145,7 +146,6 @@ export function AdminTopProductsReport() {
     });
   };
 
-
   const handleExportCsv = async () => {
     const rangeError = validateRange(from, to);
     if (rangeError) {
@@ -164,7 +164,6 @@ export function AdminTopProductsReport() {
 
       // Trigger download from blob
       const url = window.URL.createObjectURL(blob);
-
 
       const a = document.createElement('a');
       a.href = url;
@@ -198,7 +197,9 @@ export function AdminTopProductsReport() {
 
       <div className="dashboard-filter">
         <div className="filter-group">
-          <label className="filter-label" htmlFor="from">Từ ngày</label>
+          <label className="filter-label" htmlFor="from">
+            Từ ngày
+          </label>
           <input
             id="from"
             type="date"
@@ -208,7 +209,9 @@ export function AdminTopProductsReport() {
           />
         </div>
         <div className="filter-group">
-          <label className="filter-label" htmlFor="to">Đến ngày</label>
+          <label className="filter-label" htmlFor="to">
+            Đến ngày
+          </label>
           <input
             id="to"
             type="date"
@@ -219,16 +222,24 @@ export function AdminTopProductsReport() {
         </div>
 
         <div className="filter-actions">
-          <button className="btn btn-primary" type="button" onClick={() => fetchReport({ doSetLoading: true })}>
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => fetchReport({ doSetLoading: true })}
+          >
             Áp dụng
           </button>
-          <button className="btn btn-secondary" type="button" onClick={() => {
-            setFrom(toInputDate(defaultFrom));
-            setTo(toInputDate(today));
-            setSelectedCategoryId('');
-            setSelectedProductIds([]);
-            fetchReport({ doSetLoading: true });
-          }}>
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={() => {
+              setFrom(toInputDate(defaultFrom));
+              setTo(toInputDate(today));
+              setSelectedCategoryId('');
+              setSelectedProductIds([]);
+              fetchReport({ doSetLoading: true });
+            }}
+          >
             Đặt lại
           </button>
         </div>
@@ -265,7 +276,16 @@ export function AdminTopProductsReport() {
               <label style={{ display: 'block', fontSize: 13, color: '#475569', marginBottom: 6 }}>
                 Sản phẩm (bấm để chọn)
               </label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxHeight: 160, overflowY: 'auto', paddingRight: 6 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  maxHeight: 160,
+                  overflowY: 'auto',
+                  paddingRight: 6,
+                }}
+              >
                 {productsInCategory.map((p) => {
                   const isSelected = selectedProductIds.includes(p.id);
                   return (
@@ -296,7 +316,9 @@ export function AdminTopProductsReport() {
                   );
                 })}
                 {productsInCategory.length === 0 && (
-                  <span style={{ color: '#64748b', fontSize: 13 }}>Không có sản phẩm trong danh mục này</span>
+                  <span style={{ color: '#64748b', fontSize: 13 }}>
+                    Không có sản phẩm trong danh mục này
+                  </span>
                 )}
               </div>
             </div>
@@ -335,7 +357,9 @@ export function AdminTopProductsReport() {
                     <tr key={r.productId}>
                       <td style={{ fontWeight: 600 }}>{r.productName}</td>
                       <td>{r.totalQuantity}</td>
-                      <td style={{ color: '#10b981', fontWeight: 700 }}>{formatPrice(r.totalRevenue)}</td>
+                      <td style={{ color: '#10b981', fontWeight: 700 }}>
+                        {formatPrice(r.totalRevenue)}
+                      </td>
                       <td>{formatPrice(r.avgPrice)}</td>
                     </tr>
                   ))}
@@ -350,4 +374,3 @@ export function AdminTopProductsReport() {
 }
 
 export default AdminTopProductsReport;
-

@@ -6,7 +6,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressService } from '../../services';
 import { Button, Input, ErrorAlert, SuccessAlert } from '../ui';
-import { getProvinces, getDistricts, getWards, getProvinceName, getDistrictName, getWardName } from '../../data/locations';
+import {
+  getProvinces,
+  getDistricts,
+  getWards,
+  getProvinceName,
+  getDistrictName,
+  getWardName,
+} from '../../data/locations';
 
 const EMPTY_FORM = {
   fullName: '',
@@ -281,9 +288,7 @@ export function AddressBookPage() {
                     key={address.id}
                     className={`address-card-modern ${address.isDefault ? 'default' : ''}`}
                   >
-                    <div className="address-card-type-icon">
-                      {TYPE_ICONS[address.type] || '📍'}
-                    </div>
+                    <div className="address-card-type-icon">{TYPE_ICONS[address.type] || '📍'}</div>
                     <div className="address-card-content">
                       <div className="address-card-header">
                         <span className="address-card-name">{address.fullName}</span>
@@ -291,7 +296,8 @@ export function AddressBookPage() {
                       </div>
                       <div className="address-card-phone">{address.phone}</div>
                       <div className="address-card-address">
-                        {address.address}, {getWardName(address.ward)}, {getDistrictName(address.province, address.district)}
+                        {address.address}, {getWardName(address.ward)},{' '}
+                        {getDistrictName(address.province, address.district)}
                         <br />
                         {getProvinceName(address.province)}
                       </div>
@@ -302,11 +308,7 @@ export function AddressBookPage() {
                       )}
                     </div>
                     <div className="address-card-actions">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleEdit(address)}
-                      >
+                      <Button size="sm" variant="secondary" onClick={() => handleEdit(address)}>
                         ✏️ Sửa
                       </Button>
                       <Button
