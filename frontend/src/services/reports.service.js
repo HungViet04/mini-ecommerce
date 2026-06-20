@@ -30,17 +30,12 @@ export const reportsService = {
 
     // Download directly - backend sets attachment headers.
     // httpClient (fetch-based) returns the parsed body.
-    const blob = await httpClient.get(
-      `/reports/top-products/export?${params.toString()}`,
-      {
-        responseType: 'blob',
-      }
-    );
+    const blob = await httpClient.get(`/reports/top-products/export?${params.toString()}`, {
+      responseType: 'blob',
+    });
 
     return blob;
   },
 };
 
 export default reportsService;
-
-
