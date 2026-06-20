@@ -285,7 +285,7 @@ export function ProductList({ searchQuery = '', categoryId = null, onCategoryCha
   }
 
   const renderProductCard = (product, onAddToCart, onViewDetail) => (
-    <div style={{ position: 'relative' }} key={product.id}>
+    <div key={product.id}>
       <ProductCard
         product={product}
         onAddToCart={onAddToCart}

@@ -2130,6 +2130,7 @@ a:hover {
 
 .product-detail-card {
   padding: 32px;
+  overflow: hidden;
 }
 
 .product-detail-layout {
@@ -2159,16 +2160,21 @@ a:hover {
 }
 
 .product-detail-info {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .product-detail-name {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 8px;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow: hidden;
 }
 
 .product-detail-category {
@@ -2194,6 +2200,9 @@ a:hover {
   background: #f1f5f9;
   border-radius: 8px;
   padding: 12px 16px;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow: hidden;
 }
 
 .product-detail-actions {
@@ -2927,6 +2936,8 @@ a:hover {
   padding: var(--space-md);
   box-shadow: var(--shadow);
   border: 1px solid var(--border-color);
+  overflow: hidden;
+  min-height: 0;
 }
 
 .card-clickable {
@@ -3657,8 +3668,10 @@ a:hover {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
-  align-items: stretch;
+  align-items: start;
+  justify-items: stretch;
   padding: 16px 0;
+  min-height: 0;
 }
 
 @media (max-width: 1200px) {
@@ -3673,17 +3686,26 @@ a:hover {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
+  .product-card {
+    height: 360px;
+  }
 }
 
 @media (max-width: 480px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 12px;
+  }
+  .product-card {
+    height: 340px;
   }
 }
 
 .product-card {
-  height: fit-content;
+  height: 380px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   display: flex;
   flex-direction: column;
   padding: 20px 16px 16px 16px;
@@ -3695,7 +3717,16 @@ a:hover {
     box-shadow 0.2s,
     transform 0.2s;
   position: relative;
+  overflow: hidden;
   border: 1px solid #232b3b;
+  contain: layout style;
+}
+
+.product-card *,
+.product-card *::before,
+.product-card *::after {
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .product-card:hover {
@@ -3705,7 +3736,9 @@ a:hover {
 }
 
 .product-image {
-  height: 150px;
+  height: 170px;
+  min-height: 170px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3714,6 +3747,7 @@ a:hover {
   margin-bottom: 18px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
+  width: 100%;
 }
 
 .product-card .product-img {
@@ -3731,10 +3765,13 @@ a:hover {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Ensure fixed two-line height so cards align */
-  line-height: 1.1rem;
-  max-height: calc(1.1rem * 2);
-  height: calc(1.1rem * 2);
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.3rem;
+  max-height: calc(1.3rem * 2);
+  min-height: 0;
+  flex-shrink: 0;
+  width: 100%;
   margin-bottom: 8px;
 }
 
@@ -3752,7 +3789,28 @@ a:hover {
 .product-info {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: 100px;
+  overflow: hidden;
+}
+
+/* Push content to fill space and keep price/stock at bottom */
+.product-info .product-name {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.product-info .product-category {
+  flex-shrink: 0;
+}
+
+.product-info-row {
+  margin-top: auto;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .product-price {
@@ -3760,12 +3818,14 @@ a:hover {
   font-weight: 700;
   color: var(--color-primary);
   margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 .product-stock {
   font-size: 0.98em;
   white-space: nowrap;
   color: black;
+  flex-shrink: 0;
 }
 
 .product-stock.in-stock {
@@ -6049,6 +6109,7 @@ a:hover {
 
   /* Product Card - Optimized for 2-column grid */
   .product-card {
+    height: 320px;
     padding: 10px;
   }
 
@@ -6477,6 +6538,7 @@ a:hover {
 
   /* Product Card - Extra compact for 2-column on very small screens */
   .product-card {
+    height: 280px;
     padding: 8px;
     border-radius: 12px;
   }
