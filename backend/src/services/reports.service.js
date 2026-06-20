@@ -85,9 +85,6 @@ class ReportsService {
       LIMIT 50
     `;
 
-    // Because filterClause uses oi.product_id IN, it's tied to oi join.
-    // Ensure where clause order of params matches query order.
-    // We constructed params for date first, then productIds.
     const [rows] = await database.query(sql, params);
 
     return rows.map((r) => ({
@@ -156,11 +153,21 @@ class ReportsService {
 
     const [rows] = await database.query(sql, params);
 
+    const result = rows.map((r) => ({
+      productId: r.productId,
+      productName: r.productName,
+      categoryId: r.categoryId,
+      totalQuantity: Number(r.totalQuantity),
+      totalRevenue: Number(r.totalRevenue),
+      avgPrice: Number(r.avgPrice),
+    }));
+
     // CSV: encode for Vietnamese Excel.
     const headers = [
       'productId',
       'productName',
       'categoryId',
+      'stock',
       'totalQuantity',
       'totalRevenue',
       'avgPrice',
@@ -168,11 +175,12 @@ class ReportsService {
 
     const csvRows = [headers.join(',')];
 
-    for (const r of rows) {
+    for (const r of result) {
       const line = [
         r.productId,
         `"${String(r.productName || '').replace(/"/g, '""')}"`,
         r.categoryId ?? '',
+        r.stock,
         r.totalQuantity,
         r.totalRevenue,
         r.avgPrice,
@@ -193,4 +201,3 @@ class ReportsService {
 }
 
 module.exports = new ReportsService();
-

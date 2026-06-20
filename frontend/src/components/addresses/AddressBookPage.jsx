@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressService } from '../../services';
 import { Button, Input, ErrorAlert, SuccessAlert } from '../ui';
+import { getProvinces, getDistricts, getWards, getProvinceName, getDistrictName, getWardName } from '../../data/locations';
 
 const EMPTY_FORM = {
   fullName: '',
@@ -33,9 +34,15 @@ export function AddressBookPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editingId, setEditingId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [touched, setTouched] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
+
+  // Location dropdown state
+  const [provinces] = useState(() => getProvinces());
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
 
   const isEditing = Boolean(editingId);
 
@@ -78,6 +85,13 @@ export function AddressBookPage() {
     });
     setTouched({});
     setFieldErrors({});
+    // Load districts and wards for the selected province
+    if (address.province) {
+      setDistricts(getDistricts(address.province));
+      if (address.district) {
+        setWards(getWards(address.province, address.district));
+      }
+    }
   };
 
   const handleInputChange = (e) => {
@@ -92,6 +106,30 @@ export function AddressBookPage() {
     setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
+  const handleProvinceChange = (e) => {
+    const provinceCode = e.target.value;
+    setFormData((prev) => ({ ...prev, province: provinceCode, district: '', ward: '' }));
+    setTouched((prev) => ({ ...prev, province: true }));
+    setFieldErrors((prev) => ({ ...prev, province: undefined }));
+    setDistricts(provinceCode ? getDistricts(provinceCode) : []);
+    setWards([]);
+  };
+
+  const handleDistrictChange = (e) => {
+    const districtCode = e.target.value;
+    setFormData((prev) => ({ ...prev, district: districtCode, ward: '' }));
+    setTouched((prev) => ({ ...prev, district: true }));
+    setFieldErrors((prev) => ({ ...prev, district: undefined }));
+    setWards(districtCode ? getWards(formData.province, districtCode) : []);
+  };
+
+  const handleWardChange = (e) => {
+    const wardCode = e.target.value;
+    setFormData((prev) => ({ ...prev, ward: wardCode }));
+    setTouched((prev) => ({ ...prev, ward: true }));
+    setFieldErrors((prev) => ({ ...prev, ward: undefined }));
+  };
+
   const validateForm = () => {
     const errors = {};
 
@@ -101,9 +139,9 @@ export function AddressBookPage() {
     } else if (!/^(0[3|5|7|8|9])+([0-9]{8})$/.test(formData.phone)) {
       errors.phone = 'Số điện thoại không hợp lệ';
     }
-    if (!formData.province.trim()) errors.province = 'Vui lòng nhập Tỉnh/Thành phố';
-    if (!formData.district.trim()) errors.district = 'Vui lòng nhập Quận/Huyện';
-    if (!formData.ward.trim()) errors.ward = 'Vui lòng nhập Phường/Xã';
+    if (!formData.province) errors.province = 'Vui lòng chọn Tỉnh/Thành phố';
+    if (!formData.district) errors.district = 'Vui lòng chọn Quận/Huyện';
+    if (!formData.ward) errors.ward = 'Vui lòng chọn Phường/Xã';
     if (!formData.address.trim()) errors.address = 'Vui lòng nhập địa chỉ cụ thể';
 
     setFieldErrors(errors);
@@ -158,7 +196,8 @@ export function AddressBookPage() {
   };
 
   const handleDelete = async (address) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa địa chỉ của "${address.fullName}"?`)) {
+    if (deleteConfirm !== address.id) {
+      setDeleteConfirm(address.id);
       return;
     }
     setError('');
@@ -169,8 +208,10 @@ export function AddressBookPage() {
       if (editingId === address.id) {
         resetForm();
       }
+      setDeleteConfirm(null);
     } catch (err) {
       setError(err.message || 'Không thể xóa địa chỉ');
+      setDeleteConfirm(null);
     }
   };
 
@@ -201,9 +242,6 @@ export function AddressBookPage() {
           <h1 className="address-title">Sổ Địa Chỉ</h1>
           <p className="address-subtitle">Quản lý thông tin nhận hàng của bạn</p>
         </div>
-        <Button variant="primary" onClick={resetForm}>
-          + Thêm địa chỉ mới
-        </Button>
       </div>
 
       {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
@@ -253,9 +291,9 @@ export function AddressBookPage() {
                       </div>
                       <div className="address-card-phone">{address.phone}</div>
                       <div className="address-card-address">
-                        {address.address}, {address.ward}, {address.district}
+                        {address.address}, {getWardName(address.ward)}, {getDistrictName(address.province, address.district)}
                         <br />
-                        {address.province}
+                        {getProvinceName(address.province)}
                       </div>
                       {address.note && (
                         <div className="address-card-note">
@@ -264,31 +302,28 @@ export function AddressBookPage() {
                       )}
                     </div>
                     <div className="address-card-actions">
-                      <button
-                        className="action-btn edit"
+                      <Button
+                        size="sm"
+                        variant="secondary"
                         onClick={() => handleEdit(address)}
-                        title="Chỉnh sửa"
                       >
-                        ✏️
-                      </button>
-                      {!address.isDefault && (
-                        <>
-                          <button
-                            className="action-btn default"
-                            onClick={() => handleSetDefault(address)}
-                            title="Đặt làm mặc định"
-                          >
-                            ���
-                          </button>
-                          <button
-                            className="action-btn delete"
-                            onClick={() => handleDelete(address)}
-                            title="Xóa"
-                          >
-                            🗑️
-                          </button>
-                        </>
-                      )}
+                        ✏️ Sửa
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleSetDefault(address)}
+                        disabled={address.isDefault}
+                      >
+                        ✓ Mặc định
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={deleteConfirm === address.id ? 'danger' : 'secondary'}
+                        onClick={() => handleDelete(address)}
+                      >
+                        {deleteConfirm === address.id ? 'Xác nhận xóa?' : '🗑️ Xóa'}
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -340,36 +375,77 @@ export function AddressBookPage() {
                   touched={touched.phone}
                   required
                 />
-                <Input
-                  label="Tỉnh/Thành phố"
-                  name="province"
-                  value={formData.province}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  error={fieldErrors.province}
-                  touched={touched.province}
-                  required
-                />
-                <Input
-                  label="Quận/Huyện"
-                  name="district"
-                  value={formData.district}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  error={fieldErrors.district}
-                  touched={touched.district}
-                  required
-                />
-                <Input
-                  label="Phường/Xã"
-                  name="ward"
-                  value={formData.ward}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  error={fieldErrors.ward}
-                  touched={touched.ward}
-                  required
-                />
+                <div className="form-group">
+                  <label htmlFor="province" className="form-label">
+                    Tỉnh/Thành phố <span className="required">*</span>
+                  </label>
+                  <select
+                    id="province"
+                    name="province"
+                    className="form-input"
+                    value={formData.province}
+                    onChange={handleProvinceChange}
+                    onBlur={handleBlur}
+                  >
+                    <option value="">Chọn Tỉnh/Thành phố</option>
+                    {provinces.map((p) => (
+                      <option key={p.code} value={p.code}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.province && touched.province && (
+                    <span className="form-error">{fieldErrors.province}</span>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label htmlFor="district" className="form-label">
+                    Quận/Huyện <span className="required">*</span>
+                  </label>
+                  <select
+                    id="district"
+                    name="district"
+                    className="form-input"
+                    value={formData.district}
+                    onChange={handleDistrictChange}
+                    onBlur={handleBlur}
+                    disabled={!formData.province}
+                  >
+                    <option value="">Chọn Quận/Huyện</option>
+                    {districts.map((d) => (
+                      <option key={d.code} value={d.code}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.district && touched.district && (
+                    <span className="form-error">{fieldErrors.district}</span>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label htmlFor="ward" className="form-label">
+                    Phường/Xã <span className="required">*</span>
+                  </label>
+                  <select
+                    id="ward"
+                    name="ward"
+                    className="form-input"
+                    value={formData.ward}
+                    onChange={handleWardChange}
+                    onBlur={handleBlur}
+                    disabled={!formData.district}
+                  >
+                    <option value="">Chọn Phường/Xã</option>
+                    {wards.map((w) => (
+                      <option key={w.code} value={w.code}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.ward && touched.ward && (
+                    <span className="form-error">{fieldErrors.ward}</span>
+                  )}
+                </div>
                 <Input
                   label="Địa chỉ cụ thể"
                   name="address"

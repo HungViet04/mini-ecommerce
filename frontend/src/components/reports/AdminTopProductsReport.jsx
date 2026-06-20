@@ -63,7 +63,6 @@ export function AdminTopProductsReport() {
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [selectedProductIds, setSelectedProductIds] = useState([]);
 
-
   const [rows, setRows] = useState([]);
 
   useEffect(() => {

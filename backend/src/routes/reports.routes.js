@@ -24,4 +24,3 @@ router.get('/top-products/export', reportsController.exportTopProductsCsv);
 router.get('/products', reportsController.listProductsForReport);
 
 module.exports = router;
-

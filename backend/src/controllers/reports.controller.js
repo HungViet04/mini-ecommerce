@@ -23,12 +23,17 @@ const getTopProductsReport = asyncHandler(async (req, res) => {
 
   const ids = productIds
     ? productIds
-      .split(',')
-      .map((x) => Number(x))
-      .filter((n) => !Number.isNaN(n))
+        .split(',')
+        .map((x) => Number(x))
+        .filter((n) => !Number.isNaN(n))
     : null;
 
-  const data = await reportsService.getTopProductsReport({ from, to, categoryId: categoryIdNum, productIds: ids });
+  const data = await reportsService.getTopProductsReport({
+    from,
+    to,
+    categoryId: categoryIdNum,
+    productIds: ids,
+  });
 
   return response.success(res, { data, message: 'Lấy báo cáo thành công' });
 });
@@ -45,15 +50,22 @@ const exportTopProductsCsv = asyncHandler(async (req, res) => {
 
   const ids = productIds
     ? productIds
-      .split(',')
-      .map((x) => Number(x))
-      .filter((n) => !Number.isNaN(n))
+        .split(',')
+        .map((x) => Number(x))
+        .filter((n) => !Number.isNaN(n))
     : null;
 
   const filenameBase = `top_products_${new Date().toISOString().split('T')[0]}`;
 
   res.setHeader('Cache-Control', 'no-store');
-  await reportsService.exportTopProductsCsv({ from, to, categoryId: categoryIdNum, productIds: ids, res, filenameBase });
+  await reportsService.exportTopProductsCsv({
+    from,
+    to,
+    categoryId: categoryIdNum,
+    productIds: ids,
+    res,
+    filenameBase,
+  });
 });
 
 /**
@@ -71,4 +83,3 @@ module.exports = {
   exportTopProductsCsv,
   listProductsForReport,
 };
-
