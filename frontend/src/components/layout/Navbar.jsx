@@ -101,6 +101,15 @@ export function Navbar({ onSearch }) {
             🏷️ Danh Mục
           </NavLink>
         )}
+
+        {isAdmin && (
+          <NavLink
+            active={location.pathname === '/admin/reports'}
+            onClick={() => navigate('/admin/reports')}
+          >
+            📊 Báo cáo thống kê
+          </NavLink>
+        )}
       </nav>
 
       <div className="navbar-actions">

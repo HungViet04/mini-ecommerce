@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressService } from '../../services';
-import { Card, Button, Input, ErrorAlert, SuccessAlert } from '../ui';
+import { Button, Input, ErrorAlert, SuccessAlert } from '../ui';
 
 const EMPTY_FORM = {
   fullName: '',
@@ -19,10 +19,10 @@ const EMPTY_FORM = {
   isDefault: false,
 };
 
-const TYPE_LABELS = {
-  home: 'Nhà riêng',
-  office: 'Cơ quan',
-  other: 'Khác',
+const TYPE_ICONS = {
+  home: '🏠',
+  office: '🏢',
+  other: '📍',
 };
 
 export function AddressBookPage() {
@@ -201,7 +201,7 @@ export function AddressBookPage() {
           <h1 className="address-title">Sổ Địa Chỉ</h1>
           <p className="address-subtitle">Quản lý thông tin nhận hàng của bạn</p>
         </div>
-        <Button variant="secondary" onClick={resetForm}>
+        <Button variant="primary" onClick={resetForm}>
           + Thêm địa chỉ mới
         </Button>
       </div>
@@ -209,176 +209,228 @@ export function AddressBookPage() {
       {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
       {success && <SuccessAlert message={success} onDismiss={() => setSuccess('')} />}
 
-      <div className="address-grid">
-        <Card className="address-list-card">
-          <h2 className="section-title">Danh sách địa chỉ</h2>
-
+      <div className="address-layout">
+        {/* Address List - Left Side */}
+        <div className="address-list-section">
           {loading ? (
-            <p className="empty-text">Đang tải địa chỉ...</p>
+            <div className="address-list-card">
+              <div className="loading-state">
+                <span className="loading-spinner"></span>
+                <p>Đang tải địa chỉ...</p>
+              </div>
+            </div>
           ) : addresses.length === 0 ? (
-            <div className="empty-container">
-              <span className="empty-icon">📭</span>
-              <p className="empty-text">Bạn chưa có địa chỉ nào</p>
+            <div className="address-list-card">
+              <div className="empty-state">
+                <div className="empty-icon-wrapper">
+                  <span className="empty-icon">📭</span>
+                </div>
+                <h3 className="empty-title">Chưa có địa chỉ nào</h3>
+                <p className="empty-desc">Thêm địa chỉ giao hàng để mua sắm nhanh hơn</p>
+              </div>
             </div>
           ) : (
-            <div className="address-list">
-              {addresses.map((address) => (
-                <div
-                  key={address.id}
-                  className={`address-item ${address.isDefault ? 'default' : ''}`}
-                >
-                  <div className="address-item-header">
-                    <div>
-                      <div className="address-item-name">
-                        {address.fullName}
+            <div className="address-list-card">
+              <div className="section-header">
+                <h2 className="section-title">
+                  <span className="section-icon">📋</span>
+                  Danh sách địa chỉ ({addresses.length})
+                </h2>
+              </div>
+              <div className="address-grid-cards">
+                {addresses.map((address) => (
+                  <div
+                    key={address.id}
+                    className={`address-card-modern ${address.isDefault ? 'default' : ''}`}
+                  >
+                    <div className="address-card-type-icon">
+                      {TYPE_ICONS[address.type] || '📍'}
+                    </div>
+                    <div className="address-card-content">
+                      <div className="address-card-header">
+                        <span className="address-card-name">{address.fullName}</span>
                         {address.isDefault && <span className="address-badge">Mặc định</span>}
                       </div>
-                      <div className="address-item-meta">
-                        {TYPE_LABELS[address.type] || 'Khác'} · {address.phone}
+                      <div className="address-card-phone">{address.phone}</div>
+                      <div className="address-card-address">
+                        {address.address}, {address.ward}, {address.district}
+                        <br />
+                        {address.province}
                       </div>
+                      {address.note && (
+                        <div className="address-card-note">
+                          <span className="note-icon">📝</span> {address.note}
+                        </div>
+                      )}
                     </div>
-                    {!address.isDefault && (
-                      <Button variant="ghost" size="sm" onClick={() => handleSetDefault(address)}>
-                        Đặt mặc định
-                      </Button>
-                    )}
+                    <div className="address-card-actions">
+                      <button
+                        className="action-btn edit"
+                        onClick={() => handleEdit(address)}
+                        title="Chỉnh sửa"
+                      >
+                        ✏️
+                      </button>
+                      {!address.isDefault && (
+                        <>
+                          <button
+                            className="action-btn default"
+                            onClick={() => handleSetDefault(address)}
+                            title="Đặt làm mặc định"
+                          >
+                            ���
+                          </button>
+                          <button
+                            className="action-btn delete"
+                            onClick={() => handleDelete(address)}
+                            title="Xóa"
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-
-                  <div className="address-item-body">
-                    <p>
-                      {address.address}, {address.ward}, {address.district}, {address.province}
-                    </p>
-                    {address.note && <p className="address-note">Ghi chú: {address.note}</p>}
-                  </div>
-
-                  <div className="address-item-actions">
-                    <Button variant="secondary" size="sm" onClick={() => handleEdit(address)}>
-                      Chỉnh sửa
-                    </Button>
-                    <Button variant="danger" size="sm" onClick={() => handleDelete(address)}>
-                      Xóa
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
-        </Card>
+        </div>
 
-        <Card className="address-form-card">
-          <h2 className="section-title">{isEditing ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ'}</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <Input
-                label="Họ và tên"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                error={fieldErrors.fullName}
-                touched={touched.fullName}
-                required
-              />
-              <Input
-                label="Số điện thoại"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                error={fieldErrors.phone}
-                touched={touched.phone}
-                required
-              />
-              <Input
-                label="Tỉnh/Thành phố"
-                name="province"
-                value={formData.province}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                error={fieldErrors.province}
-                touched={touched.province}
-                required
-              />
-              <Input
-                label="Quận/Huyện"
-                name="district"
-                value={formData.district}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                error={fieldErrors.district}
-                touched={touched.district}
-                required
-              />
-              <Input
-                label="Phường/Xã"
-                name="ward"
-                value={formData.ward}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                error={fieldErrors.ward}
-                touched={touched.ward}
-                required
-              />
-              <Input
-                label="Địa chỉ cụ thể"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                error={fieldErrors.address}
-                touched={touched.address}
-                required
-              />
-            </div>
-
-            <div className="form-grid form-grid-compact">
-              <div className="form-group">
-                <label htmlFor="type" className="form-label">
-                  Loại địa chỉ
-                </label>
-                <select
-                  id="type"
-                  name="type"
-                  className="form-input"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                >
-                  <option value="home">Nhà riêng</option>
-                  <option value="office">Cơ quan</option>
-                  <option value="other">Khác</option>
-                </select>
-              </div>
-              <Input
-                label="Ghi chú"
-                name="note"
-                value={formData.note}
-                onChange={handleInputChange}
-                placeholder="VD: Giao giờ hành chính"
-              />
-            </div>
-
-            <label className="checkbox-field">
-              <input
-                type="checkbox"
-                name="isDefault"
-                checked={formData.isDefault}
-                onChange={handleInputChange}
-              />
-              Đặt làm địa chỉ mặc định
-            </label>
-
-            <div className="address-form-actions">
-              <Button type="submit" loading={saving}>
-                {isEditing ? 'Lưu thay đổi' : 'Thêm địa chỉ'}
-              </Button>
+        {/* Address Form - Right Side */}
+        <div className="address-form-section">
+          <div className="address-form-card">
+            <div className="form-header">
+              <h2 className="form-title">
+                {isEditing ? (
+                  <>
+                    <span>✏️</span> Cập nhật địa chỉ
+                  </>
+                ) : (
+                  <>
+                    <span>➕</span> Thêm địa chỉ mới
+                  </>
+                )}
+              </h2>
               {isEditing && (
-                <Button variant="ghost" onClick={resetForm}>
+                <button className="cancel-edit-btn" onClick={resetForm}>
                   Hủy
-                </Button>
+                </button>
               )}
             </div>
-          </form>
-        </Card>
+            <form onSubmit={handleSubmit}>
+              <div className="form-grid">
+                <Input
+                  label="Họ và tên"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.fullName}
+                  touched={touched.fullName}
+                  required
+                />
+                <Input
+                  label="Số điện thoại"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.phone}
+                  touched={touched.phone}
+                  required
+                />
+                <Input
+                  label="Tỉnh/Thành phố"
+                  name="province"
+                  value={formData.province}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.province}
+                  touched={touched.province}
+                  required
+                />
+                <Input
+                  label="Quận/Huyện"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.district}
+                  touched={touched.district}
+                  required
+                />
+                <Input
+                  label="Phường/Xã"
+                  name="ward"
+                  value={formData.ward}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.ward}
+                  touched={touched.ward}
+                  required
+                />
+                <Input
+                  label="Địa chỉ cụ thể"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.address}
+                  touched={touched.address}
+                  required
+                />
+              </div>
+
+              <div className="form-grid form-grid-compact">
+                <div className="form-group">
+                  <label htmlFor="type" className="form-label">
+                    Loại địa chỉ
+                  </label>
+                  <select
+                    id="type"
+                    name="type"
+                    className="form-input"
+                    value={formData.type}
+                    onChange={handleInputChange}
+                  >
+                    <option value="home">Nhà riêng</option>
+                    <option value="office">Cơ quan</option>
+                    <option value="other">Khác</option>
+                  </select>
+                </div>
+                <Input
+                  label="Ghi chú"
+                  name="note"
+                  value={formData.note}
+                  onChange={handleInputChange}
+                  placeholder="VD: Giao giờ hành chính"
+                />
+              </div>
+
+              <label className="checkbox-field">
+                <input
+                  type="checkbox"
+                  name="isDefault"
+                  checked={formData.isDefault}
+                  onChange={handleInputChange}
+                />
+                Đặt làm địa chỉ mặc định
+              </label>
+
+              <div className="form-actions">
+                <Button type="submit" variant="primary" className="submit-btn" loading={saving}>
+                  {isEditing ? '💾 Lưu thay đổi' : '➕ Thêm địa chỉ'}
+                </Button>
+                {isEditing && (
+                  <Button variant="ghost" onClick={resetForm} className="cancel-btn">
+                    Hủy
+                  </Button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -322,12 +322,15 @@ export function CheckoutPage({ onBack, onSuccess }) {
               </h2>
 
               {addresses.length > 0 && (
-                <div className="address-picker">
-                  <div className="address-picker-header">
-                    <div>
-                      <div className="address-picker-title">Chọn địa chỉ đã lưu</div>
-                      <div className="address-picker-subtitle">
-                        Hoặc sử dụng địa chỉ mới bên dưới
+                <div className="address-picker-modern">
+                  <div className="address-picker-header-modern">
+                    <div className="picker-header-content">
+                      <div className="picker-header-icon">📍</div>
+                      <div>
+                        <div className="picker-header-title">Chọn địa chỉ giao hàng</div>
+                        <div className="picker-header-subtitle">
+                          {addresses.length} địa chỉ đã lưu
+                        </div>
                       </div>
                     </div>
                     <Button
@@ -335,52 +338,58 @@ export function CheckoutPage({ onBack, onSuccess }) {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate('/addresses')}
+                      className="manage-address-btn"
                     >
-                      Quản lý
+                      📝 Quản lý
                     </Button>
                   </div>
 
                   {addressError && <p className="address-error">{addressError}</p>}
 
                   {addressLoading ? (
-                    <p className="address-loading">Đang tải địa chỉ...</p>
+                    <div className="address-loading-modern">
+                      <span className="loading-spinner-small"></span>
+                      <span>Đang tải địa chỉ...</span>
+                    </div>
                   ) : (
-                    <div className="address-picker-list">
+                    <div className="address-options-list">
                       {addresses.map((address) => (
                         <button
                           key={address.id}
                           type="button"
-                          className={`address-card ${selectedAddressId === address.id ? 'selected' : ''
-                            }`}
+                          className={`address-option-card ${selectedAddressId === address.id ? 'selected' : ''}`}
                           onClick={() => {
                             setSelectedAddressId(address.id);
                             setAddressMode('saved');
                           }}
                         >
-                          <div className="address-card-header">
-                            <span className="address-card-name">{address.fullName}</span>
-                            {address.isDefault && <span className="address-badge">Mặc định</span>}
+                          <div className="option-radio">
+                            <span className="radio-dot"></span>
                           </div>
-                          <div className="address-card-meta">{address.phone}</div>
-                          <div className="address-card-address">
-                            {address.address}, {address.ward}, {address.district},{' '}
-                            {address.province}
+                          <div className="option-content">
+                            <div className="option-header">
+                              <span className="option-name">{address.fullName}</span>
+                              {address.isDefault && <span className="option-badge">Mặc định</span>}
+                            </div>
+                            <div className="option-phone">{address.phone}</div>
+                            <div className="option-address">
+                              {address.address}, {address.ward}, {address.district}, {address.province}
+                            </div>
                           </div>
+                          <div className="option-check-icon">✓</div>
                         </button>
                       ))}
                     </div>
                   )}
 
-                  <div className="address-picker-actions">
-                    <Button
-                      type="button"
-                      variant={showNewAddressForm ? 'secondary' : 'ghost'}
-                      size="sm"
-                      onClick={() => setAddressMode('new')}
-                    >
-                      Dùng địa chỉ mới
-                    </Button>
-                  </div>
+                  <button
+                    type="button"
+                    className={`new-address-toggle ${showNewAddressForm ? 'active' : ''}`}
+                    onClick={() => setAddressMode('new')}
+                  >
+                    <span className="toggle-icon">➕</span>
+                    <span>Nhập địa chỉ mới</span>
+                  </button>
                 </div>
               )}
 

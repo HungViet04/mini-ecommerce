@@ -22,6 +22,7 @@ import { AddressBookPage } from './components/addresses';
 import { AdminDashboard } from './components/dashboard';
 import { AdminUserList } from './components/users';
 import { ChatBot } from './components/chatbot';
+import { AdminTopProductsReport } from './components/reports';
 
 /**
  * Main App Content
@@ -209,6 +210,20 @@ function AppContent() {
                   ← Quay về Trang Chủ
                 </button>
                 <AdminUserList />
+              </div>
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/reports"
+          element={
+            <AdminRoute>
+              <div className="admin-page">
+                <button className="back-button" onClick={() => navigate('/admin/dashboard')}>
+                  ← Quay về Trang Chủ
+                </button>
+                <AdminTopProductsReport />
               </div>
             </AdminRoute>
           }

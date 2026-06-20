@@ -12,3 +12,4 @@ export { uploadService } from './upload.service';
 export { chatService } from './chat.service';
 export { vnpayService } from './vnpay.service';
 export { addressService } from './address.service';
+export { reportsService } from './reports.service';

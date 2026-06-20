@@ -11,6 +11,7 @@ const userService = require('./user.service');
 const s3Service = require('./s3.service');
 const chatbotService = require('./chatbot.service');
 const addressService = require('./address.service');
+const reportsService = require('./reports.service');
 
 module.exports = {
   authService,
@@ -22,4 +23,5 @@ module.exports = {
   s3Service,
   chatbotService,
   addressService,
+  reportsService,
 };

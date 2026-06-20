@@ -12,6 +12,7 @@ const userController = require('./user.controller');
 const uploadController = require('./upload.controller');
 const chatbotController = require('./chatbot.controller');
 const addressController = require('./address.controller');
+const reportsController = require('./reports.controller');
 
 module.exports = {
   authController,
@@ -24,4 +25,5 @@ module.exports = {
   uploadController,
   chatbotController,
   addressController,
+  reportsController,
 };
